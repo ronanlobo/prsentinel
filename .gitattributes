@@ -1,0 +1,7 @@
+# Keep line endings the same everywhere.
+#
+# Without this, Git on Windows rewrites every file to CRLF the next time it
+# touches them, which makes every commit show the whole project as changed.
+# Text files are stored with LF in the repository and checked out using the
+# line ending the file already had.
+* text=auto eol=lf
