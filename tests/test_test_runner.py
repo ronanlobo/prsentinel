@@ -4,6 +4,7 @@ Everything here uses tiny hand-written modules and test files. No AI is
 called and nothing touches the internet.
 """
 
+import json
 import os
 import sys
 import tempfile
@@ -153,6 +154,126 @@ def fake_secrets(monkeypatch):
     for name, value in FAKE_SECRETS.items():
         monkeypatch.setenv(name, value)
     return FAKE_SECRETS
+
+
+# ---------------------------------------------------------------------------
+# Ten ordinary secrets, none of which this project has ever heard of
+# ---------------------------------------------------------------------------
+
+# Every one of these is something a real machine often has sitting in its
+# environment. None of them appears anywhere in this project, so the denylist in
+# SECRET_ENV_NAMES could never have protected them. Only the allow-list can.
+TEN_FAKE_SECRETS = (
+    "AWS_SECRET_ACCESS_KEY",
+    "GITHUB_TOKEN",
+    "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "HF_TOKEN",
+    "DATABASE_URL",
+    "PASSWORD",
+    "SECRET_KEY",
+    "PRSENTINEL_TEST_SECRET",
+    "AZURE_CLIENT_SECRET",
+)
+
+# The test file the child runs. It says out loud which of the names it can see,
+# and writes down the same list for us to read afterwards.
+#
+# It writes only the NAMES it can see, never the values. That way even if this
+# ever caught a real leak, the evidence file would name the culprit without
+# copying the secret itself into another file.
+#
+# __NAMES__ and __REPORT__ are filled in by the code below, so that no name has
+# to be typed twice.
+CHILD_NAMES_SECRETS = """
+    import json
+    import os
+
+    NAMES = __NAMES__
+    REPORT = __REPORT__
+
+    def test_it_says_which_secrets_it_can_see():
+        visible = [name for name in NAMES if os.environ.get(name) is not None]
+
+        # Printed, so a human reading a failure sees the list straight away.
+        print("the child can see these secrets:", visible)
+
+        with open(REPORT, "w", encoding="utf-8") as handle:
+            json.dump({"checked": NAMES, "visible": visible}, handle)
+
+        assert visible == [], (
+            "the child can see %d secret(s): %s" % (len(visible), visible))
+"""
+
+
+def names_secrets_check(names, report_path):
+    """Build the child test file, with the secret names and report path in it."""
+    text = CHILD_NAMES_SECRETS.replace("__NAMES__", repr(list(names)))
+    text = text.replace("__REPORT__", repr(str(report_path)))
+    return text
+
+
+def test_ten_ordinary_secrets_are_all_hidden_from_the_child(work, tmp_path,
+                                                           monkeypatch):
+    """Ten secrets this project has never heard of, and the child sees none.
+
+    This is the test that the old denylist could never have passed. It sets ten
+    names that nothing in this code base mentions, runs a real child, and checks
+    that the child could not see one of them.
+    """
+    for name in TEN_FAKE_SECRETS:
+        monkeypatch.setenv(name, "fake-value-for-" + name)
+
+    # Somewhere the child writes down what it could see. Inside pytest's own
+    # temporary folder, so nothing is left behind.
+    report_file = tmp_path / "what_the_child_saw.json"
+    module, test = work(names_secrets_check(TEN_FAKE_SECRETS, report_file))
+
+    result = tr.run_tests(module, test, timeout_seconds=60)
+
+    # The child really ran. Without this, an empty report could be mistaken for
+    # a clean result.
+    assert report_file.is_file(), ("the child never wrote its report, so it "
+                                   "did not run")
+
+    said = json.loads(report_file.read_text(encoding="utf-8"))
+    assert said["checked"] == list(TEN_FAKE_SECRETS), said
+    assert said["visible"] == [], ("the child can see: %s" % said["visible"])
+
+    # The child's own test passed, which is the same fact checked from its side.
+    assert result["status"] == tr.OK, result
+    assert list(result["tests"].values()) == [tr.PASSED], result
+
+    # And we kept all ten ourselves, so this really was our environment being
+    # stripped down and not the names simply never being set.
+    for name in TEN_FAKE_SECRETS:
+        assert os.environ.get(name) == "fake-value-for-" + name
+
+
+def test_the_ten_secrets_would_all_have_leaked_under_the_old_way(tmp_path,
+                                                                monkeypatch):
+    """Show what the old denylist did, so the test above is not taken on trust.
+
+    The old code copied our whole environment and removed two names. This builds
+    that same dictionary and checks that all ten of ours survive in it. If this
+    ever fails, then the ten secrets above have stopped being a fair test and
+    need to be swapped for names nothing else would catch.
+    """
+    for name in TEN_FAKE_SECRETS:
+        monkeypatch.setenv(name, "fake-value-for-" + name)
+
+    # The old way, written out longhand here so this test stands on its own.
+    old_way = dict(os.environ)
+    for name in ("GROQ_API_KEY", "GEMINI_API_KEY"):
+        old_way.pop(name, None)
+
+    survived = [name for name in TEN_FAKE_SECRETS if old_way.get(name)]
+    assert survived == list(TEN_FAKE_SECRETS), survived
+
+    # And the allow-list takes every one of them away.
+    child = tr._child_environment()
+    still_there = [name for name in TEN_FAKE_SECRETS if child.get(name)]
+    assert still_there == [], still_there
 
 
 def test_run_tests_hides_every_secret_from_the_child(work, fake_secrets):
