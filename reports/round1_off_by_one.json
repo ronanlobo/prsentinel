@@ -1,0 +1,119 @@
+{
+  "name": "round1_off_by_one",
+  "before": "before.py",
+  "after": "after.py",
+  "functions": [
+    {
+      "function": "get_recent_scores",
+      "change_type": "modified",
+      "test_file": "test_get_recent_scores.py",
+      "counts": {
+        "CATCHES_CHANGE": 6,
+        "TEST_WRONG_ON_BEFORE": 0,
+        "NO_SIGNAL": 5,
+        "ODD": 0
+      },
+      "judgements": [
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores0-3]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores1-2]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores4-0]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores5--2]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores9-0]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores10--1]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        }
+      ]
+    }
+  ],
+  "generation_failed": [],
+  "skipped": [],
+  "summary": "6 tests point to a real bug in get_recent_scores."
+}

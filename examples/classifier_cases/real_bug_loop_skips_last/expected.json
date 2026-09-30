@@ -1,0 +1,4 @@
+{
+  "label": "REAL_BUG",
+  "reason": "The changed loop stops before the last name, so the test correctly fails on it."
+}

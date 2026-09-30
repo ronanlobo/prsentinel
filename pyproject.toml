@@ -1,0 +1,25 @@
+# This small file tells Python how to install the project.
+# Without it we could not run "python -m prsentinel.diff_extractor".
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prsentinel"
+version = "0.1.0"
+description = "AI tool that reads a code change and generates tests for it"
+requires-python = ">=3.10"
+dependencies = [
+    "groq",
+    "google-genai",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

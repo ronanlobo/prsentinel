@@ -1,0 +1,4 @@
+{
+  "label": "REAL_BUG",
+  "reason": "The changed code divides by 10 instead of 100, so the discount comes out ten times too big and the test correctly fails."
+}

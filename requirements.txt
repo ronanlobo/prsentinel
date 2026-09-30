@@ -1,0 +1,8 @@
+# PRSentinel dependencies. Keep this list short on purpose.
+#
+# LLM providers
+groq                 # talks to Groq (the main provider)
+google-genai         # talks to Gemini (the backup provider)
+
+# Testing
+pytest               # runs our tests

@@ -1,0 +1,25 @@
+﻿diff --git a/before.py b/after.py
+index 1819584..53940ba 100644
+--- a/before.py
++++ b/after.py
+@@ -1,16 +1,13 @@
+-"""Example code BEFORE the change.
++"""Example code AFTER the change.
+ 
+-Round 1 simulates a real bug report. get_recent_scores is supposed to return
+-only the newest `window` scores. This version gets it right.
++The off-by-one change has gone in, but it is wrong. Asking for one score from
++[10, 20, 30] gives [20] instead of [30]. This file is the BUGGY version.
+ """
+ 
+ 
+ def get_recent_scores(scores, window):
+     """Return the most recent scores, newest last."""
+-    # Correct: never start before the beginning of the list, so a window that
+-    # is bigger than the list still returns every score.
+-    start = max(0, len(scores) - window)
+-    return scores[start:]
++    return scores[-window - 1:]
+ 
+ 
+ def average_score(scores):

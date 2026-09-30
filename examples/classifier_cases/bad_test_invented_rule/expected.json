@@ -1,0 +1,4 @@
+{
+  "label": "BAD_TEST",
+  "reason": "The test expects digits to be counted, which the function never promised, so it fails on correct code."
+}

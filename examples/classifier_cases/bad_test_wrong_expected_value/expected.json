@@ -1,0 +1,4 @@
+{
+  "label": "BAD_TEST",
+  "reason": "The test expects zero Celsius to be 100 Fahrenheit, which is simply the wrong answer, so it fails on correct code."
+}

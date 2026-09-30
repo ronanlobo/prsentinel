@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+.pytest_cache/
+
+# Tests the AI writes. These change every run, so they are not kept in
+# history. baselines/ holds the versions we want to keep.
+generated_tests/
+
+# Build metadata made by pip install -e. Not our code.
+*.egg-info/
+src/prsentinel.egg-info/
+
+# Old copies of a generated test, kept when the pipeline writes over one.
+*.bak
+*.bak.*

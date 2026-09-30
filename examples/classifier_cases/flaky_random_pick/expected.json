@@ -1,0 +1,4 @@
+{
+  "label": "FLAKY",
+  "reason": "The code is fine on both sides and the test passes or fails depending on which number it happens to draw."
+}

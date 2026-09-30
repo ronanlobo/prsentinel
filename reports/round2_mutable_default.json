@@ -1,0 +1,167 @@
+{
+  "name": "round2_mutable_default",
+  "before": "before.py",
+  "after": "after.py",
+  "functions": [
+    {
+      "function": "add_item_to_cart",
+      "change_type": "modified",
+      "test_file": "test_add_item_to_cart.py",
+      "counts": {
+        "CATCHES_CHANGE": 9,
+        "TEST_WRONG_ON_BEFORE": 0,
+        "NO_SIGNAL": 2,
+        "ODD": 0
+      },
+      "judgements": [
+        {
+          "test": "test_add_item_to_cart::test_default_cart_is_fresh_each_call",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[None]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[0]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[item3]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[item4]",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_adding_multiple_items_sequentially",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_cart_isolation_after_mutating_returned_cart",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_default_cart_is_not_shared_across_test_runs",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        }
+      ]
+    }
+  ],
+  "generation_failed": [],
+  "skipped": [],
+  "summary": "9 tests point to a real bug in add_item_to_cart."
+}

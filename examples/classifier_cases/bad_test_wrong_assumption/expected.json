@@ -1,0 +1,4 @@
+{
+  "label": "BAD_TEST",
+  "reason": "The test expects the scores from lowest to highest, but the function sorts the other way, so it fails on correct code."
+}
