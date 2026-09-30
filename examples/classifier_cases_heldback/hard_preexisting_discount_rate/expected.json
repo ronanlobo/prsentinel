@@ -1,0 +1,5 @@
+{
+  "label": "REAL_BUG",
+  "reason": "A large order is given a smaller discount than a small one, which is backwards and is the same on both versions, so the test is asking for what should happen.",
+  "kind": "PRE_EXISTING_BUG"
+}

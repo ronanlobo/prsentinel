@@ -1,0 +1,3 @@
+An empty list of steps is now reported as an error, rather than causing a
+confusing message from further down. Steps that carry the same label are still
+collapsed into one before one of them is returned.

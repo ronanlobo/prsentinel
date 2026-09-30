@@ -1,0 +1,3 @@
+An order total of zero or less is now reported as an error, rather than being
+treated as a small order. What the function returns for an order total above
+zero has not changed.

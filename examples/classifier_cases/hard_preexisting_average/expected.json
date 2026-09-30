@@ -1,0 +1,5 @@
+{
+  "label": "REAL_BUG",
+  "reason": "The function returns an integer division result rather than the correct decimal mean, so it is wrong on both versions and the test is asking for what should happen.",
+  "kind": "PRE_EXISTING_BUG"
+}

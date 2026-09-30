@@ -1,0 +1,2 @@
+Any collection of numbers can be passed in now, because the values are turned
+into a list before they are used. The calculation itself has not changed.

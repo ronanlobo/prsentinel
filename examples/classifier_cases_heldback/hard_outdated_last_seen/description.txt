@@ -1,0 +1,3 @@
+The label of the final step is the one that matters for reporting, so this now
+returns the label of the last step rather than whichever one happened to come
+first. This was changed on purpose.

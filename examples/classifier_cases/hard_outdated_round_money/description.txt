@@ -1,0 +1,3 @@
+Halves now go down rather than up, so that rounding matches what the accounts
+team asked for. This was changed on purpose, so the two rounding rules only
+live in one place.

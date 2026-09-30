@@ -103,7 +103,10 @@ def test_evidence_holds_what_it_should(tmp_path):
     assert set(evidence) == {
         "test_name", "old_code", "new_code", "diff", "test_code",
         "failure_message", "before_result", "after_result", "rerun",
+        "description",
     }
+    # This caller has no pull request text to give, so it gets an empty string.
+    assert evidence["description"] == ""
     assert "return a + b" in evidence["old_code"]
     assert "return a - b" in evidence["new_code"]
     assert "return a + b" in evidence["diff"]
@@ -608,7 +611,12 @@ def test_the_classifier_opens_no_files_besides_the_three_we_pass_in(tmp_path,
 
 
 def test_only_the_eval_file_knows_about_expected_json():
-    """The project as a whole keeps the answer key to one file."""
+    """Only the two eval files may read an answer key.
+
+    classifier_eval.py scores the tuning set. heldback_eval.py scores the cases
+    we kept back, which have their own answer keys. Nothing else may look,
+    because a classifier that can read the answer is not being measured.
+    """
     src_folder = Path(__file__).resolve().parent.parent / "src" / "prsentinel"
     offenders = []
 
@@ -620,12 +628,12 @@ def test_only_the_eval_file_knows_about_expected_json():
         if "expected.json" in source:
             offenders.append(path.name)
 
-    assert offenders == ["classifier_eval.py"], \
-        f"only classifier_eval.py may read expected.json, but so do: {offenders}"
+    assert sorted(offenders) == ["classifier_eval.py", "heldback_eval.py"], \
+        f"only the two eval files may read expected.json, but so do: {offenders}"
 
 
 def test_the_eval_points_at_the_answer_key_correctly():
-    """The eval must find the case folders, and all nine of them.
+    """The eval must find the case folders, and all fourteen of them.
 
     The path is worked out from this file's own location, so it is easy to get
     wrong. This catches it without needing a model.
@@ -636,10 +644,385 @@ def test_the_eval_points_at_the_answer_key_correctly():
         f"the eval is looking in the wrong place: {ce.CASES_FOLDER}"
 
     folders = ce.case_folders()
-    assert len(folders) == 9
+    assert len(folders) == 14
     assert all(folder.is_dir() for folder in folders)
     # Sorted, so the order never changes between runs.
     assert folders == sorted(folders)
+
+
+def test_only_the_heldback_eval_names_the_heldback_folder():
+    """One command may score the cases we kept back, and it is not this one."""
+    src_folder = Path(__file__).resolve().parent.parent / "src" / "prsentinel"
+    offenders = []
+
+    for path in sorted(src_folder.glob("*.py")):
+        source = path.read_text(encoding="utf-8")
+        if "classifier_cases_heldback" in source:
+            offenders.append(path.name)
+
+    assert offenders == ["heldback_eval.py"], \
+        (f"only heldback_eval.py may know about the kept-back cases, "
+         f"but so do: {offenders}")
+
+
+def test_nothing_but_the_two_eval_files_can_reach_an_answer_key():
+    """The classifier, the generator and the pipeline must not even name it."""
+    src_folder = Path(__file__).resolve().parent.parent / "src" / "prsentinel"
+    allowed = {"classifier.py", "classifier_eval.py", "heldback_eval.py",
+               "pipeline.py", "test_generator.py"}
+
+    for name in sorted(allowed):
+        source = (src_folder / name).read_text(encoding="utf-8")
+        if name in ("classifier.py", "classifier_eval.py", "heldback_eval.py"):
+            continue
+        assert "expected.json" not in source, \
+            f"{name} must not know about the answer key"
+        assert "classifier_cases" not in source, \
+            f"{name} must not know about the answer key folders"
+
+
+def test_the_heldback_eval_points_at_the_right_folder():
+    """The kept-back command must find the four kept-back cases."""
+    from prsentinel import heldback_eval as he
+
+    assert he.HELDBACK_FOLDER.is_dir(), \
+        f"the held-back eval is looking in the wrong place: {he.HELDBACK_FOLDER}"
+
+    folders = he.case_folders()
+    assert len(folders) == 4
+    assert folders == sorted(folders)
+    # It must never point at the tuning folder by accident.
+    assert he.HELDBACK_FOLDER != ce_caseless_folder()
+
+
+def ce_caseless_folder():
+    """Return the tuning folder, so the held-back one can be compared to it."""
+    from prsentinel import classifier_eval as ce
+    return ce.CASES_FOLDER
+
+
+def test_the_heldback_eval_prints_nothing_per_case(capsys, monkeypatch):
+    """Only totals, so a held-back run cannot be used to pick answers."""
+    from prsentinel import classifier as cl
+    from prsentinel import heldback_eval as he
+
+    def fake_run_case(folder):
+        # Deliberately wrong, so a per-case print would show up in the output.
+        return {name: {"label": "WRONG_ANSWER", "confidence": "",
+                       "reason": "this reason must never be printed"}
+                for name in he.CLASSIFIERS}
+
+    monkeypatch.setattr(he, "run_case", fake_run_case)
+    monkeypatch.setattr(he, "add_to_log", lambda *args, **kwargs: None)
+    monkeypatch.setattr(cl, "classify", lambda *a, **k: {})
+
+    assert he.main() == 0
+    printed = capsys.readouterr().out
+
+    assert "WRONG_ANSWER" not in printed
+    assert "this reason must never be printed" not in printed
+    assert "cases: 4" in printed
+    assert f"reruns per case: {he.RERUN_TIMES}" in printed
+    for name in he.CLASSIFIERS:
+        assert name in printed
+
+
+# ---------------------------------------------------------------------------
+# The old prompts must not change
+# ---------------------------------------------------------------------------
+
+# The exact wording of the "full" prompt, captured from classifier.py as it stood
+# at commit c5acfee, before the description section was added. It was produced by
+# calling build_prompt with the same evidence frozen_evidence() gives below, so
+# every field is filled in and the results section is present.
+#
+# If somebody edits a single character of the prompt, changes which sections are
+# included, or adds a section to this mode, this no longer matches and the test
+# below fails. The two already-measured scores depend on these staying unchanged.
+EXPECTED_FULL_PROMPT = """You are looking at one failing test and trying to work out what is going on.
+
+Here is the code before the change.
+```python
+def add(a, b):
+    return a + b
+
+```
+
+Here is the code after the change.
+```python
+def add(a, b, c):
+    return a + b + c
+
+```
+
+Here is the difference between them.
+```diff
+--- before
++++ after
+@@ -1,2 +1,2 @@
+ def add(a, b):
+-    return a + b
++    return a + b + c
+
+```
+
+Here is the test.
+```python
+def test_add():
+    assert add(2, 3) == 5
+
+```
+
+Here is what the test printed when it failed.
+```text
+assert 8 == 5
+
+```
+
+Here is how this test behaved when it was run.
+
+Result on the code before the change: passed
+Result on the code after the change: failed
+When the test was run again several times on the new code, it gave 1 pass and 4 fail.
+
+
+Choose exactly one label:
+- REAL_BUG: the test is reasonable and the new code broke intended behavior
+- BAD_TEST: the test expects something the code was never meant to do, or the change was intentional and the test is now outdated
+- FLAKY: the test result depends on chance (randomness, time, ordering) rather than on the code
+
+Base your answer on what the code is trying to do and what the test is checking. You cannot see any folder names or file paths, so do not try to guess from them.
+
+Reply with JSON only, using exactly this shape:
+{"label": "REAL_BUG" | "BAD_TEST" | "FLAKY", "confidence": "low" | "medium" | "high", "reason": "one or two plain sentences"}
+No other text."""
+
+# The exact wording of the "code_only" prompt, captured from classifier.py as it stood
+# at commit c5acfee, before the description section was added. It was produced by
+# calling build_prompt with the same evidence frozen_evidence() gives below, so
+# every field is filled in and the results section is present.
+#
+# If somebody edits a single character of the prompt, changes which sections are
+# included, or adds a section to this mode, this no longer matches and the test
+# below fails. The two already-measured scores depend on these staying unchanged.
+EXPECTED_CODE_ONLY_PROMPT = """You are looking at one failing test and trying to work out what is going on.
+
+Here is the code before the change.
+```python
+def add(a, b):
+    return a + b
+
+```
+
+Here is the code after the change.
+```python
+def add(a, b, c):
+    return a + b + c
+
+```
+
+Here is the difference between them.
+```diff
+--- before
++++ after
+@@ -1,2 +1,2 @@
+ def add(a, b):
+-    return a + b
++    return a + b + c
+
+```
+
+Here is the test.
+```python
+def test_add():
+    assert add(2, 3) == 5
+
+```
+
+Here is what the test printed when it failed.
+```text
+assert 8 == 5
+
+```
+
+Choose exactly one label:
+- REAL_BUG: the test is reasonable and the new code broke intended behavior
+- BAD_TEST: the test expects something the code was never meant to do, or the change was intentional and the test is now outdated
+- FLAKY: the test result depends on chance (randomness, time, ordering) rather than on the code
+
+Base your answer on what the code is trying to do and what the test is checking. You cannot see any folder names or file paths, so do not try to guess from them.
+
+Reply with JSON only, using exactly this shape:
+{"label": "REAL_BUG" | "BAD_TEST" | "FLAKY", "confidence": "low" | "medium" | "high", "reason": "one or two plain sentences"}
+No other text."""
+
+def frozen_evidence():
+    """Return evidence with every field filled in, so the prompt is complete."""
+    return {
+        "old_code": "def add(a, b):\n    return a + b\n",
+        "new_code": "def add(a, b, c):\n    return a + b + c\n",
+        "diff": ("--- before\n+++ after\n@@ -1,2 +1,2 @@\n def add(a, b):\n"
+                 "-    return a + b\n+    return a + b + c\n"),
+        "test_code": "def test_add():\n    assert add(2, 3) == 5\n",
+        "failure_message": "assert 8 == 5\n",
+        "before_result": tr.PASSED,
+        "after_result": tr.FAILED,
+        "rerun": {"passes": 1, "fails": 4, "verdict": "FLAKY"},
+        "test_name": "test_case.py::test_add",
+        "description": "This change was made on purpose.",
+    }
+
+
+def test_the_full_prompt_is_byte_identical_to_before():
+    """The full prompt must not change by a single character.
+
+    Its score has already been measured, and the description has to be measured
+    against it. If this prompt moved, the two numbers would not be comparable.
+    """
+    prompt = cl.build_prompt(frozen_evidence(), cl.MODE_FULL)
+    assert prompt == EXPECTED_FULL_PROMPT
+
+
+def test_the_code_only_prompt_is_byte_identical_to_before():
+    """Same again for code_only, which is the other already-measured prompt."""
+    prompt = cl.build_prompt(frozen_evidence(), cl.MODE_CODE_ONLY)
+    assert prompt == EXPECTED_CODE_ONLY_PROMPT
+
+
+def test_the_old_prompts_ignore_a_description_entirely():
+    """A description in the evidence must not reach the two old prompts."""
+    with_text = frozen_evidence()
+    without_text = frozen_evidence()
+    without_text["description"] = ""
+
+    for mode in (cl.MODE_FULL, cl.MODE_CODE_ONLY):
+        assert (cl.build_prompt(with_text, mode)
+                == cl.build_prompt(without_text, mode)), \
+            f"{mode} must not show the description"
+
+
+def test_the_intent_mode_shows_the_description():
+    """The new mode is the only one that shows it."""
+    evidence = frozen_evidence()
+
+    prompt = cl.build_prompt(evidence, cl.MODE_FULL_WITH_INTENT)
+
+    assert "This change was made on purpose." in prompt
+    assert cl.DESCRIPTION_HEADING in prompt
+
+
+def test_the_intent_mode_says_so_when_there_is_no_description():
+    """An empty description is stated, not left out."""
+    evidence = frozen_evidence()
+    evidence["description"] = ""
+
+    prompt = cl.build_prompt(evidence, cl.MODE_FULL_WITH_INTENT)
+
+    assert cl.NO_DESCRIPTION in prompt
+    assert cl.NO_DESCRIPTION == "No description was provided."
+
+
+def test_the_intent_mode_is_the_full_prompt_plus_the_description():
+    """It must be full, unchanged, with the description block slotted in.
+
+    The block goes in after the results section and before the instructions, so
+    the two halves of the prompt have to match exactly and only the middle is
+    allowed to grow.
+    """
+    evidence = frozen_evidence()
+
+    full = cl.build_prompt(evidence, cl.MODE_FULL)
+    intent = cl.build_prompt(evidence, cl.MODE_FULL_WITH_INTENT)
+
+    instructions = "Choose exactly one label:"
+    full_head, full_tail = full.split(instructions, 1)
+    intent_head, intent_tail = intent.split(instructions, 1)
+
+    # Everything from the instructions onwards is word for word the same.
+    assert intent_tail == full_tail, \
+        "the instructions and the reply shape must not move"
+
+    # Everything up to the description block is word for word the same.
+    assert intent_head.startswith(full_head), \
+        "the code, the test, the message and the results must not move"
+
+    extra = intent_head[len(full_head):]
+    assert cl.DESCRIPTION_HEADING in extra
+    assert "This change was made on purpose." in extra
+
+
+def test_the_three_modes_are_all_accepted():
+    """The new mode is a real mode, not a special case that slips through."""
+    assert cl.MODE_FULL_WITH_INTENT in cl.ALL_MODES
+    for mode in ("full", "code_only", "full_with_intent"):
+        assert mode in cl.ALL_MODES
+
+
+def test_an_unknown_mode_is_still_refused():
+    """Adding a mode must not open the door to anything else."""
+    for mode in ("nonsense", "", "FULL", "intent"):
+        try:
+            cl.build_prompt(frozen_evidence(), mode)
+        except ValueError:
+            continue
+        raise AssertionError(f"{mode!r} should not be a mode")
+
+
+def test_classify_can_run_the_intent_mode(monkeypatch):
+    """The new classifier name reaches the new mode."""
+    asked = []
+
+    def fake_ask(prompt):
+        asked.append(prompt)
+        return '{"label": "BAD_TEST", "confidence": "low", "reason": "x"}'
+
+    monkeypatch.setattr(cl, "ask_llm", fake_ask)
+
+    answer = cl.classify(frozen_evidence(), classifier="llm_full_with_intent")
+    assert answer["label"] == "BAD_TEST"
+    assert cl.DESCRIPTION_HEADING in asked[0]
+
+    with pytest.raises(ValueError):
+        cl.classify(frozen_evidence(), classifier="llm_intent")
+
+
+def test_build_evidence_carries_a_description(tmp_path):
+    """The description has to survive from the caller into the evidence."""
+    before = write(tmp_path / "before.py", "def add(a, b):\n    return a + b\n")
+    after = write(tmp_path / "after.py", "def add(a, b):\n    return a - b\n")
+    test = write(tmp_path / "test_case.py",
+                 "from target import add\n\n\ndef test_add():\n    assert add(2, 3) == 5\n")
+
+    evidence = cl.build_evidence(
+        before_run={"tests": {"t": tr.PASSED}},
+        after_run={"tests": {"t": tr.FAILED}, "failures_full": {"t": "boom"}},
+        rerun_run={"tests": {"t": {"passes": 0, "fails": 1,
+                                   "verdict": "ALWAYS_FAILS"}}},
+        before_file=before, after_file=after, test_file=test,
+        test_name="t",
+        description="A short note about why.",
+    )
+
+    assert evidence["description"] == "A short note about why."
+
+
+def test_build_evidence_defaults_to_no_description(tmp_path):
+    """Callers that do not have one still work, and get an empty string."""
+    before = write(tmp_path / "before.py", "def add(a, b):\n    return a + b\n")
+    after = write(tmp_path / "after.py", "def add(a, b):\n    return a - b\n")
+    test = write(tmp_path / "test_case.py",
+                 "from target import add\n\n\ndef test_add():\n    assert add(2, 3) == 5\n")
+
+    evidence = cl.build_evidence(
+        before_run={"tests": {"t": tr.PASSED}},
+        after_run={"tests": {"t": tr.FAILED}, "failures_full": {"t": "boom"}},
+        rerun_run={"tests": {"t": {"passes": 0, "fails": 1,
+                                   "verdict": "ALWAYS_FAILS"}}},
+        before_file=before, after_file=after, test_file=test,
+        test_name="t",
+    )
+
+    assert evidence["description"] == ""
 
 
 # ---------------------------------------------------------------------------

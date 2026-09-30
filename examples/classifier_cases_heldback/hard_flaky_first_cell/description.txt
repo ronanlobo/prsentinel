@@ -1,0 +1,3 @@
+An empty list is now reported as an error, rather than causing a confusing
+message from further down. Repeated cells are still collapsed into one before
+the count is compared.

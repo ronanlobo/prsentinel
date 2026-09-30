@@ -1,4 +1,4 @@
-"""Score the three classifiers against the answer key.
+"""Score the four classifiers against the answer key.
 
 Run it like this:
 
@@ -7,23 +7,30 @@ Run it like this:
 It walks through every folder in `examples/classifier_cases/`. For each one it
 
 1. collects the evidence, with no knowledge of the answer,
-2. runs all three classifiers, one after another, never in parallel,
+2. runs all four classifiers, one after another, never in parallel,
 3. and only then opens expected.json to see what the right answer was.
 
 The order matters. The classifiers are finished before the answer key is
 looked at, so nothing they do can depend on it.
 
-This is the only file in the project that is allowed to read expected.json. If
-the classifiers could read it too, the whole score would be meaningless.
+This file and heldback_eval.py are the only two places allowed to read
+expected.json. If the classifiers could read it too, the whole score would be
+meaningless.
 
-The three classifiers being compared:
+This only scores the tuning set. The cases we kept back are scored by
+heldback_eval.py, which is a separate command on a separate folder.
 
-    rule           plain Python, no AI, results only
-    llm_full       the AI, with the code and the run results
-    llm_code_only  the AI, with the code but not the run results
+The four classifiers being compared:
 
-Comparing the last two tells us whether the AI is reading the code or just
-reading the numbers off the table.
+    rule                  plain Python, no AI, results only
+    llm_full              the AI, with the code and the run results
+    llm_full_with_intent  the same, plus the description of why the change was
+                          made
+    llm_code_only         the AI, with the code but not the run results
+
+Comparing llm_full with llm_code_only tells us whether the AI is reading the
+code or just reading the numbers off the table. Comparing llm_full with
+llm_full_with_intent tells us whether the description helps.
 """
 
 import json
@@ -37,7 +44,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CASES_FOLDER = PROJECT_ROOT / "examples" / "classifier_cases"
 
 # The classifiers we are scoring, in the order they run.
-CLASSIFIERS = ("rule", "llm_full", "llm_code_only")
+CLASSIFIERS = ("rule", "llm_full", "llm_full_with_intent", "llm_code_only")
+
+# How many times each case is rerun when we work out whether it is flaky. We use
+# the same number for every case, so a flaky case has to be mixed within this
+# many runs or we call it something else. It is printed with the results.
+RERUN_TIMES = 12
 
 # A phrase that only ever turns up in the flaky cases. If an AI says this in
 # its reason, it has spotted the tell rather than worked the case out, so we
@@ -57,10 +69,23 @@ def case_folders():
 def read_expected(folder):
     """Read one case's answer key.
 
-    This is the only place in the project that opens expected.json, and it is
-    only ever called after the classifiers have already finished.
+    This is one of only two places in the project that open expected.json, and
+    it is only ever called after the classifiers have already finished. The
+    other is heldback_eval.py, which scores the cases we kept back.
     """
     return json.loads((folder / "expected.json").read_text(encoding="utf-8"))
+
+
+def read_description(folder):
+    """Read the case's description, or "" when it does not have one.
+
+    Only the full_with_intent mode is shown this. The cases we keep back have
+    none, and the older nine have none either, so this is usually "".
+    """
+    path = folder / "description.txt"
+    if not path.is_file():
+        return ""
+    return path.read_text(encoding="utf-8").strip()
 
 
 def mark_right_or_wrong(got, wanted):
@@ -69,7 +94,7 @@ def mark_right_or_wrong(got, wanted):
 
 
 def run_case(folder):
-    """Collect the evidence and ask all three classifiers.
+    """Collect the evidence and ask all the classifiers.
 
     Returns {"folder", "results", "errors"}. The answer key is not read here.
     """
@@ -77,6 +102,8 @@ def run_case(folder):
         folder / "before.py",
         folder / "after.py",
         folder / "test_case.py",
+        rerun_times=RERUN_TIMES,
+        description=read_description(folder),
     )
 
     results = {}
@@ -98,7 +125,8 @@ def print_table(rows):
     """Print the case-by-case comparison."""
     header = (
         f"{'case':{NAME_WIDTH}} {'expected':{CELL_WIDTH}}"
-        f"{'rule':{CELL_WIDTH}}{'llm_full':{CELL_WIDTH}}llm_code_only"
+        f"{'rule':{CELL_WIDTH}}{'llm_full':{CELL_WIDTH}}"
+        f"{'intent':{CELL_WIDTH}}llm_code_only"
     )
     print("=" * len(header))
     print(header)
@@ -109,10 +137,12 @@ def print_table(rows):
         cells = [mark_right_or_wrong(row["results"][name]["label"], wanted)
                  for name in CLASSIFIERS]
         print(f"{row['folder']:{NAME_WIDTH}} {wanted:{CELL_WIDTH}}"
-              f"{cells[0]:{CELL_WIDTH}}{cells[1]:{CELL_WIDTH}}{cells[2]}")
+              f"{cells[0]:{CELL_WIDTH}}{cells[1]:{CELL_WIDTH}}"
+              f"{cells[2]:{CELL_WIDTH}}{cells[3]}")
 
     print("=" * len(header))
     print("A star means the answer did not match the answer key.")
+    print("intent is llm_full_with_intent, shortened so the table fits.")
 
 
 def print_accuracy(rows):
@@ -157,7 +187,7 @@ def print_giveaway_check(rows):
     """Report whether any AI reason mentions the known giveaway phrase."""
     print(f"\n=== Does any reason mention {GIVEAWAY_PHRASE}? ===")
 
-    for name in ("llm_full", "llm_code_only"):
+    for name in ("llm_full", "llm_full_with_intent", "llm_code_only"):
         hits = []
         for row in rows:
             reason = row["results"][name]["reason"]
@@ -180,6 +210,8 @@ def main() -> int:
         return 1
 
     print(f"Scoring {len(folders)} cases with {len(CLASSIFIERS)} classifiers.")
+    print(f"Each case is rerun {RERUN_TIMES} times to check whether it is "
+          f"flaky.")
     print(f"Answers come from one model call at a time, so this takes a "
           f"while.\n")
 

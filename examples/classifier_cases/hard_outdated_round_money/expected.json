@@ -1,0 +1,5 @@
+{
+  "label": "BAD_TEST",
+  "reason": "The rounding rule was changed on purpose, so this test still describes the way the function used to work and needs bringing up to date.",
+  "kind": "OUTDATED_TEST"
+}

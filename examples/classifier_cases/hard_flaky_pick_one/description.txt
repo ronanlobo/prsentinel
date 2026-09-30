@@ -1,0 +1,3 @@
+An empty list is now reported straight away, rather than causing a confusing
+message from further down. Items with the same value are still collapsed into
+one before one of them is returned.

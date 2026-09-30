@@ -1,0 +1,3 @@
+Tax is now worked out by the checkout service, so this returns the order
+subtotal only. This was changed on purpose, so that the tax charge lives in one
+place instead of being worked out twice.

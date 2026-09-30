@@ -1,0 +1,5 @@
+{
+  "label": "FLAKY",
+  "reason": "The answer comes out of a set, whose order changes from one run to the next, so this test cannot be trusted either way.",
+  "kind": "FLAKY_REALISTIC"
+}

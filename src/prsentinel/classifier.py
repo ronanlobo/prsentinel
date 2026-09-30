@@ -46,7 +46,8 @@ ALL_LABELS = (REAL_BUG, BAD_TEST, FLAKY)
 # The two ways we can ask the AI.
 MODE_FULL = "full"
 MODE_CODE_ONLY = "code_only"
-ALL_MODES = (MODE_FULL, MODE_CODE_ONLY)
+MODE_FULL_WITH_INTENT = "full_with_intent"
+ALL_MODES = (MODE_FULL, MODE_CODE_ONLY, MODE_FULL_WITH_INTENT)
 
 # How much of each file we put in the prompt, so one huge file cannot fill it.
 MAX_CODE_CHARS = 4000
@@ -141,12 +142,17 @@ def _rerun_for(rerun: dict, name: str) -> dict:
 
 
 def build_evidence(before_run, after_run, rerun_run,
-                   before_file, after_file, test_file, test_name=None) -> dict:
+                   before_file, after_file, test_file, test_name=None,
+                   description="") -> dict:
     """Build the evidence for one test out of runs we already have.
 
     collect_evidence does this, but it also has to run the tests. When a caller
     has already run them, this saves running everything again for every single
     test it wants to look at.
+
+    description is the pull request text, if there is any. Only the
+    full_with_intent mode shows it, so callers that do not have it are not
+    affected.
     """
     chosen = _pick_test_name(before_run, after_run, test_name)
 
@@ -168,11 +174,12 @@ def build_evidence(before_run, after_run, rerun_run,
         "before_result": _result_for(before_run, chosen),
         "after_result": _result_for(after_run, chosen),
         "rerun": _rerun_for(rerun_run, chosen),
+        "description": description or "",
     }
 
 
 def collect_evidence(before_file, after_file, test_file,
-                     test_name=None, rerun_times=None) -> dict:
+                     test_name=None, rerun_times=None, description="") -> dict:
     """Gather everything needed to talk about one failing test.
 
     Runs the test file against both versions of the module, runs it several
@@ -183,6 +190,9 @@ def collect_evidence(before_file, after_file, test_file,
                   one that failed on the new code.
     rerun_times   how many reruns to do. Leave it out and we use the setting in
                   config.py. The tests use a small number to stay quick.
+    description   the pull request text, if there is any. Only the
+                  full_with_intent mode shows it, so callers that do not have it
+                  are not affected.
 
     Returns a dictionary with these keys:
         "old_code"          the code before the change
@@ -195,6 +205,7 @@ def collect_evidence(before_file, after_file, test_file,
         "after_result"      the same on the new code
         "rerun"             {"passes", "fails", "verdict"} on the new code
         "test_name"         which test we are talking about
+        "description"       the pull request text, or "" if there was none
 
     Nothing in here is a folder name, a file path, or anything from the answer
     key. Only code and results.
@@ -204,7 +215,8 @@ def collect_evidence(before_file, after_file, test_file,
     rerun_run = tr.rerun_failures(after_file, test_file, times=rerun_times)
 
     return build_evidence(before_run, after_run, rerun_run,
-                          before_file, after_file, test_file, test_name)
+                          before_file, after_file, test_file, test_name,
+                          description)
 
 
 # ---------------------------------------------------------------------------
@@ -302,6 +314,17 @@ NUDGE = (
 # A code fence, with or without a language word after the backticks.
 CODE_FENCE = re.compile(r"```[a-zA-Z0-9_+-]*\s*\n(.*?)```", re.DOTALL)
 
+# The extra section that only the full_with_intent mode shows. It is the pull
+# request text, which is the one piece of evidence that can say whether a change
+# was meant. It says nothing about labels, cases or answers, and it is only ever
+# shown in that one mode.
+DESCRIPTION_HEADING = "Here is what the change was for."
+
+# What we put there when there is no description at all. We say so rather than
+# leaving the section out, because an empty section could read as "there was
+# nothing worth writing down", which is a different thing.
+NO_DESCRIPTION = "No description was provided."
+
 
 def _label_list_text() -> str:
     """Write out the three labels and what they mean, one per line."""
@@ -326,10 +349,16 @@ def _results_text(evidence: dict) -> str:
 
 
 def build_prompt(evidence: dict, mode: str) -> str:
-    """Build the prompt for one of the two AI modes.
+    """Build the prompt for one of the AI modes.
 
-    "full"       shows the results as well as the code
-    "code_only"  shows only the code, the diff, the test and the message
+    "full"               shows the results as well as the code
+    "code_only"          shows only the code, the diff, the test and the message
+    "full_with_intent"   shows the results and also the description of why the
+                         change was made
+
+    The prompts for "full" and "code_only" are exactly what they have always
+    been. Adding the description must not move a single character of either,
+    because those two scores are already measured and have to stay comparable.
     """
     if mode not in ALL_MODES:
         raise ValueError(
@@ -369,6 +398,15 @@ def build_prompt(evidence: dict, mode: str) -> str:
 
     if mode == MODE_FULL:
         parts.append(_results_text(evidence))
+        parts.append("")
+
+    if mode == MODE_FULL_WITH_INTENT:
+        parts.append(_results_text(evidence))
+        parts.append("")
+        parts.append(DESCRIPTION_HEADING)
+        parts.append("```text")
+        parts.append(evidence.get("description", "") or NO_DESCRIPTION)
+        parts.append("```")
         parts.append("")
 
     parts.extend([
@@ -431,7 +469,8 @@ def parse_reply(reply: str):
 def llm_classify(evidence: dict, mode: str) -> dict:
     """Ask the AI for one of the three labels.
 
-    mode is "full" or "code_only", which decides how much we show it.
+    mode is "full", "code_only" or "full_with_intent", which decides how much we
+    show it.
 
     If the reply cannot be read we ask once more, with a short note saying so.
     If the second reply cannot be read either we give up and raise
@@ -468,7 +507,8 @@ def classify(evidence: dict, classifier: str = "rule",
              mode: str = MODE_FULL) -> dict:
     """Run one classifier over the evidence and always give the same keys.
 
-    classifier is "rule", "llm_full" or "llm_code_only".
+    classifier is "rule", "llm_full", "llm_full_with_intent" or
+    "llm_code_only".
     """
     if classifier == "rule":
         answer = rule_classify(evidence)
@@ -478,8 +518,10 @@ def classify(evidence: dict, classifier: str = "rule",
         return llm_classify(evidence, MODE_FULL)
     if classifier == "llm_code_only":
         return llm_classify(evidence, MODE_CODE_ONLY)
+    if classifier == "llm_full_with_intent":
+        return llm_classify(evidence, MODE_FULL_WITH_INTENT)
 
     raise ValueError(
-        f"Unknown classifier {classifier!r}. Use rule, llm_full or "
-        f"llm_code_only."
+        f"Unknown classifier {classifier!r}. Use rule, llm_full, "
+        f"llm_full_with_intent or llm_code_only."
     )

@@ -1,0 +1,3 @@
+The month number is now checked before the table is read, so an unknown month
+is reported clearly instead of quietly returning the length of a different
+month. What the function returns for a month that does exist has not changed.
