@@ -3,12 +3,13 @@ PRSentinel report for round2_mutable_default
 ========================================================================
 Old file: before.py
 New file: after.py
-Tests: reused in generated_tests/round2_mutable_default/
+Tests: reused from generated_tests
 
 --- Per function ---
 
 add_item_to_cart  (modified)
   test file: test_add_item_to_cart.py
+  came from: generated_tests
   CATCHES_CHANGE           9
   TEST_WRONG_ON_BEFORE     0
   NO_SIGNAL                2

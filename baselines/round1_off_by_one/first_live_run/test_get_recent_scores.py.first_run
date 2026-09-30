@@ -1,0 +1,38 @@
+import pytest
+from copy import deepcopy
+from target import get_recent_scores
+
+def old_behavior(scores, window):
+    """Reference implementation of the original specification."""
+    start = max(0, len(scores) - window)
+    return scores[start:]
+
+@pytest.mark.parametrize(
+    "scores, window",
+    [
+        ([], 0),                     # empty list, zero window
+        ([], 5),                     # empty list, window larger than list
+        ([1], 0),                    # single element, zero window
+        ([1], 1),                    # single element, window equal to size
+        ([1], 2),                    # single element, window larger than size
+        ([1, 2, 3, 4, 5], 0),        # multiple elements, zero window
+        ([1, 2, 3, 4, 5], 1),        # window = 1 (last element)
+        ([1, 2, 3, 4, 5], 2),        # window = 2 (last two)
+        ([1, 2, 3, 4, 5], 4),        # window = size-1
+        ([1, 2, 3, 4, 5], 5),        # window = size (full list)
+        ([1, 2, 3, 4, 5], 6),        # window > size (full list)
+    ],
+)
+def test_get_recent_scores_matches_old_behavior(scores, window):
+    # Keep a copy to ensure the original list is not mutated
+    original = deepcopy(scores)
+
+    result = get_recent_scores(scores, window)
+    expected = old_behavior(scores, window)
+
+    assert result == expected, (
+        f"Failed for scores={scores!r}, window={window}: "
+        f"expected {expected!r}, got {result!r}"
+    )
+    # Ensure the input list was not changed by the function
+    assert scores == original

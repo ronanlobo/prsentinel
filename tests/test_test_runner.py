@@ -121,6 +121,143 @@ def test_child_environment_has_both_keys_removed():
 
 
 # ---------------------------------------------------------------------------
+# The child must not see ANY secret, not just the two we know about
+# ---------------------------------------------------------------------------
+
+# Three fake secrets. Two are the API keys we already knew about. The third is
+# one nothing in this project has ever heard of, which is the whole point: a
+# denylist cannot protect a name it does not know, an allow-list does not have
+# to.
+FAKE_SECRETS = {
+    "GROQ_API_KEY": "fake-groq-secret",
+    "GEMINI_API_KEY": "fake-gemini-secret",
+    "PRSENTINEL_TEST_SECRET": "fake-secret-nobody-listed",
+}
+
+# A test file that looks at what the child can actually see. If it fails, the
+# message says what it did see, so the leak is obvious.
+CHECKS_VISIBILITY = """
+    import os
+
+    NAMES = ["GROQ_API_KEY", "GEMINI_API_KEY", "PRSENTINEL_TEST_SECRET"]
+
+    def test_the_child_sees_none_of_them():
+        seen = {name: os.environ.get(name) for name in NAMES}
+        assert all(value is None for value in seen.values()), seen
+"""
+
+
+@pytest.fixture
+def fake_secrets(monkeypatch):
+    """Put three fake secrets in our own environment, then clean them up."""
+    for name, value in FAKE_SECRETS.items():
+        monkeypatch.setenv(name, value)
+    return FAKE_SECRETS
+
+
+def test_run_tests_hides_every_secret_from_the_child(work, fake_secrets):
+    """Nothing secret reaches a child started by run_tests."""
+    module, test = work(CHECKS_VISIBILITY)
+
+    result = tr.run_tests(module, test, timeout_seconds=60)
+
+    assert result["status"] == tr.OK, result
+    assert list(result["tests"].values()) == [tr.PASSED], result
+
+
+def test_rerun_failures_hides_every_secret_from_the_child(work, fake_secrets):
+    """Nothing secret reaches a child started by rerun_failures either.
+
+    rerun_failures does not start a child of its own, it calls run_tests. This
+    checks the whole loop, not just the single run.
+    """
+    module, test = work(CHECKS_VISIBILITY)
+
+    result = tr.rerun_failures(module, test, times=3)
+
+    assert result["status"] == tr.OK, result
+    assert result["times"] == 3, result
+    # The visibility test passed on all three reruns, so no secret got through
+    # on any of them.
+    verdicts = [entry["verdict"] for entry in result["tests"].values()]
+    assert verdicts == [tr.ALWAYS_PASSES], result
+    assert sum(e["fails"] for e in result["tests"].values()) == 0, result
+
+
+def test_the_child_environment_is_built_from_scratch():
+    """It must be a small allow-list, not our environment minus a few names."""
+    child = tr._child_environment()
+
+    allowed = (tr.CHILD_ENV_ALLOW_WINDOWS if os.name == "nt"
+               else tr.CHILD_ENV_ALLOW_POSIX)
+
+    for name in child:
+        assert name.upper() in {a.upper() for a in allowed}, \
+            f"{name} was passed on but is not on the allow-list"
+
+    # Our own environment is much bigger than the child's.
+    assert len(child) < len(os.environ)
+
+
+def test_an_unlisted_variable_never_reaches_the_child(monkeypatch):
+    """A secret we have never heard of is excluded without being listed."""
+    monkeypatch.setenv("SOME_OTHER_SERVICE_TOKEN", "must-not-be-passed-on")
+
+    child = tr._child_environment()
+
+    assert "SOME_OTHER_SERVICE_TOKEN" not in child
+    assert os.environ.get("SOME_OTHER_SERVICE_TOKEN") == "must-not-be-passed-on"
+
+
+def test_the_run_index_still_reaches_the_child(work, fake_secrets):
+    """The one variable the tests genuinely need must still get through."""
+    module, test = work("""
+        import os
+
+        def test_run_index_arrived():
+            assert os.environ.get("PRSENTINEL_RUN_INDEX") == "4"
+    """)
+
+    result = tr.run_tests(module, test, timeout_seconds=60, run_index=4)
+
+    assert result["status"] == tr.OK, result
+    assert list(result["tests"].values()) == [tr.PASSED], result
+
+
+def test_path_still_reaches_the_child(work):
+    """pytest needs PATH, so cutting it would stop everything working."""
+    module, test = work("""
+        import os
+
+        def test_path_is_there():
+            assert os.environ.get("PATH")
+    """)
+
+    result = tr.run_tests(module, test, timeout_seconds=60)
+
+    assert result["status"] == tr.OK, result
+    assert list(result["tests"].values()) == [tr.PASSED], result
+
+
+def test_pytest_options_from_our_environment_do_not_reach_the_child(
+        work, monkeypatch):
+    """PYTEST_ADDOPTS could force options onto the child, so it is cut."""
+    monkeypatch.setenv("PYTEST_ADDOPTS", "-x --assert=plain")
+
+    module, test = work("""
+        import os
+
+        def test_no_injected_options():
+            assert os.environ.get("PYTEST_ADDOPTS") is None
+    """)
+
+    result = tr.run_tests(module, test, timeout_seconds=60)
+
+    assert result["status"] == tr.OK, result
+    assert list(result["tests"].values()) == [tr.PASSED], result
+
+
+# ---------------------------------------------------------------------------
 # Running a real test file
 # ---------------------------------------------------------------------------
 

@@ -9,3 +9,7 @@ from run to run, so this folder is the fixed version to compare against. To run
 the pipeline again without asking the AI for new tests, use:
 
     python -m prsentinel.pipeline examples/round1_off_by_one/before.py examples/round1_off_by_one/after.py --reuse-tests
+
+The file in `first_live_run/` is what this function's tests looked like on the
+first live run, kept byte for byte as it was. It is here as an example of what
+the AI produces early on, and is not the version used for the results above.

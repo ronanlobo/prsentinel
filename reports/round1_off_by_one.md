@@ -3,12 +3,13 @@ PRSentinel report for round1_off_by_one
 ========================================================================
 Old file: before.py
 New file: after.py
-Tests: reused in generated_tests/round1_off_by_one/
+Tests: reused from generated_tests
 
 --- Per function ---
 
 get_recent_scores  (modified)
   test file: test_get_recent_scores.py
+  came from: generated_tests
   CATCHES_CHANGE           6
   TEST_WRONG_ON_BEFORE     0
   NO_SIGNAL                5

@@ -2,12 +2,13 @@
   "name": "round2_mutable_default",
   "before": "before.py",
   "after": "after.py",
-  "tests_source": "reused",
+  "tests_source": "reused from generated_tests",
   "functions": [
     {
       "function": "add_item_to_cart",
       "change_type": "modified",
       "test_file": "test_add_item_to_cart.py",
+      "from_folder": "generated_tests",
       "counts": {
         "CATCHES_CHANGE": 9,
         "TEST_WRONG_ON_BEFORE": 0,

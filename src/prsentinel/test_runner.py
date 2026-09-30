@@ -67,8 +67,54 @@ SKIPPED = "skipped"
 # The name the module is copied to, because that is what the tests import.
 TARGET_MODULE = "target.py"
 
-# Keys we must never pass on to the child process.
+# Keys we must never pass on to the child process. This is a second line of
+# defence only. The real protection is the allow-list below, because a list of
+# names to remove only protects the names someone remembered to write down.
 SECRET_ENV_NAMES = ("GROQ_API_KEY", "GEMINI_API_KEY")
+
+# The child process gets a brand new environment built from this list, rather
+# than a copy of ours with a few things taken out. Anything not named here does
+# not reach the child at all, so a secret we have never heard of cannot leak.
+#
+# Matching ignores case, because Windows treats names that way and os.environ
+# upper-cases them there, but a Python dictionary does not.
+#
+# The Windows list is the one our test suite actually proves. The POSIX list is
+# written from what Python and pytest need to start and has not been run, so
+# treat that branch as unproven until somebody runs it on Linux or macOS.
+CHILD_ENV_ALLOW_WINDOWS = (
+    "PATH",              # finding DLLs and other programs
+    "PATHEXT",           # how Windows knows a name is a program
+    "SYSTEMROOT",        # several Windows parts will not work without it
+    "WINDIR",
+    "SYSTEMDRIVE",
+    "COMSPEC",           # the command processor
+    "TEMP",              # pytest and tempfile look here
+    "TMP",
+    "PYTHONPATH",        # only if the person running us set one
+    "PYTHONHOME",        # only if the person running us set one
+    "USERPROFILE",       # pytest works out its home folder from this
+    "HOMEDRIVE",
+    "HOMEPATH",
+    "APPDATA",
+    "LOCALAPPDATA",
+)
+
+CHILD_ENV_ALLOW_POSIX = (
+    "PATH",
+    "HOME",              # pytest works out its home folder from this
+    "TMPDIR",            # pytest and tempfile look here
+    "TEMP",
+    "TMP",
+    "LANG",              # these decide how text is encoded
+    "LC_ALL",
+    "LC_CTYPE",
+    "PYTHONPATH",
+    "PYTHONHOME",
+    "SHELL",
+    "TZ",
+    "SYSTEMROOT",        # not a POSIX name, but harmless and sometimes used
+)
 
 # How many lines of the failure message we keep for the printed table, and how
 # many characters that short version is limited to.
@@ -239,14 +285,32 @@ def make_display_names(names) -> dict:
 
 
 def _child_environment() -> dict:
-    """Return a copy of the environment with our API keys taken out.
+    """Build a fresh environment for the child out of the allow-list.
 
-    The child process must never see the keys, so a generated test cannot
-    read them or use them.
+    The child must never see our API keys, or anything else secret. So we do it
+    the other way round from a denylist: we start from nothing and copy in only
+    the names Python and pytest need in order to start. A secret we have never
+    heard of is then excluded by default, rather than needing to be listed.
+
+    Nothing outside a temporary folder is written, and the child cannot read our
+    settings.
     """
-    environment = dict(os.environ)
-    for name in SECRET_ENV_NAMES:
-        environment.pop(name, None)
+    allowed = (CHILD_ENV_ALLOW_WINDOWS if os.name == "nt"
+               else CHILD_ENV_ALLOW_POSIX)
+    allowed_lower = {name.lower() for name in allowed}
+
+    environment = {}
+    for name, value in os.environ.items():
+        if name.lower() in allowed_lower:
+            environment[name] = value
+
+    # Belt and braces. None of the secret names are on the list, so none of them
+    # can have got this far. If one is ever added to the list by mistake, this
+    # still stops it going through.
+    for secret in SECRET_ENV_NAMES:
+        for name in [k for k in environment if k.lower() == secret.lower()]:
+            environment.pop(name)
+
     return environment
 
 

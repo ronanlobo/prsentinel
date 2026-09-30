@@ -21,7 +21,8 @@ The steps, in order:
    failing test, and flag it when the two disagree. Without that flag this
    step makes no calls at all.
 6. Print a report in plain words. The report says whether the tests were freshly
-   generated or reused, so a saved report always says where its tests came from.
+   generated or reused, and when they were reused it names the folder each file
+   came from, so a saved report always says where its tests came from.
 7. Save the same report to reports/<name>.md and reports/<name>.json.
 
 Two flags change what happens:
@@ -30,9 +31,12 @@ Two flags change what happens:
                       disagrees with the rule. Without it, no extra AI call is
                       made at all.
 --reuse-tests         do not ask the AI for any new tests. Run the test files
-                      already saved in generated_tests/<name>/. With this flag
-                      the whole run makes no AI calls, so the same tests can be
-                      run again and compared.
+                      already saved in generated_tests/<name>/. If a function
+                      has no file there, the frozen copy in baselines/<name>/
+                      is used instead, so this works on a fresh clone. With this
+                      flag the whole run makes no AI calls, so the same tests
+                      can be run again and compared. The report always says which
+                      folder each test file came from.
 
 One function failing does not stop the others. A failure to write a test, or a
 failure to read one, is recorded and carried on from.
@@ -61,6 +65,11 @@ from prsentinel.diff_extractor import extract_changes_from_files
 # Where generated tests and reports are kept.
 GENERATED_DIR = "generated_tests"
 REPORTS_DIR = "reports"
+
+# The frozen copies we keep for comparison. --reuse-tests falls back to these
+# when generated_tests has no file for a function, so the tool still works on a
+# fresh clone where generated_tests does not exist.
+BASELINES_DIR = "baselines"
 
 # The file extension used when we keep an older copy of a generated test.
 BACKUP_SUFFIX = ".bak"
@@ -109,17 +118,61 @@ def write_with_backup(path: Path, code: str):
     return backup, backup is not None
 
 
+def find_saved_test(name, file_name) -> tuple:
+    """Find a saved test file, preferring generated_tests over baselines.
+
+    generated_tests/<name>/ holds whatever the last run wrote. baselines/<name>/
+    holds the frozen copy we keep for comparison. We prefer the live one, and
+    fall back to the frozen one when there is no live file for that function.
+
+    This is what makes --reuse-tests work on a fresh clone, where the
+    generated_tests folder does not exist at all.
+
+    Returns the path and where it came from: "generated_tests", "baselines", or
+    None if neither folder has it.
+    """
+    for folder_name, folder in ((GENERATED_DIR, Path(GENERATED_DIR) / name),
+                                (BASELINES_DIR, Path(BASELINES_DIR) / name)):
+        path = folder / file_name
+        if path.is_file():
+            return path, folder_name
+
+    return None, None
+
+
+def describe_test_source(folders) -> str:
+    """Say where the test files came from, in one line for the report.
+
+    A run can use both, if some functions had a live test file and others only
+    had the frozen one. We name the folders so the reader knows which numbers
+    they are looking at.
+
+    folders is one folder name per test file we actually reused. Repeats are
+    removed and the order is fixed, so the same run always reads the same way.
+    """
+    # Order the folders the same way every time, not in the order they happened
+    # to be found, so two identical runs produce identical reports.
+    order = [GENERATED_DIR, BASELINES_DIR]
+    unique = [name for name in order if name in set(folders)]
+
+    if not unique:
+        return "reused"
+    if len(unique) == 1:
+        return f"reused from {unique[0]}"
+    return "reused from " + " and ".join(unique)
+
+
 def reuse_test_files(before_file, after_file, name) -> list:
-    """Use the test files already in generated_tests/<name>/, and ask nobody.
+    """Use the test files we already have, and ask nobody.
 
     This makes no call to any AI at all. It is what --reuse-tests does, so the
     same tests can be run again and the results compared.
 
-    Returns the same shape of list as generate_test_files. A function we have
-    no test file for is recorded as a failure, so it shows up in the report.
+    Returns the same shape of list as generate_test_files. A function we have no
+    test file for anywhere is recorded as a failure, so it shows up in the
+    report.
     """
     changes = extract_changes_from_files(before_file, after_file)
-    folder = Path(GENERATED_DIR) / name
     outcomes = []
 
     for change in changes:
@@ -130,23 +183,30 @@ def reuse_test_files(before_file, after_file, name) -> list:
             outcomes.append({"function": function, "change_type": change_type,
                              "path": None, "error": "",
                              "skipped": True, "backed_up": False,
-                             "backup": ""})
+                             "backup": "", "from_folder": ""})
             continue
 
-        path = folder / f"test_{tg.safe_file_name(function)}.py"
-        if not path.is_file():
-            print(f"[prsentinel] no saved test for {function} at {path}")
+        file_name = f"test_{tg.safe_file_name(function)}.py"
+        path, from_folder = find_saved_test(name, file_name)
+
+        if path is None:
+            print(f"[prsentinel] no saved test for {function} in "
+                  f"{GENERATED_DIR} or {BASELINES_DIR}")
             outcomes.append({"function": function, "change_type": change_type,
                              "path": None,
-                             "error": "there is no saved test file to reuse",
+                             "error": "there is no saved test file to "
+                                      f"reuse in {GENERATED_DIR} or "
+                                      f"{BASELINES_DIR}",
                              "skipped": False, "backed_up": False,
-                             "backup": ""})
+                             "backup": "", "from_folder": ""})
             continue
 
-        print(f"[prsentinel] reusing the saved test for {function}: {path}")
+        print(f"[prsentinel] reusing the saved test for {function} "
+              f"(from {from_folder}): {path}")
         outcomes.append({"function": function, "change_type": change_type,
                          "path": str(path), "error": "",
-                         "skipped": False, "backed_up": False, "backup": ""})
+                         "skipped": False, "backed_up": False, "backup": "",
+                         "from_folder": from_folder})
 
     return outcomes
 
@@ -394,6 +454,7 @@ def make_report(before_file, after_file, name, outcomes, results,
             "function": outcome["function"],
             "change_type": outcome["change_type"],
             "test_file": result["test_file"],
+            "from_folder": outcome.get("from_folder", ""),
             "counts": result["counts"],
             "judgements": result["judgements"],
             "needs_a_look": result["needs_a_look"],
@@ -426,8 +487,7 @@ def format_report(report: dict) -> str:
     lines.append("=" * 72)
     lines.append(f"Old file: {report['before']}")
     lines.append(f"New file: {report['after']}")
-    lines.append(f"Tests: {report.get('tests_source', 'generated')} "
-                 f"in generated_tests/{report['name']}/")
+    lines.append(f"Tests: {report.get('tests_source', 'generated')}")
     lines.append("")
 
     if not report["functions"]:
@@ -440,6 +500,8 @@ def format_report(report: dict) -> str:
         lines.append("")
         lines.append(f"{function['function']}  ({function['change_type']})")
         lines.append(f"  test file: {function['test_file']}")
+        if function.get("from_folder"):
+            lines.append(f"  came from: {function['from_folder']}")
         for label in COUNT_LABELS:
             lines.append(f"  {label:<24} {function['counts'].get(label, 0)}")
 
@@ -547,9 +609,17 @@ def run_pipeline(before_file, after_file, name=None,
     results = check_all_files(before_path, after_path, outcomes,
                               ai_second_opinion)
 
-    # Step 6.
+    # Step 6. When we reused tests, the report names the folder each file came
+    # from, so a saved report always says whether it was a live file or a
+    # frozen baseline.
+    if reuse_tests:
+        tests_source = describe_test_source(
+            [o["from_folder"] for o in outcomes if o.get("from_folder")])
+    else:
+        tests_source = "generated"
+
     report = make_report(before_path, after_path, name, outcomes, results,
-                         tests_source=("reused" if reuse_tests else "generated"))
+                         tests_source=tests_source)
     print_report(report)
 
     # Step 7.
@@ -576,8 +646,9 @@ def main() -> int:
                              "test, and flag any disagreement with the rule")
     parser.add_argument("--reuse-tests", action="store_true",
                         help="do not ask the AI for new tests. Use the test "
-                             "files already in generated_tests/<name>/, which "
-                             "makes no AI calls at all.")
+                             "files already in generated_tests/<name>/, or the "
+                             "frozen ones in baselines/<name>/ when there is no "
+                             "live file for a function. Makes no AI calls at all.")
     args = parser.parse_args()
 
     for path in (args.before_file, args.after_file):

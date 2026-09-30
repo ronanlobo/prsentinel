@@ -1,0 +1,70 @@
+import pytest
+from target import add_item_to_cart
+
+
+def test_default_cart_is_new_each_call():
+    first = add_item_to_cart("apple")
+    second = add_item_to_cart("banana")
+    # Each call should return a fresh list containing only the supplied item
+    assert first == ["apple"]
+    assert second == ["banana"]
+    # The two returned lists must be different objects
+    assert first is not second
+    # Subsequent mutation of one list must not affect the other
+    first.append("cherry")
+    assert first == ["apple", "cherry"]
+    assert second == ["banana"]
+
+
+def test_default_cart_not_shared_across_multiple_calls():
+    results = [add_item_to_cart(i) for i in range(3)]
+    assert results == [["0"], ["1"], ["2"]] or results == [[0], [1], [2]]
+    # Ensure each list is independent
+    for i, lst in enumerate(results):
+        lst.append("extra")
+        for j, other in enumerate(results):
+            if i != j:
+                assert "extra" not in other
+
+
+def test_explicit_cart_mutates_given_list():
+    cart = []
+    out1 = add_item_to_cart("apple", cart)
+    assert out1 is cart
+    assert cart == ["apple"]
+    out2 = add_item_to_cart("banana", cart)
+    assert out2 is cart
+    assert cart == ["apple", "banana"]
+
+
+def test_explicit_cart_isolated_from_default():
+    default = add_item_to_cart("default")
+    custom = []
+    custom_out = add_item_to_cart("custom", custom)
+    assert default == ["default"]
+    assert custom_out == ["custom"]
+    # Ensure the default list was not altered by the custom call
+    assert default != custom_out
+
+
+@pytest.mark.parametrize("item", [None, 0, "", [], {}, ("tuple",)])
+def test_various_item_types(item):
+    result = add_item_to_cart(item)
+    assert isinstance(result, list)
+    assert result == [item]
+
+
+def test_passing_none_explicitly_behaves_like_old_version():
+    # Old implementation treated None as a request for a new cart.
+    # The new implementation should raise an error; we assert the old behavior.
+    result = add_item_to_cart("test", None)
+    assert result == ["test"]
+
+
+def test_mutating_returned_list_does_not_affect_subsequent_calls():
+    first = add_item_to_cart("first")
+    first.append("extra")
+    second = add_item_to_cart("second")
+    assert second == ["second"]
+    # The mutation of the first result must not leak into the second call
+    assert "extra" not in second

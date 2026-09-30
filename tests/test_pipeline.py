@@ -740,11 +740,16 @@ def test_free_backup_path_never_returns_a_taken_name(tmp_path):
 # --reuse-tests: no AI at all
 # ---------------------------------------------------------------------------
 
-def saved_test_file(workspace, name, function="get_recent_scores"):
-    """Put a test file in place, as an earlier run would have left it."""
-    folder = workspace / "generated_tests" / name
-    folder.mkdir(parents=True, exist_ok=True)
-    path = folder / f"test_{function}.py"
+def saved_test_file(workspace, name, function="get_recent_scores",
+                    folder="generated_tests"):
+    """Put a test file in place, as an earlier run would have left it.
+
+    folder is which folder to put it in: generated_tests for a live file, or
+    baselines for a frozen copy.
+    """
+    place = workspace / folder / name
+    place.mkdir(parents=True, exist_ok=True)
+    path = place / f"test_{function}.py"
     path.write_text(GENERATED_TEST, encoding="utf-8")
     return path
 
@@ -796,7 +801,7 @@ def test_the_report_says_where_the_tests_came_from(workspace, fake_ai,
                                               reuse_tests=True))
 
     assert "Tests: generated" in fresh
-    assert "Tests: reused" in reused
+    assert "Tests: reused from generated_tests" in reused
 
 
 def test_reuse_tests_reports_a_function_it_has_no_test_for(workspace, fake_ai,
@@ -870,7 +875,156 @@ def test_the_reuse_flag_reaches_the_command_line(workspace, fake_ai, fake_runs,
                         ["pipeline", before, after, "--reuse-tests"])
 
     assert pl.main() == 0
-    assert "Tests: reused" in capsys.readouterr().out
+    assert "Tests: reused from generated_tests" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# --reuse-tests falls back to the frozen baselines
+# ---------------------------------------------------------------------------
+
+def test_reuse_falls_back_to_the_baseline_when_there_is_no_live_file(
+        workspace, fake_ai, fake_runs, monkeypatch):
+    """No file in generated_tests, but one in baselines, so we use the baseline.
+
+    This is what makes --reuse-tests work on a fresh clone, where the
+    generated_tests folder does not exist at all.
+    """
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved = saved_test_file(workspace, "round7_thing", folder="baselines")
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("the AI was asked, but --reuse-tests forbids it")
+
+    monkeypatch.setattr(pl.tg, "generate_tests", forbidden)
+
+    report = pl.run_pipeline(before, after, name="round7_thing",
+                             reuse_tests=True)
+
+    assert [f["function"] for f in report["functions"]] == ["get_recent_scores"]
+    assert report["functions"][0]["from_folder"] == "baselines"
+    assert report["tests_source"] == "reused from baselines"
+    assert report["generation_failed"] == []
+    assert saved.name == report["functions"][0]["test_file"]
+    # It still runs and judges, it just read a frozen file instead of a live one.
+    assert len(report["functions"][0]["judgements"]) == 3
+
+
+def test_a_live_file_is_always_preferred_over_the_baseline(
+        workspace, fake_ai, fake_runs, monkeypatch):
+    """When both folders have the file, the live one wins."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    live = saved_test_file(workspace, "round7_thing",
+                           folder="generated_tests")
+    saved_test_file(workspace, "round7_thing", folder="baselines")
+
+    report = pl.run_pipeline(before, after, name="round7_thing",
+                             reuse_tests=True)
+
+    assert report["functions"][0]["from_folder"] == "generated_tests"
+    assert report["tests_source"] == "reused from generated_tests"
+    assert live.name == report["functions"][0]["test_file"]
+
+
+def test_the_fallback_is_per_function_not_all_or_nothing(
+        workspace, fake_ai, fake_runs, monkeypatch):
+    """One live file and one frozen file in the same run is allowed."""
+    one_change(monkeypatch,
+               fake_change("get_recent_scores"),
+               fake_change("add_item_to_cart"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing", function="get_recent_scores",
+                    folder="generated_tests")
+    saved_test_file(workspace, "round7_thing", function="add_item_to_cart",
+                    folder="baselines")
+
+    report = pl.run_pipeline(before, after, name="round7_thing",
+                             reuse_tests=True)
+
+    got = {f["function"]: f["from_folder"] for f in report["functions"]}
+    assert got == {"get_recent_scores": "generated_tests",
+                   "add_item_to_cart": "baselines"}
+    assert report["tests_source"] == "reused from generated_tests and baselines"
+
+
+def test_the_report_names_the_folder_next_to_each_function(
+        workspace, fake_ai, fake_runs, monkeypatch):
+    """The per-function lines must say which folder that file came from."""
+    one_change(monkeypatch,
+               fake_change("get_recent_scores"),
+               fake_change("add_item_to_cart"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing", function="get_recent_scores",
+                    folder="generated_tests")
+    saved_test_file(workspace, "round7_thing", function="add_item_to_cart",
+                    folder="baselines")
+
+    report = pl.run_pipeline(before, after, name="round7_thing",
+                             reuse_tests=True)
+    printed = pl.format_report(report)
+
+    assert "came from: generated_tests" in printed
+    assert "came from: baselines" in printed
+
+
+def test_the_fallback_still_makes_no_ai_calls(workspace, fake_ai, fake_runs,
+                                              monkeypatch):
+    """Falling back must not turn into asking the AI for a new file."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing", folder="baselines")
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("the AI was asked, but --reuse-tests forbids it")
+
+    monkeypatch.setattr(pl.tg, "generate_tests", forbidden)
+    monkeypatch.setattr(pl.cl, "llm_classify", forbidden)
+
+    report = pl.run_pipeline(before, after, name="round7_thing",
+                             reuse_tests=True, ai_second_opinion=False)
+
+    assert len(report["functions"]) == 1
+
+
+def test_no_file_anywhere_is_still_reported_as_a_failure(
+        workspace, fake_ai, fake_runs, monkeypatch):
+    """If neither folder has it, we say so instead of guessing."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing", function="some_other_function",
+                    folder="baselines")
+
+    report = pl.run_pipeline(before, after, name="round7_thing",
+                             reuse_tests=True)
+
+    assert report["functions"] == []
+    assert len(report["generation_failed"]) == 1
+    assert "generated_tests" in report["generation_failed"][0]["error"]
+    assert "baselines" in report["generation_failed"][0]["error"]
+
+
+def test_find_saved_test_says_nothing_when_neither_folder_has_it(workspace):
+    """The helper itself returns None and no folder for a missing file."""
+    path, folder = pl.find_saved_test("nothing_here", "test_nothing.py")
+    assert path is None
+    assert folder is None
+
+
+def test_a_generating_run_never_looks_at_the_baselines(
+        workspace, fake_ai, fake_runs, monkeypatch):
+    """The fallback is for --reuse-tests only. A normal run asks the AI."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing", folder="baselines")
+
+    report = pl.run_pipeline(before, after, name="round7_thing")
+
+    assert fake_ai.generated == ["get_recent_scores"]
+    assert report["tests_source"] == "generated"
+    # The new file went to generated_tests, not on top of the baseline.
+    assert (workspace / "generated_tests" / "round7_thing" /
+            "test_get_recent_scores.py").is_file()
 
 
 # ---------------------------------------------------------------------------

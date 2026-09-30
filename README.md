@@ -51,7 +51,7 @@ prsentinel/
     round1_off_by_one/       <- before.py, after.py, diff.patch
     round2_mutable_default/  <- before.py, after.py, diff.patch
     classifier_cases/        <- nine cases with known answers
-  baselines/                 <- saved test files from a live run
+  baselines/                 <- frozen test files, the reference for the paper
   generated_tests/           <- written by the pipeline, not kept in git
   reports/                   <- written by the pipeline
   requirements.txt
@@ -291,13 +291,33 @@ all.
 ```
 
 Does **not** ask the AI for any new tests. It uses the test files already saved
-in `generated_tests/<name>/`. With this flag the whole run makes no AI calls, so
-the same tests can be run again and the results compared.
+in `generated_tests/<name>/`, and falls back to the frozen copy in
+`baselines/<name>/` for any function that has no live file. That fallback is why
+this still works on a fresh clone, where `generated_tests/` does not exist.
+With this flag the whole run makes no AI calls, so the same tests can be run
+again and the results compared.
+
+`baselines/` holds the frozen reference for the results in the paper. It is the
+fixed set of tests the numbers were measured against, kept unchanged so they can
+be reproduced exactly. `generated_tests/` is the moving part: it holds whatever
+the most recent run wrote, and changes every run.
 
 Every report says where its tests came from, on the line under the file names:
 
 ```
-Tests: generated in generated_tests/round1_off_by_one/
+Tests: generated
+Tests: reused from generated_tests
+Tests: reused from baselines
+Tests: reused from generated_tests and baselines   <- a run that needed both
+```
+
+Each function's lines also name the folder that one file came from, so a mixed
+run can be read properly:
+
+```
+add_item_to_cart  (added)
+  test file: test_add_item_to_cart.py
+  came from: baselines
 ```
 
 ### Keeping older copies
