@@ -2,6 +2,7 @@
   "name": "round2_mutable_default",
   "before": "before.py",
   "after": "after.py",
+  "tests_source": "reused",
   "functions": [
     {
       "function": "add_item_to_cart",
@@ -16,6 +17,7 @@
       "judgements": [
         {
           "test": "test_add_item_to_cart::test_default_cart_is_fresh_each_call",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -32,6 +34,7 @@
         },
         {
           "test": "test_add_item_to_cart::test_various_items_can_be_added[None]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -48,6 +51,7 @@
         },
         {
           "test": "test_add_item_to_cart::test_various_items_can_be_added[]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -64,6 +68,7 @@
         },
         {
           "test": "test_add_item_to_cart::test_various_items_can_be_added[0]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -80,6 +85,7 @@
         },
         {
           "test": "test_add_item_to_cart::test_various_items_can_be_added[item3]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -96,6 +102,7 @@
         },
         {
           "test": "test_add_item_to_cart::test_various_items_can_be_added[item4]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -112,6 +119,7 @@
         },
         {
           "test": "test_add_item_to_cart::test_adding_multiple_items_sequentially",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -128,6 +136,7 @@
         },
         {
           "test": "test_add_item_to_cart::test_cart_isolation_after_mutating_returned_cart",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -144,6 +153,7 @@
         },
         {
           "test": "test_add_item_to_cart::test_default_cart_is_not_shared_across_test_runs",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -158,7 +168,8 @@
           "ai_reason": "",
           "ai_agrees": null
         }
-      ]
+      ],
+      "needs_a_look": []
     }
   ],
   "generation_failed": [],

@@ -20,6 +20,15 @@ def _int_from_env(name: str, default: int) -> int:
         return default
 
 
+def _float_from_env(name: str, default: float) -> float:
+    """Read a decimal number from the environment, or use the default."""
+    raw = os.environ.get(name, "").strip()
+    try:
+        return float(raw)
+    except ValueError:
+        return default
+
+
 # ---------------------------------------------------------------------------
 # Models. These are the only two places a model name is written down.
 # ---------------------------------------------------------------------------
@@ -60,6 +69,23 @@ GEMINI_FILTERS_ADDED = 0
 # same answer. A test that passes once and fails once is flaky, so one run on
 # its own is never enough to trust.
 RERUN_TIMES = _int_from_env("PRSENTINEL_RERUN_TIMES", 5)
+
+
+# ---------------------------------------------------------------------------
+# How creative the AI is allowed to be.
+# ---------------------------------------------------------------------------
+
+# This is used ONLY when the AI is writing new tests, and nowhere else. A
+# temperature of 0 asks for the most predictable answer we can get, which is
+# what we want when the job is to write tests that agree with the code.
+#
+# It does NOT make the AI perfectly repeatable. Even at 0, a hosted model can
+# give a slightly different answer each time, so running the generator twice
+# can still produce two different test files.
+#
+# The failure classifier does not use this setting. It keeps whatever
+# temperature the provider chooses, so classifying is not affected by it.
+GENERATION_TEMPERATURE = _float_from_env("PRSENTINEL_TEMPERATURE", 0.0)
 
 
 # ---------------------------------------------------------------------------

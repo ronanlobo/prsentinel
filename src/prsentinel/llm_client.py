@@ -72,19 +72,23 @@ def seconds_to_wait(error, attempt: int) -> float:
     return float(config.WAIT_SECONDS) * (2 ** attempt)
 
 
-def call_with_retry(provider_name: str, provider_call, prompt: str) -> str:
+def call_with_retry(provider_name: str, provider_call, prompt: str,
+                    temperature=None) -> str:
     """Call a provider, and wait and try again if it says we are going too fast.
 
     A rate limit is waited out and retried. Anything else, such as a wrong
     key, is raised straight away so we do not waste time. If the retries run
     out, the last error is raised and ask_llm moves on to the next provider.
+
+    temperature is passed on to the provider when it is not None. Leaving it
+    out means we send nothing and the provider picks its own.
     """
     wait = float(config.WAIT_SECONDS)
     attempt = 0
 
     while True:
         try:
-            return provider_call(prompt)
+            return provider_call(prompt, temperature)
         except Exception as error:
             if not is_rate_limit_error(error):
                 # Not a rate limit, so trying again will not help.
@@ -124,11 +128,16 @@ def quiet_gemini_afc_note() -> None:
     config.GEMINI_FILTERS_ADDED += 1
 
 
-def ask_llm(prompt: str) -> str:
+def ask_llm(prompt: str, temperature=None) -> str:
     """Send a prompt to an LLM and return the answer as text.
 
     Tries Groq first. If Groq fails (no key, server error, rate limit) it
     automatically tries Gemini. Raises RuntimeError if both fail.
+
+    temperature is optional. Leave it out and nothing is sent, so the provider
+    uses its own default. That is what the failure classifier does. Pass a
+    number when writing new tests, so they come out as predictable as we can
+    make them.
     """
     if not prompt or not prompt.strip():
         raise ValueError("The prompt is empty, so there is nothing to ask.")
@@ -136,7 +145,7 @@ def ask_llm(prompt: str) -> str:
     # --- Try Groq first -----------------------------------------------------
     if config.has_groq_key():
         try:
-            answer = call_with_retry("Groq", _ask_groq, prompt)
+            answer = call_with_retry("Groq", _ask_groq, prompt, temperature)
             print(f"[prsentinel] answer came from Groq ({config.GROQ_MODEL})")
             return answer
         except Exception as error:
@@ -147,7 +156,7 @@ def ask_llm(prompt: str) -> str:
     # --- Then fall back to Gemini ------------------------------------------
     if config.has_gemini_key():
         try:
-            answer = call_with_retry("Gemini", _ask_gemini, prompt)
+            answer = call_with_retry("Gemini", _ask_gemini, prompt, temperature)
             print(f"[prsentinel] answer came from Gemini ({config.GEMINI_MODEL})")
             return answer
         except Exception as error:
@@ -160,8 +169,12 @@ def ask_llm(prompt: str) -> str:
     )
 
 
-def _ask_groq(prompt: str) -> str:
-    """Send the prompt to Groq and return the answer as text."""
+def _ask_groq(prompt: str, temperature=None) -> str:
+    """Send the prompt to Groq and return the answer as text.
+
+    temperature is only sent when it is not None. Sending nothing leaves Groq
+    to use its own default, which is what the classifier relies on.
+    """
     # Imported here, not at the top, so the project still works if this
     # package is not installed.
     from groq import Groq
@@ -170,15 +183,22 @@ def _ask_groq(prompt: str) -> str:
         api_key=config.get_groq_api_key(),
         default_headers={"User-Agent": USER_AGENT},
     )
-    response = client.chat.completions.create(
-        model=config.GROQ_MODEL,
-        messages=[{"role": "user", "content": prompt}],
-    )
+
+    settings = {"model": config.GROQ_MODEL,
+                "messages": [{"role": "user", "content": prompt}]}
+    if temperature is not None:
+        settings["temperature"] = temperature
+
+    response = client.chat.completions.create(**settings)
     return response.choices[0].message.content or ""
 
 
-def _ask_gemini(prompt: str) -> str:
-    """Send the prompt to Gemini and return the answer as text."""
+def _ask_gemini(prompt: str, temperature=None) -> str:
+    """Send the prompt to Gemini and return the answer as text.
+
+    temperature is only sent when it is not None. Sending nothing leaves
+    Gemini to use its own default, which is what the classifier relies on.
+    """
     # Imported here so the project still works if this package is missing.
     from google import genai
 
@@ -186,8 +206,10 @@ def _ask_gemini(prompt: str) -> str:
     quiet_gemini_afc_note()
 
     client = genai.Client(api_key=config.get_gemini_api_key())
-    response = client.models.generate_content(
-        model=config.GEMINI_MODEL,
-        contents=prompt,
-    )
+
+    settings = {"model": config.GEMINI_MODEL, "contents": prompt}
+    if temperature is not None:
+        settings["config"] = {"temperature": temperature}
+
+    response = client.models.generate_content(**settings)
     return response.text or ""

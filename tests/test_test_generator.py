@@ -5,6 +5,7 @@ Everything here uses a fake ask_llm, so no test touches the internet.
 
 import pytest
 
+from prsentinel import config
 from prsentinel import test_generator as tg
 
 # One real change taken from the round 2 example, so the test data matches
@@ -124,8 +125,9 @@ def test_generate_tests_uses_a_fake_ask_llm(monkeypatch):
     """A fake AI reply is turned into just the test code."""
     sent = {}
 
-    def fake_ask(prompt):
+    def fake_ask(prompt, temperature=None):
         sent["prompt"] = prompt
+        sent["temperature"] = temperature
         return "sure\n```python\ndef test_x():\n    assert True\n```"
 
     monkeypatch.setattr(tg, "ask_llm", fake_ask)
@@ -133,6 +135,19 @@ def test_generate_tests_uses_a_fake_ask_llm(monkeypatch):
 
     assert code == "def test_x():\n    assert True\n"
     assert "add_item_to_cart" in sent["prompt"]
+
+    # Writing tests asks for the most predictable answer we can get.
+    assert sent["temperature"] == config.GENERATION_TEMPERATURE
+
+
+def test_writing_tests_uses_the_temperature_from_the_environment(monkeypatch):
+    """The temperature comes from the setting, not from a number in the code."""
+    monkeypatch.setenv("PRSENTINEL_TEMPERATURE", "0.25")
+    assert config._float_from_env("PRSENTINEL_TEMPERATURE", 0.0) == 0.25
+
+    # A setting that is not a number falls back to the default.
+    monkeypatch.setenv("PRSENTINEL_TEMPERATURE", "warm")
+    assert config._float_from_env("PRSENTINEL_TEMPERATURE", 0.0) == 0.0
 
 
 def test_safe_file_name_replaces_dots():

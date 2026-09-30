@@ -13,14 +13,14 @@ from prsentinel import config, llm_client
 
 def fail_with(message):
     """Return a stand-in provider that always breaks."""
-    def broken(prompt):
+    def broken(prompt, temperature=None):
         raise RuntimeError(message)
     return broken
 
 
 def answer_with(text):
     """Return a stand-in provider that always answers with the same text."""
-    def working(prompt):
+    def working(prompt, temperature=None):
         return text
     return working
 
@@ -50,6 +50,63 @@ def test_falls_back_to_gemini_when_groq_fails(monkeypatch):
     monkeypatch.setattr(llm_client, "_ask_groq", fail_with("rate limited"))
     monkeypatch.setattr(llm_client, "_ask_gemini", answer_with("from gemini"))
     assert llm_client.ask_llm("hello") == "from gemini"
+
+
+def test_a_given_temperature_reaches_the_provider(monkeypatch):
+    """A temperature we ask for is handed on to the provider."""
+    set_up_two_keys(monkeypatch)
+    seen = []
+
+    def recording(prompt, temperature=None):
+        seen.append(temperature)
+        return "answer"
+
+    monkeypatch.setattr(llm_client, "_ask_groq", recording)
+    llm_client.ask_llm("hello", 0.0)
+
+    assert seen == [0.0]
+
+
+def test_no_temperature_is_sent_unless_one_is_asked_for(monkeypatch):
+    """Leaving it out means we send nothing, so the provider uses its own.
+
+    This is the path the failure classifier takes, and it must stay untouched.
+    """
+    set_up_two_keys(monkeypatch)
+    seen = []
+
+    def recording(prompt, temperature=None):
+        seen.append(temperature)
+        return "answer"
+
+    monkeypatch.setattr(llm_client, "_ask_groq", recording)
+    llm_client.ask_llm("hello")
+
+    assert seen == [None]
+
+
+def test_a_temperature_survives_the_fallback_to_gemini(monkeypatch):
+    """The backup provider must get the same temperature as the first one."""
+    set_up_two_keys(monkeypatch)
+    seen = []
+
+    def groq_fails(prompt, temperature=None):
+        raise RuntimeError("groq is down")
+
+    def gemini_answers(prompt, temperature=None):
+        seen.append(temperature)
+        return "from gemini"
+
+    monkeypatch.setattr(llm_client, "_ask_groq", groq_fails)
+    monkeypatch.setattr(llm_client, "_ask_gemini", gemini_answers)
+
+    assert llm_client.ask_llm("hello", 0.0) == "from gemini"
+    assert seen == [0.0], "Gemini must get the temperature too"
+
+
+def test_the_default_temperature_is_zero():
+    """The setting starts at 0, which asks for the most predictable answer."""
+    assert config._float_from_env("PRSENTINEL_A_NAME_THAT_IS_NOT_SET", 0.0) == 0.0
 
 
 def test_both_failing_raises_a_clear_error(monkeypatch):
@@ -122,7 +179,7 @@ def test_retries_then_succeeds(monkeypatch):
     waits = []
     monkeypatch.setattr(llm_client.time, "sleep", waits.append)
 
-    def flaky(prompt):
+    def flaky(prompt, temperature=None):
         calls.append(prompt)
         if len(calls) < 3:
             raise Exception("Error code: 429")
@@ -138,7 +195,7 @@ def test_gives_up_after_max_retries_and_falls_back(monkeypatch):
     monkeypatch.setattr(llm_client.time, "sleep", lambda seconds: None)
     set_up_two_keys(monkeypatch)
 
-    def always_limited(prompt):
+    def always_limited(prompt, temperature=None):
         raise Exception("429 RESOURCE_EXHAUSTED")
 
     monkeypatch.setattr(llm_client, "_ask_groq", always_limited)
@@ -154,7 +211,7 @@ def test_invalid_key_is_not_retried(monkeypatch):
     monkeypatch.setattr(llm_client.time, "sleep", waits.append)
     set_up_two_keys(monkeypatch)
 
-    def wrong_key(prompt):
+    def wrong_key(prompt, temperature=None):
         calls.append(prompt)
         raise Exception("401 invalid_api_key")
 

@@ -45,18 +45,26 @@ def fake_evidence(**changes):
 
 @pytest.fixture
 def answer_recorder(monkeypatch):
-    """Replace ask_llm with a fake and collect the prompts it was given."""
+    """Replace ask_llm with a fake and collect the prompts it was given.
+
+    We also collect the temperature, so a test can check the classifier never
+    asks for one. The classifier must keep using whatever the provider picks,
+    so the generation setting must not reach it.
+    """
     prompts = []
     replies = []
+    temperatures = []
 
     def install(*given_replies):
         """Make ask_llm reply with the given strings, one per call."""
         prompts.clear()
         replies.clear()
+        temperatures.clear()
         replies.extend(given_replies)
 
-        def fake_ask_llm(prompt):
+        def fake_ask_llm(prompt, temperature=None):
             prompts.append(prompt)
+            temperatures.append(temperature)
             if not replies:
                 raise AssertionError("ask_llm was called more often than expected")
             return replies.pop(0)
@@ -65,6 +73,7 @@ def answer_recorder(monkeypatch):
         return prompts
 
     install.install = install
+    install.temperatures = temperatures
     return install
 
 
@@ -518,11 +527,25 @@ def test_the_prompt_does_not_hand_over_the_verdict():
     assert "verdict" not in prompt
 
 
+def test_classifying_never_asks_for_a_temperature(answer_recorder):
+    """The generation setting must not reach the classifier.
+
+    Writing tests may use a set temperature, so the answers come out
+    predictably. Classifying must keep whatever the provider normally chooses,
+    so it must never ask for one.
+    """
+    answer_recorder.install('{"label": "REAL_BUG", "confidence": "high", '
+                            '"reason": "because"}')
+    cl.llm_classify(fake_evidence(), cl.MODE_FULL)
+
+    assert answer_recorder.temperatures == [None], \
+        "the classifier must not send a temperature"
+
+
 def test_the_prompt_refuses_an_unknown_mode():
     """Only the two modes we wrote exist."""
     with pytest.raises(ValueError):
         cl.build_prompt(fake_evidence(), "psychic")
-
 
 # ---------------------------------------------------------------------------
 # The classifier must never read the answer key

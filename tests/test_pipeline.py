@@ -51,23 +51,31 @@ class FakeAI:
 
 
 class FakeRuns:
-    """Fixed test results, read fresh each time so a test can change them."""
+    """Fixed test results, read fresh each time so a test can change them.
+
+    Also counts how many times the pipeline asked for a run, so a test can
+    check we are not running pytest once per test.
+    """
 
     def __init__(self, wanted):
         self.wanted = wanted
+        self.counts = {"run_tests": 0, "rerun_failures": 0}
 
     def before_run(self):
         """One run against the old code."""
+        self.counts["run_tests"] += 1
         return fake_run(self.wanted["before"])
 
     def after_run(self):
         """One run against the new code, with a message for each failure."""
+        self.counts["run_tests"] += 1
         messages = {name: f"assert failed in {name}"
                     for name in self.wanted["after"]}
         return fake_run(self.wanted["after"], messages)
 
     def rerun_run(self):
         """The reruns against the new code."""
+        self.counts["rerun_failures"] += 1
         return {"status": tr.OK, "times": 5,
                 "tests": self.wanted["rerun"], "error": ""}
 
@@ -303,6 +311,172 @@ def test_with_the_flag_the_ai_is_asked_once_per_failing_test(workspace, fake_ai,
     assert all(mode == cl.MODE_FULL for _, mode in fake_ai.calls)
 
 
+# ---------------------------------------------------------------------------
+# Step 6: tests that are wrong even on the correct code
+# ---------------------------------------------------------------------------
+
+def test_a_test_wrong_on_the_correct_code_is_judged(workspace, fake_ai,
+                                                    fake_runs, monkeypatch):
+    """A test that fails on the OLD code gets a verdict too.
+
+    The rule already knows what to do with one of these: a test that fails on
+    code that used to work is a bad test.
+    """
+    fake_runs.wanted = {
+        "before": {"t::test_bad": tr.FAILED},
+        "after": {"t::test_bad": tr.FAILED},
+        "rerun": {"t::test_bad": {"passes": 0, "fails": 5,
+                                  "verdict": tr.ALWAYS_FAILS}},
+    }
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    report = pl.run_pipeline(before, after)
+    function = report["functions"][0]
+
+    assert function["counts"][tr.TEST_WRONG_ON_BEFORE] == 1
+    assert len(function["judgements"]) == 1
+
+    judgement = function["judgements"][0]
+    assert judgement["test"] == "t::test_bad"
+    assert judgement["label"] == tr.TEST_WRONG_ON_BEFORE
+    assert judgement["verdict"] == cl.BAD_TEST
+    assert cl.BAD_TEST in pl.format_report(report)
+
+
+def test_a_bad_test_is_never_counted_as_a_real_bug(workspace, fake_ai,
+                                                   fake_runs, monkeypatch):
+    """A wrong test is not evidence of a bug, so it stays out of the summary."""
+    fake_runs.wanted = {
+        "before": {"t::test_bad": tr.FAILED, "t::test_real": tr.PASSED},
+        "after": {"t::test_bad": tr.FAILED, "t::test_real": tr.FAILED},
+        "rerun": {
+            "t::test_bad": {"passes": 0, "fails": 5,
+                            "verdict": tr.ALWAYS_FAILS},
+            "t::test_real": {"passes": 0, "fails": 5,
+                             "verdict": tr.ALWAYS_FAILS},
+        },
+    }
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    report = pl.run_pipeline(before, after)
+
+    # Two tests failed on the new code, but only one of them counts.
+    assert len(report["functions"][0]["judgements"]) == 2
+    assert report["summary"] == \
+        "1 test points to a real bug in get_recent_scores."
+
+
+def test_an_odd_test_is_listed_but_not_judged(workspace, fake_ai, fake_runs,
+                                              monkeypatch):
+    """A test that only the new code satisfies is a question for a person.
+
+    A rule cannot tell whether that test is wrong or the change simply added
+    behaviour, so we point at it and stop there.
+    """
+    fake_runs.wanted = {
+        "before": {"t::test_odd": tr.FAILED},
+        "after": {"t::test_odd": tr.PASSED},
+        "rerun": {},
+    }
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    report = pl.run_pipeline(before, after)
+    function = report["functions"][0]
+    text = pl.format_report(report)
+
+    assert function["counts"][tr.ODD] == 1
+    assert function["needs_a_look"] == ["t::test_odd"]
+    assert function["judgements"] == [], "an odd test must not be judged"
+    assert "needs a human look" in text
+    assert "t::test_odd" in text
+
+
+def test_an_odd_test_does_not_ask_the_ai_either(workspace, fake_ai, fake_runs,
+                                                monkeypatch):
+    """Listing an odd test is not judging it, so no AI call is made."""
+    fake_runs.wanted = {
+        "before": {"t::test_odd": tr.FAILED},
+        "after": {"t::test_odd": tr.PASSED},
+        "rerun": {},
+    }
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    pl.run_pipeline(before, after, ai_second_opinion=True)
+
+    assert fake_ai.calls == []
+
+
+def test_a_wrong_test_and_an_odd_test_are_both_reported(workspace, fake_ai,
+                                                        fake_runs, monkeypatch):
+    """The two awkward cases sit side by side without being confused."""
+    fake_runs.wanted = {
+        "before": {"t::test_bad": tr.FAILED, "t::test_odd": tr.FAILED,
+                   "t::test_real": tr.PASSED},
+        "after": {"t::test_bad": tr.FAILED, "t::test_odd": tr.PASSED,
+                  "t::test_real": tr.FAILED},
+        "rerun": {
+            "t::test_bad": {"passes": 0, "fails": 5,
+                            "verdict": tr.ALWAYS_FAILS},
+            "t::test_real": {"passes": 0, "fails": 5,
+                             "verdict": tr.ALWAYS_FAILS},
+        },
+    }
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    report = pl.run_pipeline(before, after)
+    function = report["functions"][0]
+
+    judged = sorted(j["test"] for j in function["judgements"])
+    assert judged == ["t::test_bad", "t::test_real"]
+    assert function["needs_a_look"] == ["t::test_odd"]
+    assert report["summary"] == \
+        "1 test points to a real bug in get_recent_scores."
+
+
+# ---------------------------------------------------------------------------
+# The tests are run once per file, not once per test
+# ---------------------------------------------------------------------------
+
+def test_pytest_runs_once_per_file_not_once_per_test(workspace, fake_ai,
+                                                     fake_runs, monkeypatch):
+    """Three failing tests must not mean three sets of pytest runs.
+
+    Every test in a file shares one run on the old code, one on the new code,
+    and one set of reruns. Running them again per test would be wasted work.
+    """
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    report = pl.run_pipeline(before, after)
+
+    assert len(report["functions"][0]["judgements"]) == 3
+    assert fake_runs.counts["run_tests"] == 2, "one run per version of the module"
+    assert fake_runs.counts["rerun_failures"] == 1, "one set of reruns"
+
+
+def test_no_runs_at_all_when_nothing_needs_judging(workspace, fake_ai,
+                                                   fake_runs, monkeypatch):
+    """If every test passes on the new code we do not bother running anything."""
+    fake_runs.wanted = {
+        "before": {"t::test_clean": tr.PASSED},
+        "after": {"t::test_clean": tr.PASSED},
+        "rerun": {},
+    }
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    report = pl.run_pipeline(before, after)
+
+    assert report["functions"][0]["judgements"] == []
+    assert fake_runs.counts["run_tests"] == 0
+    assert fake_runs.counts["rerun_failures"] == 0
+
+
 def test_a_disagreement_is_flagged(workspace, fake_ai, fake_runs, monkeypatch):
     """When the AI says something else, we say so in the report."""
     one_change(monkeypatch, fake_change("get_recent_scores"))
@@ -485,7 +659,218 @@ def test_no_backup_is_made_when_there_is_nothing_to_replace(workspace, fake_ai,
     pl.run_pipeline(before, after)
 
     folder = workspace / "generated_tests" / "round7_thing"
-    assert list(folder.glob("*.bak")) == []
+    assert list(folder.glob("*.bak*")) == []
+
+
+# ---------------------------------------------------------------------------
+# An existing backup is never overwritten
+# ---------------------------------------------------------------------------
+
+def test_a_second_run_keeps_both_older_copies(workspace, fake_ai, fake_runs,
+                                              monkeypatch):
+    """The second backup must not land on top of the first one.
+
+    This is the exact mistake that lost the original 108-line round 2 file: an
+    earlier run put it in .bak, and the next run wrote over the same name.
+    """
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    folder = workspace / "generated_tests" / "round7_thing"
+    folder.mkdir(parents=True, exist_ok=True)
+
+    main_file = folder / "test_get_recent_scores.py"
+
+    # Run 1: the version we were given, and then a generated one.
+    main_file.write_text("# version 0\n", encoding="utf-8")
+    pl.run_pipeline(before, after)
+
+    # Run 2: a second generated version, which must be kept separately.
+    main_file.write_text("# version 1\n", encoding="utf-8")
+    pl.run_pipeline(before, after)
+
+    first = folder / ("test_get_recent_scores.py" + pl.BACKUP_SUFFIX)
+    second = folder / ("test_get_recent_scores.py" + pl.BACKUP_SUFFIX + ".2")
+
+    assert first.read_text(encoding="utf-8") == "# version 0\n"
+    assert second.read_text(encoding="utf-8") == "# version 1\n"
+
+
+def test_backups_keep_numbering_up_forever(workspace, fake_ai, fake_runs,
+                                           monkeypatch):
+    """Every run adds a new backup and none of the old ones change."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    folder = workspace / "generated_tests" / "round7_thing"
+    folder.mkdir(parents=True, exist_ok=True)
+    main_file = folder / "test_get_recent_scores.py"
+
+    for run in range(4):
+        main_file.write_text(f"# version {run}\n", encoding="utf-8")
+        pl.run_pipeline(before, after)
+
+    names = sorted(p.name for p in folder.glob("*.bak*"))
+    assert names == ["test_get_recent_scores.py.bak",
+                     "test_get_recent_scores.py.bak.2",
+                     "test_get_recent_scores.py.bak.3",
+                     "test_get_recent_scores.py.bak.4"]
+
+    # The oldest one is still exactly what it was.
+    oldest = folder / names[0]
+    assert oldest.read_text(encoding="utf-8") == "# version 0\n"
+
+
+def test_free_backup_path_never_returns_a_taken_name(tmp_path):
+    """The helper itself always points at a name that is free."""
+    path = tmp_path / "test_x.py"
+
+    first = pl.free_backup_path(path)
+    assert first.name == "test_x.py.bak"
+
+    first.write_text("something", encoding="utf-8")
+    second = pl.free_backup_path(path)
+    assert second.name == "test_x.py.bak.2"
+
+    second.write_text("something", encoding="utf-8")
+    third = pl.free_backup_path(path)
+    assert third.name == "test_x.py.bak.3"
+    assert not third.exists()
+
+
+# ---------------------------------------------------------------------------
+# --reuse-tests: no AI at all
+# ---------------------------------------------------------------------------
+
+def saved_test_file(workspace, name, function="get_recent_scores"):
+    """Put a test file in place, as an earlier run would have left it."""
+    folder = workspace / "generated_tests" / name
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"test_{function}.py"
+    path.write_text(GENERATED_TEST, encoding="utf-8")
+    return path
+
+
+def test_reuse_tests_makes_no_ai_calls(workspace, fake_ai, fake_runs,
+                                       monkeypatch):
+    """With --reuse-tests the AI is never asked for anything."""
+    def forbidden(*args, **kwargs):
+        raise AssertionError("the AI was asked, but --reuse-tests forbids it")
+
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing")
+
+    monkeypatch.setattr(pl.tg, "generate_tests", forbidden)
+    monkeypatch.setattr(cl, "llm_classify", forbidden)
+
+    pl.run_pipeline(before, after, reuse_tests=True)
+
+    assert fake_ai.calls == []
+
+
+def test_reuse_tests_does_not_write_a_new_test_file(workspace, fake_ai,
+                                                    fake_runs, monkeypatch):
+    """The saved test must come out the other side untouched."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    path = saved_test_file(workspace, "round7_thing")
+    original = path.read_text(encoding="utf-8")
+
+    pl.run_pipeline(before, after, reuse_tests=True)
+
+    assert path.read_text(encoding="utf-8") == original
+    assert list(path.parent.glob("*.bak*")) == [], \
+        "reusing a test must not make a backup, because nothing was replaced"
+
+
+def test_the_report_says_where_the_tests_came_from(workspace, fake_ai,
+                                                   fake_runs, monkeypatch):
+    """A saved report must always say whether the tests were new or reused."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing")
+
+    fresh = pl.format_report(pl.run_pipeline(before, after,
+                                             name="round7_thing"))
+    reused = pl.format_report(pl.run_pipeline(before, after,
+                                              name="round7_thing",
+                                              reuse_tests=True))
+
+    assert "Tests: generated" in fresh
+    assert "Tests: reused" in reused
+
+
+def test_reuse_tests_reports_a_function_it_has_no_test_for(workspace, fake_ai,
+                                                           fake_runs,
+                                                           monkeypatch):
+    """A missing saved test is a failure in the report, not a crash."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    # Deliberately do not save a test file.
+
+    report = pl.run_pipeline(before, after, reuse_tests=True)
+
+    assert report["functions"] == []
+    assert len(report["generation_failed"]) == 1
+    assert "no saved test file" in report["generation_failed"][0]["error"]
+    assert report["summary"] == "No test points to a real bug in the code."
+
+
+def test_reuse_tests_skips_a_removed_function(workspace, fake_ai, fake_runs,
+                                              monkeypatch):
+    """A deleted function has no test to reuse and no test to want."""
+    one_change(monkeypatch,
+               fake_change("gone_function", change_type="removed"),
+               fake_change("still_here_function"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing", function="still_here_function")
+
+    report = pl.run_pipeline(before, after, reuse_tests=True)
+
+    assert [f["function"] for f in report["functions"]] == ["still_here_function"]
+    assert [s["function"] for s in report["skipped"]] == ["gone_function"]
+
+
+def test_reuse_tests_still_runs_and_judges(workspace, fake_ai, fake_runs,
+                                           monkeypatch):
+    """Reusing tests must not mean skipping the work."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing")
+
+    report = pl.run_pipeline(before, after, reuse_tests=True)
+
+    assert len(report["functions"][0]["judgements"]) == 3
+    assert "points to a real bug" in report["summary"]
+
+
+def test_reuse_tests_is_off_by_default(workspace, fake_ai, fake_runs,
+                                       monkeypatch):
+    """Without the flag we ask the AI, as before."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+
+    report = pl.run_pipeline(before, after)
+
+    assert fake_ai.generated == ["get_recent_scores"]
+    assert report["tests_source"] == "generated"
+
+
+def test_the_reuse_flag_reaches_the_command_line(workspace, fake_ai, fake_runs,
+                                                 monkeypatch, capsys):
+    """The flag is wired up on the command line, not just in the function."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace, name="round7_thing")
+    saved_test_file(workspace, "round7_thing")
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("the AI was asked, but --reuse-tests forbids it")
+
+    monkeypatch.setattr(pl.tg, "generate_tests", forbidden)
+    monkeypatch.setattr("sys.argv",
+                        ["pipeline", before, after, "--reuse-tests"])
+
+    assert pl.main() == 0
+    assert "Tests: reused" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------

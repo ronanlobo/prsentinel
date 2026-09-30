@@ -15,6 +15,7 @@ import argparse
 import re
 from pathlib import Path
 
+from . import config
 from .diff_extractor import extract_changes_from_files
 from .llm_client import ask_llm
 
@@ -118,9 +119,13 @@ def extract_code(reply: str) -> str:
 
 
 def generate_tests(change: dict) -> str:
-    """Ask the AI for tests aimed at one change, and return the test code."""
+    """Ask the AI for tests aimed at one change, and return the test code.
+
+    We ask for the most predictable answer we can get, using the temperature
+    set in config.py. Lower is more predictable.
+    """
     prompt = build_prompt(change)
-    reply = ask_llm(prompt)
+    reply = ask_llm(prompt, config.GENERATION_TEMPERATURE)
     return extract_code(reply)
 
 

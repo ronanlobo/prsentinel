@@ -2,6 +2,7 @@
   "name": "round1_off_by_one",
   "before": "before.py",
   "after": "after.py",
+  "tests_source": "reused",
   "functions": [
     {
       "function": "get_recent_scores",
@@ -16,6 +17,7 @@
       "judgements": [
         {
           "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores0-3]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -32,6 +34,7 @@
         },
         {
           "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores1-2]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -48,6 +51,7 @@
         },
         {
           "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores4-0]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -64,6 +68,7 @@
         },
         {
           "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores5--2]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -80,6 +85,7 @@
         },
         {
           "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores9-0]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -96,6 +102,7 @@
         },
         {
           "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores10--1]",
+          "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
           "before": "passed",
@@ -110,7 +117,8 @@
           "ai_reason": "",
           "ai_agrees": null
         }
-      ]
+      ],
+      "needs_a_look": []
     }
   ],
   "generation_failed": [],
