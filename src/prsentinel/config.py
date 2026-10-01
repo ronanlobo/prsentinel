@@ -72,6 +72,22 @@ RERUN_TIMES = _int_from_env("PRSENTINEL_RERUN_TIMES", 5)
 
 
 # ---------------------------------------------------------------------------
+# Repairing a test the pipeline judged to be the wrong test.
+# ---------------------------------------------------------------------------
+
+# How many times we ask for the same test to be corrected before giving up. A
+# test that still fails on the old code after this many tries is reported as
+# unrepaired and left exactly as it was.
+MAX_REPAIR_ATTEMPTS = _int_from_env("PRSENTINEL_MAX_REPAIR_ATTEMPTS", 2)
+
+# The most repair calls one run may make altogether, across every test. One
+# file can hold several wrong tests and every attempt is a call to the AI, so
+# this stops a run with a lot of them from spending the whole day's allowance.
+MAX_REPAIR_CALLS_PER_RUN = _int_from_env("PRSENTINEL_MAX_REPAIR_CALLS_PER_RUN",
+                                         10)
+
+
+# ---------------------------------------------------------------------------
 # How creative the AI is allowed to be.
 # ---------------------------------------------------------------------------
 

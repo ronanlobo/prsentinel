@@ -55,9 +55,12 @@ results only.
 import argparse
 import json
 import shutil
+import tempfile
 from pathlib import Path
 
 from prsentinel import classifier as cl
+from prsentinel import config
+from prsentinel import repair
 from prsentinel import test_generator as tg
 from prsentinel import test_runner as tr
 from prsentinel.diff_extractor import extract_changes_from_files
@@ -411,6 +414,286 @@ def check_all_files(before_file, after_file, outcomes, ai_second_opinion) -> lis
 
 
 # ---------------------------------------------------------------------------
+# Step 5b: repairing a test that was judged to be the wrong test
+# ---------------------------------------------------------------------------
+# Only a test judged to be the wrong test is ever repaired. A test judged to be
+# pointing at a real bug is never touched, because repairing it would hide the
+# bug, and a test judged to be flaky is never touched, because it is not wrong.
+#
+# A repair is a candidate file, never an edit. It is written to a folder of its
+# own, run there, and copied over the real file only when it is accepted. So a
+# repair that fails, or that damages another test, or that crashes, leaves the
+# real file exactly as it was.
+
+def labelled_rows(before_run, after_run) -> list:
+    """Label every test from runs we already have.
+
+    The same rule the runner uses, read off runs that have already happened
+    rather than running the file twice more to find out.
+    """
+    names = list(before_run["tests"].keys()) or list(after_run["tests"].keys())
+
+    rows = []
+    for name in names:
+        before_result = before_run["tests"].get(name, tr.TEST_ERROR)
+        after_result = after_run["tests"].get(name, tr.TEST_ERROR)
+        rows.append({
+            "name": name,
+            "before": before_result,
+            "after": after_result,
+            "label": tr.label_for(before_result, after_result),
+        })
+    return rows
+
+
+def suite_weakened(baseline_rows, candidate_rows, before_run) -> bool:
+    """True when a candidate file is worse than the file it would replace.
+
+    Two things count, and either one throws the whole candidate away:
+
+    - a test that used to catch the change no longer catches it, so a real bug
+      would slip past a test that was working;
+    - a test that used to pass on the old code now fails on it, so the file is
+      now wrong about behaviour it used to get right.
+
+    It is checked across the whole file, not only the test being repaired,
+    because a repair rewrites the whole file and can damage its neighbours.
+    """
+    candidate_by_name = {row["name"]: row for row in candidate_rows}
+
+    for row in baseline_rows:
+        new = candidate_by_name.get(row["name"])
+
+        if row["label"] == tr.CATCHES_CHANGE:
+            if new is None or new["label"] != tr.CATCHES_CHANGE:
+                return True
+
+        if row["before"] in (tr.PASSED, tr.SKIPPED):
+            new_before = before_run["tests"].get(row["name"], tr.TEST_ERROR)
+            if new_before not in (tr.PASSED, tr.SKIPPED):
+                return True
+
+    return False
+
+
+def failure_message_for(rows, test_name) -> str:
+    """The message the failing test printed, from the rows we already have."""
+    for row in rows:
+        if row["name"] == test_name:
+            return row.get("detail_full") or row.get("detail") or ""
+    return ""
+
+
+def test_candidate(before_file, after_file, original_test_file, candidate_text,
+                   test_name, baseline_rows, work_dir) -> dict:
+    """Run one candidate repair somewhere harmless and say what it did.
+
+    Returns whether it passes on the old code, whether it weakened the file, and
+    the verdict for the test it was asked to fix. Nothing is written to the real
+    test file here. That only happens if the caller accepts the candidate.
+    """
+    candidate_path = Path(work_dir) / Path(original_test_file).name
+    candidate_path.write_text(candidate_text, encoding="utf-8")
+
+    before_run, after_run, rerun_run = run_all_three(before_file, after_file,
+                                                     candidate_path)
+    rows = labelled_rows(before_run, after_run)
+
+    before_result = before_run["tests"].get(test_name, tr.TEST_ERROR)
+
+    verdict = cl.rule_classify(
+        cl.build_evidence(before_run, after_run, rerun_run,
+                          before_file, after_file, candidate_path, test_name))
+
+    return {
+        "passes_on_before": before_result in (tr.PASSED, tr.SKIPPED),
+        "weakened": suite_weakened(baseline_rows, rows, before_run),
+        "verdict": verdict["label"],
+        "reason": verdict["reason"],
+        "label": next((row["label"] for row in rows
+                       if row["name"] == test_name), ""),
+    }
+
+
+def repair_one_test(before_file, after_file, test_file, change, judgement,
+                    baseline_rows, budget, ask) -> dict:
+    """Try to correct one test that was judged to be the wrong test.
+
+    A repair counts as done when the corrected test passes on the old code and
+    is no longer judged to be the wrong test. A repair that damages another test
+    is thrown away and tried again, with a line in the prompt saying so.
+
+    Returns a record of what happened. Nothing is returned with the original
+    file changed unless the repair was accepted.
+    """
+    test_name = judgement["test"]
+    failure_message = failure_message_for(baseline_rows, test_name)
+
+    record = {
+        "function": change["name"],
+        "test_file": Path(test_file).name,
+        "test": test_name,
+        "attempts": 0,
+        "outcome": "unrepaired BAD_TEST",
+        "final_verdict": judgement["verdict"],
+        "final_reason": judgement["reason"],
+        "final_label": judgement["label"],
+    }
+
+    last_was_weakened = False
+    every_attempt_weakened = True
+
+    for attempt in range(1, config.MAX_REPAIR_ATTEMPTS + 1):
+        if budget["calls"] >= budget["limit"]:
+            record["outcome"] = "not attempted, repair budget reached"
+            return record
+
+        budget["calls"] += 1
+        record["attempts"] = attempt
+
+        print(f"[prsentinel] repairing {test_name} (attempt {attempt} of "
+              f"{config.MAX_REPAIR_ATTEMPTS})...")
+
+        try:
+            candidate_text = repair.repair_test(
+                change, Path(test_file).read_text(encoding="utf-8"),
+                test_name, failure_message, attempt,
+                weakened_before=last_was_weakened, ask=ask)
+        except Exception as error:
+            # A reply with no code in it, or a call that failed. That is one
+            # used attempt, and the next one may do better.
+            print(f"[prsentinel] attempt {attempt} for {test_name} gave no "
+                  f"usable code: {error}")
+            every_attempt_weakened = False
+            last_was_weakened = False
+            continue
+
+        try:
+            result = test_candidate(before_file, after_file, test_file,
+                                    candidate_text, test_name, baseline_rows,
+                                    budget["work_dir"])
+        except Exception as error:
+            # The candidate could not even be run. That is a used attempt, and
+            # the real file is untouched, which is the important part.
+            print(f"[prsentinel] attempt {attempt} for {test_name} could not "
+                  f"be run: {error}")
+            every_attempt_weakened = False
+            last_was_weakened = False
+            continue
+
+        accepted = (result["passes_on_before"]
+                    and result["verdict"] != cl.BAD_TEST
+                    and not result["weakened"])
+
+        if accepted:
+            # Only now is the real file touched. The backup is made here, at the
+            # moment of acceptance, so a rejected repair never makes one.
+            backup, kept_old = write_with_backup(Path(test_file), candidate_text)
+            if backup is not None:
+                print(f"[prsentinel] kept the old copy as {backup.name}")
+            record["outcome"] = "repaired"
+            record["final_verdict"] = result["verdict"]
+            record["final_reason"] = result["reason"]
+            record["final_label"] = result["label"]
+            record["backup"] = backup.name if backup else ""
+            print(f"[prsentinel] {test_name} was corrected and now says "
+                  f"{result['verdict']}.")
+            return record
+
+        if result["weakened"]:
+            # Its own test may be fixed, but it broke a neighbour. Thrown away,
+            # and the next attempt is told what went wrong.
+            print(f"[prsentinel] attempt {attempt} for {test_name} weakened "
+                  f"the rest of the file, so it was thrown away.")
+            last_was_weakened = True
+        else:
+            print(f"[prsentinel] attempt {attempt} for {test_name} did not "
+                  f"fix it: it is still {result['verdict']}.")
+            last_was_weakened = False
+            every_attempt_weakened = False
+
+    if every_attempt_weakened and record["attempts"]:
+        record["outcome"] = "weakened"
+
+    record["backup"] = record.get("backup", "")
+    return record
+
+
+def repair_bad_tests(before_file, after_file, outcomes, results, ask=None) -> list:
+    """Repair every test judged to be the wrong test, one at a time.
+
+    The budget of calls is shared across the whole run, so a file with many
+    wrong tests cannot spend more than the setting allows.
+
+    Returns one record per test that was considered, in a fixed order.
+    """
+    if ask is None:
+        ask = repair.ask_llm
+
+    changes = {change["name"]: change
+               for change in extract_changes_from_files(before_file, after_file)}
+
+    paired = list(zip([o for o in outcomes if o["path"]], results))
+    budget = {"calls": 0, "limit": config.MAX_REPAIR_CALLS_PER_RUN,
+              "work_dir": ""}
+    records = []
+
+    for outcome, result in paired:
+        wrong = [j for j in result["judgements"]
+                 if j["verdict"] == cl.BAD_TEST]
+        if not wrong:
+            continue
+
+        change = changes.get(outcome["function"])
+        if change is None:
+            # No code to show the writer, so there is nothing to repair with.
+            for judgement in wrong:
+                records.append({
+                    "function": outcome["function"],
+                    "test_file": Path(outcome["path"]).name,
+                    "test": judgement["test"],
+                    "attempts": 0,
+                    "outcome": "unrepaired BAD_TEST",
+                    "final_verdict": judgement["verdict"],
+                    "final_reason": judgement["reason"],
+                    "final_label": judgement["label"],
+                    "backup": "",
+                })
+            continue
+
+        baseline_rows = tr.evaluate_tests(before_file, after_file,
+                                          outcome["path"])
+
+        # A folder of its own, so a candidate is never run in place. Removed
+        # afterwards whether or not anything worked.
+        budget["work_dir"] = tempfile.mkdtemp(prefix="prsentinel_repair_")
+        try:
+            for judgement in wrong:
+                record = repair_one_test(before_file, after_file,
+                                         outcome["path"], change, judgement,
+                                         baseline_rows, budget, ask)
+                records.append(record)
+
+                judgement["repair"] = {
+                    "attempts": record["attempts"],
+                    "outcome": record["outcome"],
+                    "final_verdict": record["final_verdict"],
+                    "final_label": record["final_label"],
+                }
+                if record["outcome"] == "repaired":
+                    # The test now says something different, so the report says
+                    # what it says now rather than what the old file said.
+                    judgement["verdict"] = record["final_verdict"]
+                    judgement["reason"] = record["final_reason"]
+                    judgement["label"] = record["final_label"]
+        finally:
+            shutil.rmtree(budget["work_dir"], ignore_errors=True)
+            budget["work_dir"] = ""
+
+    return records
+
+
+# ---------------------------------------------------------------------------
 # Step 6: the report
 # ---------------------------------------------------------------------------
 
@@ -445,7 +728,7 @@ def build_summary_line(report: dict) -> str:
 
 
 def make_report(before_file, after_file, name, outcomes, results,
-                tests_source="generated") -> dict:
+                tests_source="generated", repairs=None) -> dict:
     """Put everything we found into one dictionary, ready to save."""
     functions = []
     for outcome, result in zip([o for o in outcomes if o["path"]],
@@ -474,6 +757,7 @@ def make_report(before_file, after_file, name, outcomes, results,
             {"function": o["function"], "change_type": o["change_type"]}
             for o in outcomes if o["skipped"]
         ],
+        "repairs": list(repairs or []),
     }
     report["summary"] = build_summary_line(report)
     return report
@@ -530,6 +814,29 @@ def format_report(report: dict) -> str:
                 lines.append(f"    {name} - needs a human look "
                              "(fails on the old code, passes on the new one)")
 
+    if report.get("repairs"):
+        lines.append("")
+        lines.append("--- Repairs ---")
+        lines.append("  A test judged to be the wrong test was sent back to the")
+        lines.append("  writer to be corrected. Nothing was changed unless the")
+        lines.append("  corrected test passed on the old code and left the rest of")
+        lines.append("  the file as strong as it was.")
+        counted = {"repaired": 0, "unrepaired BAD_TEST": 0, "weakened": 0,
+                   "not attempted, repair budget reached": 0}
+        for item in report["repairs"]:
+            counted[item["outcome"]] = counted.get(item["outcome"], 0) + 1
+            lines.append("")
+            lines.append(f"  {item['function']} / {item['test']}")
+            lines.append(f"    attempts    : {item['attempts']}")
+            lines.append(f"    outcome     : {item['outcome']}")
+            lines.append(f"    final label : {item['final_verdict']}")
+            if item.get("final_label"):
+                lines.append(f"    runner said : {item['final_label']}")
+        lines.append("")
+        lines.append(f"  repaired: {counted['repaired']}   "
+                     f"unrepaired: {counted['unrepaired BAD_TEST']}   "
+                     f"weakened: {counted['weakened']}")
+
     if report["generation_failed"]:
         lines.append("")
         lines.append("--- Functions we could not write tests for ---")
@@ -581,12 +888,20 @@ def save_report(report: dict, reports_dir: str = REPORTS_DIR) -> dict:
 # ---------------------------------------------------------------------------
 
 def run_pipeline(before_file, after_file, name=None,
-                 ai_second_opinion=False, reuse_tests=False) -> dict:
+                 ai_second_opinion=False, reuse_tests=False,
+                 repair_tests=False, ask=None) -> dict:
     """Do all seven steps and return the report.
 
     With reuse_tests we skip writing tests and use the ones already saved. That
     makes no call to any AI. The report says which of the two happened, so a
     saved report always says where its tests came from.
+
+    With repair_tests, any test judged to be the wrong test is sent back to the
+    writer to be corrected, then checked again. That only ever happens to a test
+    judged to be the wrong test; a real bug and a flaky test are left alone.
+
+    ask is the function used to reach the AI for a repair. It is a parameter so
+    a test can put a fake in its place.
     """
     before_path = Path(before_file)
     after_path = Path(after_file)
@@ -609,6 +924,15 @@ def run_pipeline(before_file, after_file, name=None,
     results = check_all_files(before_path, after_path, outcomes,
                               ai_second_opinion)
 
+    # Step 5b. Only when --repair was given. Repairs run after the first
+    # judgement, because it is that judgement that decides which tests are wrong.
+    repairs = []
+    if repair_tests:
+        print("[prsentinel] --repair was given, so any test judged to be the "
+              "wrong test will be corrected and checked again.")
+        repairs = repair_bad_tests(before_path, after_path, outcomes, results,
+                                   ask=ask)
+
     # Step 6. When we reused tests, the report names the folder each file came
     # from, so a saved report always says whether it was a live file or a
     # frozen baseline.
@@ -619,7 +943,7 @@ def run_pipeline(before_file, after_file, name=None,
         tests_source = "generated"
 
     report = make_report(before_path, after_path, name, outcomes, results,
-                         tests_source=tests_source)
+                         tests_source=tests_source, repairs=repairs)
     print_report(report)
 
     # Step 7.
@@ -649,7 +973,25 @@ def main() -> int:
                              "files already in generated_tests/<name>/, or the "
                              "frozen ones in baselines/<name>/ when there is no "
                              "live file for a function. Makes no AI calls at all.")
+    parser.add_argument("--repair", action="store_true",
+                        help="when a failing test is judged to be the wrong "
+                             "test, ask the writer to correct that test, then "
+                             "check it again. Only ever touches a test judged "
+                             "to be the wrong test. Off by default.")
     args = parser.parse_args()
+
+    # Repaired tests are written for the code that is running, so they cannot be
+    # combined with the frozen baseline files. Refused before anything happens,
+    # so this costs nothing and starts no AI call.
+    if args.repair and args.reuse_tests:
+        print("RUN REFUSED. --repair and --reuse-tests cannot be used together.")
+        print()
+        print("--reuse-tests runs tests that were saved earlier, and --repair")
+        print("corrects tests for the code in front of it. A corrected test is")
+        print("not the test that was saved, so the two mean opposite things and")
+        print("the report would have to lie about which one it used. Run them")
+        print("as two separate runs instead.")
+        return 2
 
     for path in (args.before_file, args.after_file):
         if not Path(path).is_file():
@@ -658,7 +1000,7 @@ def main() -> int:
 
     try:
         run_pipeline(args.before_file, args.after_file, args.name,
-                     args.ai_second_opinion, args.reuse_tests)
+                     args.ai_second_opinion, args.reuse_tests, args.repair)
     except Exception as error:
         # The pipeline could not do its job, which is the one thing that is
         # worth a non-zero exit.

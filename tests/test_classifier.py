@@ -704,7 +704,8 @@ def ce_caseless_folder():
     return ce.CASES_FOLDER
 
 
-def test_the_heldback_eval_prints_nothing_per_case(capsys, monkeypatch):
+def test_the_heldback_eval_prints_nothing_per_case(capsys, monkeypatch,
+                                                   tmp_path):
     """Only totals, so a held-back run cannot be used to pick answers."""
     from prsentinel import classifier as cl
     from prsentinel import heldback_eval as he
@@ -718,8 +719,11 @@ def test_the_heldback_eval_prints_nothing_per_case(capsys, monkeypatch):
     monkeypatch.setattr(he, "run_case", fake_run_case)
     monkeypatch.setattr(he, "add_to_log", lambda *args, **kwargs: None)
     monkeypatch.setattr(cl, "classify", lambda *a, **k: {})
+    # A log of our own, so this test checks the printing rather than whatever
+    # the real log happens to say about whether the set has been spent.
+    monkeypatch.setattr(he, "LOG_FILE", tmp_path / "heldback_runs.log")
 
-    assert he.main() == 0
+    assert he.main([]) == 0
     printed = capsys.readouterr().out
 
     assert "WRONG_ANSWER" not in printed
@@ -797,7 +801,8 @@ def test_printing_a_reason_with_that_character_does_not_crash(monkeypatch):
     assert "giveaway phrase" in printed or "RUN_INDEX" in printed
 
 
-def test_the_heldback_eval_also_survives_a_narrow_console(monkeypatch):
+def test_the_heldback_eval_also_survives_a_narrow_console(monkeypatch,
+                                                          tmp_path):
     """Same guard in the other command, so a held-back run cannot be cut off."""
     from prsentinel import heldback_eval as he
 
@@ -806,14 +811,16 @@ def test_the_heldback_eval_also_survives_a_narrow_console(monkeypatch):
         for name in he.CLASSIFIERS
     })
     monkeypatch.setattr(he, "add_to_log", lambda *a, **k: None)
+    monkeypatch.setattr(he, "LOG_FILE", tmp_path / "heldback_runs.log")
 
     stream, buffer = narrow_stdout(monkeypatch)
 
-    assert he.main() == 0
+    assert he.main([]) == 0
     assert "cases: 4" in read_back(stream, buffer)
 
 
-def test_the_guard_survives_a_stdout_that_cannot_be_reconfigured(monkeypatch):
+def test_the_guard_survives_a_stdout_that_cannot_be_reconfigured(monkeypatch,
+                                                                 tmp_path):
     """Not every stdout has reconfigure, and that must not stop the run.
 
     Some environments hand us something that is not a text stream at all, and
@@ -843,6 +850,7 @@ def test_the_guard_survives_a_stdout_that_cannot_be_reconfigured(monkeypatch):
         for name in he.CLASSIFIERS
     })
     monkeypatch.setattr(he, "add_to_log", lambda *a, **k: None)
+    monkeypatch.setattr(he, "LOG_FILE", tmp_path / "heldback_runs.log")
 
     monkeypatch.setattr(sys, "stdout", NoReconfigure())
     monkeypatch.setattr(sys, "argv", ["classifier_eval"])

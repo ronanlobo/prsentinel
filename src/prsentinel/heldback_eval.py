@@ -4,6 +4,10 @@ Run it like this:
 
     python -m prsentinel.heldback_eval
 
+and, only if you have a reason to spend the set a second time:
+
+    python -m prsentinel.heldback_eval --allow-rerun
+
 This scores `examples/classifier_cases_heldback/`, the cases that were set
 aside before the work started and never looked at while the tool was being
 built. Which case is in which set is written down in SPLIT.md at the top of the
@@ -26,8 +30,17 @@ Three things stop this run from producing a number it should not:
 - if any answer did come from the other provider anyway, it says the run is not
   valid and prints no accuracy at all.
 
+And a fourth thing stops it producing a second one:
+
+- it refuses to run at all once the log shows this set has already produced a
+  score, because these cases are only worth having if they are scored once. The
+  flag --allow-rerun spends them anyway, and everything about that run says so:
+  a RERUN line above the numbers, a RERUN word in the log, and a plain statement
+  that the held-back result is the one already recorded.
+
 Each of those exits with its own code, so a caller can tell a finished valid run
-from a refused, a stopped and a mixed one. 0 means valid and nothing else.
+from a refused, a stopped, a mixed and an already-spent one. 0 means valid and
+nothing else.
 
 Every run also appends one line to heldback_runs.log, so the runs cannot be
 quietly repeated until a good number turns up. Refused, stopped and not-valid
@@ -37,6 +50,7 @@ This is one of only two files allowed to read expected.json, the other being
 classifier_eval.py. This is the only file allowed to name the held-back folder.
 """
 
+import argparse
 import json
 import sys
 from datetime import datetime, timezone
@@ -78,6 +92,14 @@ UNMEASURED_PHRASES = ("not measured yet", "not yet run")
 # Widths for the one line per classifier.
 NAME_WIDTH = 22
 
+# The log words that mean this set has already produced a score. Only these stop
+# the next run. A run that was refused, stopped on the daily limit, or mixed two
+# models never produced a score, so it must not cost the next attempt.
+#
+# Matched exactly, and case matters: "NOT VALID" is two words and the second is
+# capitalised, so it can never be read as the "valid" below.
+SCORED_OUTCOMES = ("valid", "RERUN")
+
 # The exit codes. Each one means something different, and 0 has to mean a
 # finished, valid run and nothing else, because that is what a caller checks.
 EXIT_OK = 0
@@ -85,6 +107,7 @@ EXIT_NO_CASES = 1
 EXIT_REFUSED = 2
 EXIT_DAILY_LIMIT = 3
 EXIT_NOT_VALID = 4
+EXIT_ALREADY_SCORED = 5
 
 
 class DailyLimitStop(RuntimeError):
@@ -170,7 +193,9 @@ def add_to_log(cases, scores, outcome, extra=""):
     Every run is logged, not only the good ones. A run that stopped or produced
     a mixed-model score is exactly the sort of run somebody might forget about
     and rerun until a clean one turned up, so its line is marked as not valid
-    and carries no score to be misread later.
+    and carries no score to be misread later. The one exception is a run marked
+    "valid": it produced the score, so its line is the only one that holds the
+    numbers.
     """
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
@@ -179,7 +204,11 @@ def add_to_log(cases, scores, outcome, extra=""):
         detail = f"cases={cases}  " + "  ".join(parts)
     else:
         # No scores on purpose. A number here could be quoted as a kept-back
-        # result later, which is the one thing this file exists to prevent.
+        # result later, which is the one thing this file exists to prevent. A
+        # RERUN line is here for the same reason: it records that the set was
+        # spent a second time, and nothing else. The numbers a rerun printed are
+        # on screen while it runs and are not kept, so there is exactly one
+        # scored line in this file and it is the first one.
         detail = f"cases={cases}  NO SCORE"
 
     line = f"{stamp}  {outcome}"
@@ -228,8 +257,71 @@ def print_refused(reason):
     print(f"Fill the scores into {PROMPT_LOG.name} and run this again.")
 
 
-def main() -> int:
+def scored_already():
+    """Return True when the log says this set has already produced a score.
+
+    A missing log means it has not been run yet, which is True's opposite and
+    not an error. Reading the file rather than trusting anything in memory means
+    the answer is right even if the log was written by an earlier run in another
+    session.
+    """
+    if not LOG_FILE.is_file():
+        return False
+
+    for line in LOG_FILE.read_text(encoding="utf-8").splitlines():
+        # The timestamp is the first word, so the outcome is somewhere after it.
+        if any(word in SCORED_OUTCOMES for word in line.split()[1:]):
+            return True
+
+    return False
+
+
+def print_already_scored():
+    """Say the set is spent, and how to spend it anyway if that is really wanted.
+
+    These four cases are the only honest measurement this project gets, and the
+    whole value of them is that they can only be scored once. A second score is
+    a sample from a model that gives different answers each time, so it is easy
+    to produce and easy to quote as if it were the first one. So it has to be
+    asked for by name.
+    """
+    print("RUN REFUSED. The kept-back set has already been scored.")
+    print()
+    print(f"How we know: {LOG_FILE.name} already holds a line marked "
+          f"{' or '.join(SCORED_OUTCOMES)}.")
+    print()
+    print("These cases can only be scored once. A second score would be one more")
+    print("sample from a model whose answers move between runs, and it would be")
+    print("easy to quote it as the real result while the first run is forgotten.")
+    print()
+    print("If you are checking the harness itself, or you have a reason to spend")
+    print("the set again, pass --allow-rerun. The run will go ahead and its line")
+    print("in the log will be marked RERUN, so the two can be told apart later.")
+    print("Anything printed by a rerun is not the held-back result.")
+
+
+def parse_args(argv=None):
+    """Read the one flag this command has.
+
+    There is still no way to change which models are used, how many times a test
+    is rerun, or whether to fall back. Those are fixed on purpose.
+    """
+    parser = argparse.ArgumentParser(
+        prog="python -m prsentinel.heldback_eval",
+        description="Score the kept-back cases once and print only the totals.")
+
+    parser.add_argument(
+        "--allow-rerun", action="store_true",
+        help="score the set again even though it has been scored already. The "
+             "log line is marked RERUN so the two runs can be told apart.")
+
+    return parser.parse_args(argv)
+
+
+def main(argv=None) -> int:
     """Score every kept-back case and print only the totals."""
+    args = parse_args(argv)
+
     # The AI writes its own reasons. We do not print them here, but the scores
     # are read from the same replies, so the stream is made safe the same way as
     # in classifier_eval.py. A reason that cannot be printed must not be able to
@@ -245,6 +337,15 @@ def main() -> int:
     # has no flag to undo it, which is the point.
     llm_client.ALLOW_FALLBACK = False
     llm_client.CALLS_MADE = 0
+
+    # Checked before anything else, because whether the set is spent outranks
+    # every other reason, and this one is answered by reading a file rather than
+    # by spending anything.
+    was_scored = scored_already()
+    if was_scored and not args.allow_rerun:
+        print_already_scored()
+        add_to_log(0, {}, "REFUSED already scored", "no --allow-rerun")
+        return EXIT_ALREADY_SCORED
 
     # Refused before anything is collected and before anybody is asked, so a
     # refused run costs nothing and leaves no trace on the cases.
@@ -322,6 +423,18 @@ def main() -> int:
                    f"gemini_answers={providers['Gemini']}")
         return EXIT_NOT_VALID
 
+    # Only a run that repeats a score already in the log is a rerun. Passing the
+    # flag on a set that has never been scored gives an ordinary first run, and
+    # marking that RERUN would put a false doubt in the log.
+    if was_scored:
+        print("RUN NOT FIRST: this is a rerun (--allow-rerun was given).")
+        print()
+        print("The kept-back set was already scored, and the result recorded in")
+        print("PROMPT_LOG.md is the held-back result. The numbers below are a")
+        print("second sample of a model whose answers move between runs. They are")
+        print("not the held-back result and should not be written down as one.")
+        print()
+
     print(f"cases: {total}")
     print(f"reruns per case: {RERUN_TIMES}")
     print(f"classifiers: {', '.join(CLASSIFIERS)}")
@@ -332,7 +445,7 @@ def main() -> int:
         print(f"{name:{NAME_WIDTH}} {right[name]}/{total}  ({share:.0f}%)")
         scores[name] = right[name]
 
-    add_to_log(total, scores, "valid")
+    add_to_log(total, scores, "RERUN" if was_scored else "valid")
 
     return EXIT_OK
 

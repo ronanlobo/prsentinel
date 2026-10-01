@@ -168,8 +168,13 @@ def offline(monkeypatch, tmp_path):
 
 
 def run_main():
-    """Run main() and give back the exit code and everything it printed."""
-    code = he.main()
+    """Run main() and give back the exit code and everything it printed.
+
+    An empty argument list is passed on purpose. Without it main() reads the
+    real command line, and under pytest that is pytest's own arguments, which
+    would make the parser exit before any test ran.
+    """
+    code = he.main([])
     return code
 
 
@@ -431,12 +436,26 @@ def test_the_run_never_falls_back_at_all(monkeypatch, offline, capsys):
 
 
 def test_there_is_no_flag_to_turn_fallback_back_on():
-    """No argument parser on this command, so there is nothing to pass."""
+    """There is one flag, and it is not about models.
+
+    heldback_eval grew an argument parser for --allow-rerun. What it must never
+    grow is a way to choose between providers, set a rerun count, or switch
+    fallback back on: those are the three things that would let a kept-back score
+    stop being a kept-back score.
+    """
     import inspect
 
     source = inspect.getsource(he)
-    assert "add_argument" not in source
+    parser_source = inspect.getsource(he.parse_args)
+
     assert "--no-fallback" not in source
+    assert "--allow-fallback" not in source
+    assert "--only" not in source
+    assert "--repeats" not in source
+
+    # The only thing the parser may mention is the rerun flag.
+    assert parser_source.count("add_argument") == 1
+    assert "--allow-rerun" in parser_source
 
 
 # ---------------------------------------------------------------------------

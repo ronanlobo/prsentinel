@@ -463,9 +463,18 @@ def test_an_unreadable_reply_is_still_reported(monkeypatch, collected, capsys):
 # ---------------------------------------------------------------------------
 
 def test_the_heldback_command_has_no_repeats_option():
-    """One score on cases we kept back, so there is nothing to average."""
+    """One score on cases we kept back, so there is nothing to average.
+
+    heldback_eval has an argument parser now, for the once-only guard's
+    --allow-rerun. What it must not have is a way to average several runs, so
+    the parser is checked rather than the whole file.
+    """
     from prsentinel import heldback_eval as he
 
-    source = inspect.getsource(he.main)
-    assert "repeats" not in source
-    assert "argparse" not in inspect.getsource(he)
+    source = inspect.getsource(he)
+    parser_source = inspect.getsource(he.parse_args)
+
+    assert "--repeats" not in source
+    assert "--repeats" not in parser_source
+    assert parser_source.count("add_argument") == 1
+    assert "--allow-rerun" in parser_source
