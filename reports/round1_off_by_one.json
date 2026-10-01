@@ -2,13 +2,13 @@
   "name": "round1_off_by_one",
   "before": "before.py",
   "after": "after.py",
-  "tests_source": "reused from generated_tests",
+  "tests_source": "reused from baselines",
   "functions": [
     {
       "function": "get_recent_scores",
       "change_type": "modified",
       "test_file": "test_get_recent_scores.py",
-      "from_folder": "generated_tests",
+      "from_folder": "baselines",
       "counts": {
         "CATCHES_CHANGE": 6,
         "TEST_WRONG_ON_BEFORE": 0,
@@ -124,5 +124,151 @@
   ],
   "generation_failed": [],
   "skipped": [],
+  "repairs": [],
+  "repair": false,
+  "fallback": true,
+  "gemini_answers": 0,
+  "mutation": [
+    {
+      "function": "get_recent_scores",
+      "version": "before.py",
+      "found": 3,
+      "cap": 30,
+      "capped": false,
+      "defined": true,
+      "reason": "",
+      "killed": 3,
+      "survived": 0,
+      "equivalent": 0,
+      "timed_out": 0,
+      "could_not_run": 0,
+      "score": 1.0,
+      "operators": [
+        {
+          "operator": "return expr to return None",
+          "outcome": "killed",
+          "killed_by": [
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores0-3]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores1-2]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores2-5]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores3-3]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores4-0]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores5--2]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores6-3]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores7-0]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores8-1]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores9-0]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores10--1]"
+          ]
+        },
+        {
+          "operator": "n to n + 1",
+          "outcome": "killed",
+          "killed_by": [
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores2-5]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores3-3]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores8-1]"
+          ]
+        },
+        {
+          "operator": "- to +",
+          "outcome": "killed",
+          "killed_by": [
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores0-3]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores1-2]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores2-5]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores3-3]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores5--2]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores8-1]",
+            "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores10--1]"
+          ]
+        }
+      ],
+      "operator_totals": [
+        {
+          "operator": "- to +",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        },
+        {
+          "operator": "n to n + 1",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        },
+        {
+          "operator": "return expr to return None",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        }
+      ],
+      "tests": [
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores0-3]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores1-2]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores2-5]",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores3-3]",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores4-0]",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores5--2]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores6-3]",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores7-0]",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores8-1]",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores9-0]",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_get_recent_scores::test_get_recent_scores_matches_old_behavior[scores10--1]",
+          "kills": 2,
+          "dud": false
+        }
+      ],
+      "change_type": "modified"
+    }
+  ],
   "summary": "6 tests point to a real bug in get_recent_scores."
 }

@@ -2,17 +2,17 @@
   "name": "round2_mutable_default",
   "before": "before.py",
   "after": "after.py",
-  "tests_source": "generated",
+  "tests_source": "reused from baselines",
   "functions": [
     {
       "function": "add_item_to_cart",
       "change_type": "modified",
       "test_file": "test_add_item_to_cart.py",
-      "from_folder": "",
+      "from_folder": "baselines",
       "counts": {
-        "CATCHES_CHANGE": 4,
+        "CATCHES_CHANGE": 9,
         "TEST_WRONG_ON_BEFORE": 0,
-        "NO_SIGNAL": 4,
+        "NO_SIGNAL": 2,
         "ODD": 0
       },
       "judgements": [
@@ -34,7 +34,7 @@
           "ai_agrees": null
         },
         {
-          "test": "test_add_item_to_cart::test_default_cart_not_shared_across_calls",
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[None]",
           "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
@@ -51,7 +51,7 @@
           "ai_agrees": null
         },
         {
-          "test": "test_add_item_to_cart::test_append_none_item",
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[]",
           "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
@@ -68,7 +68,92 @@
           "ai_agrees": null
         },
         {
-          "test": "test_add_item_to_cart::test_cart_parameter_immutability_when_not_provided",
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[0]",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[item3]",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[item4]",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_adding_multiple_items_sequentially",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_cart_isolation_after_mutating_returned_cart",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_add_item_to_cart::test_default_cart_is_not_shared_across_test_runs",
           "label": "CATCHES_CHANGE",
           "verdict": "REAL_BUG",
           "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
@@ -91,8 +176,159 @@
   "generation_failed": [],
   "skipped": [],
   "repairs": [],
-  "repair": true,
-  "fallback": false,
+  "repair": false,
+  "fallback": true,
   "gemini_answers": 0,
-  "summary": "4 tests point to a real bug in add_item_to_cart."
+  "mutation": [
+    {
+      "function": "add_item_to_cart",
+      "version": "before.py",
+      "found": 3,
+      "cap": 30,
+      "capped": false,
+      "defined": true,
+      "reason": "",
+      "killed": 3,
+      "survived": 0,
+      "equivalent": 0,
+      "timed_out": 0,
+      "could_not_run": 0,
+      "score": 1.0,
+      "operators": [
+        {
+          "operator": "None default to []",
+          "outcome": "killed",
+          "killed_by": [
+            "test_add_item_to_cart::test_default_cart_is_fresh_each_call",
+            "test_add_item_to_cart::test_various_items_can_be_added[None]",
+            "test_add_item_to_cart::test_various_items_can_be_added[]",
+            "test_add_item_to_cart::test_various_items_can_be_added[0]",
+            "test_add_item_to_cart::test_various_items_can_be_added[item3]",
+            "test_add_item_to_cart::test_various_items_can_be_added[item4]",
+            "test_add_item_to_cart::test_adding_multiple_items_sequentially",
+            "test_add_item_to_cart::test_cart_isolation_after_mutating_returned_cart",
+            "test_add_item_to_cart::test_default_cart_is_not_shared_across_test_runs"
+          ]
+        },
+        {
+          "operator": "return expr to return None",
+          "outcome": "killed",
+          "killed_by": [
+            "test_add_item_to_cart::test_default_cart_is_fresh_each_call",
+            "test_add_item_to_cart::test_explicit_cart_is_mutated_and_returned",
+            "test_add_item_to_cart::test_various_items_can_be_added[None]",
+            "test_add_item_to_cart::test_various_items_can_be_added[]",
+            "test_add_item_to_cart::test_various_items_can_be_added[0]",
+            "test_add_item_to_cart::test_various_items_can_be_added[item3]",
+            "test_add_item_to_cart::test_various_items_can_be_added[item4]",
+            "test_add_item_to_cart::test_adding_multiple_items_sequentially",
+            "test_add_item_to_cart::test_cart_isolation_after_mutating_returned_cart",
+            "test_add_item_to_cart::test_default_cart_is_not_shared_across_test_runs"
+          ]
+        },
+        {
+          "operator": "is None to is not None",
+          "outcome": "killed",
+          "killed_by": [
+            "test_add_item_to_cart::test_default_cart_is_fresh_each_call",
+            "test_add_item_to_cart::test_explicit_cart_is_mutated_and_returned",
+            "test_add_item_to_cart::test_multiple_calls_with_explicit_cart_do_not_interfere",
+            "test_add_item_to_cart::test_various_items_can_be_added[None]",
+            "test_add_item_to_cart::test_various_items_can_be_added[]",
+            "test_add_item_to_cart::test_various_items_can_be_added[0]",
+            "test_add_item_to_cart::test_various_items_can_be_added[item3]",
+            "test_add_item_to_cart::test_various_items_can_be_added[item4]",
+            "test_add_item_to_cart::test_adding_multiple_items_sequentially",
+            "test_add_item_to_cart::test_cart_isolation_after_mutating_returned_cart",
+            "test_add_item_to_cart::test_default_cart_is_not_shared_across_test_runs"
+          ]
+        }
+      ],
+      "operator_totals": [
+        {
+          "operator": "is None to is not None",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        },
+        {
+          "operator": "None default to []",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        },
+        {
+          "operator": "return expr to return None",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        }
+      ],
+      "tests": [
+        {
+          "test": "test_add_item_to_cart::test_default_cart_is_fresh_each_call",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_explicit_cart_is_mutated_and_returned",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_multiple_calls_with_explicit_cart_do_not_interfere",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[None]",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[]",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[0]",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[item3]",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_various_items_can_be_added[item4]",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_adding_multiple_items_sequentially",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_cart_isolation_after_mutating_returned_cart",
+          "kills": 3,
+          "dud": false
+        },
+        {
+          "test": "test_add_item_to_cart::test_default_cart_is_not_shared_across_test_runs",
+          "kills": 3,
+          "dud": false
+        }
+      ],
+      "change_type": "modified"
+    }
+  ],
+  "summary": "9 tests point to a real bug in add_item_to_cart."
 }
