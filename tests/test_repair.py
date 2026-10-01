@@ -21,6 +21,7 @@ import pytest
 
 from prsentinel import classifier as cl
 from prsentinel import config as cfg
+from prsentinel import llm_client
 from prsentinel import pipeline as pl
 from prsentinel import repair as rp
 from prsentinel import test_runner as tr
@@ -326,6 +327,35 @@ def test_a_repair_that_works_on_the_first_try_is_kept(rep, monkeypatch,
     # The candidate was copied over the real file, and the old copy kept.
     assert "# attempt-1" in test_file.read_text(encoding="utf-8")
     assert list(test_file.parent.glob("test_get_recent_scores.py.bak*"))
+
+
+def test_the_gemini_warning_fires_after_a_repair_call(rep, monkeypatch,
+                                                      workspace, capsys):
+    """The warning must appear at the point a fallback repair answer arrives."""
+    before, after = write_modules(workspace)
+    test_file = write_test_file(workspace)
+    one_change(monkeypatch, a_change())
+
+    rep.baseline = [row("t::test_bad", tr.FAILED, tr.FAILED,
+                        tr.TEST_WRONG_ON_BEFORE)]
+    rep.install(monkeypatch, {"attempt-1": catching_candidate("attempt-1")})
+
+    class GeminiRepairAI(RepairAI):
+        """A repair AI whose answer came from the fallback provider."""
+
+        def __call__(self, prompt, temperature):
+            llm_client.LAST_PROVIDER = "Gemini"
+            return super().__call__(prompt, temperature)
+
+    # Both are module state, so put them back the way they were after the test.
+    monkeypatch.setattr(llm_client, "LAST_PROVIDER", "")
+    monkeypatch.setattr(pl, "GEMINI_ANNOUNCED", False)
+
+    pl.repair_bad_tests(before, after, [outcome(test_file)],
+                        [result([judgement("t::test_bad")])],
+                        ask=GeminiRepairAI())
+
+    assert "AN ANSWER CAME FROM GEMINI" in capsys.readouterr().out
 
 
 def test_a_repair_can_take_two_tries(rep, monkeypatch, workspace):

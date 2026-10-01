@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 
 from prsentinel import classifier as cl
+from prsentinel import llm_client
 from prsentinel import pipeline as pl
 from prsentinel import test_runner as tr
 
@@ -1063,3 +1064,89 @@ def test_finding_a_bug_is_still_a_good_run(monkeypatch, workspace, fake_ai,
     monkeypatch.setattr("sys.argv", ["pipeline", before, after])
 
     assert pl.main() == 0
+
+
+# ---------------------------------------------------------------------------
+# Where an answer came from, and which setting the run used
+# ---------------------------------------------------------------------------
+
+def test_the_gemini_warning_fires_after_the_second_opinion_call(
+        workspace, fake_ai, fake_runs, monkeypatch, capsys):
+    """The warning must appear at the point a fallback second opinion arrives."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    def gemini_classify(evidence, mode):
+        llm_client.LAST_PROVIDER = "Gemini"
+        return {"label": cl.REAL_BUG, "confidence": "high", "reason": "because"}
+
+    # Overrides the fake_ai fixture, so the second opinion comes from Gemini.
+    monkeypatch.setattr(cl, "llm_classify", gemini_classify)
+
+    pl.run_pipeline(before, after, ai_second_opinion=True)
+
+    assert "AN ANSWER CAME FROM GEMINI" in capsys.readouterr().out
+
+
+def test_the_json_says_the_fallback_setting():
+    on = pl.make_report("b.py", "a.py", "n", [], [])
+    off = pl.make_report("b.py", "a.py", "n", [], [], fallback_allowed=False)
+
+    assert on["fallback"] is True
+    assert off["fallback"] is False
+
+
+def test_the_json_says_how_many_answers_came_from_gemini():
+    report = pl.make_report("b.py", "a.py", "n", [], [], gemini_answers=3)
+
+    assert report["gemini_answers"] == 3
+
+
+def test_the_header_says_the_fallback_setting():
+    on = pl.format_report(pl.make_report("b.py", "a.py", "n", [], []))
+    off = pl.format_report(pl.make_report("b.py", "a.py", "n", [], [],
+                                          fallback_allowed=False))
+
+    assert "fallback: on" in on
+    assert "fallback: off" in off
+
+
+def test_the_header_says_how_many_answers_came_from_gemini():
+    text = pl.format_report(
+        pl.make_report("b.py", "a.py", "n", [], [], gemini_answers=3))
+
+    assert "answers from Gemini: 3" in text
+
+
+def test_a_default_run_names_the_setting_and_a_zero_count(workspace, fake_ai,
+                                                          fake_runs,
+                                                          monkeypatch):
+    """A run that asks no Gemini still says so, so the report is complete."""
+    one_change(monkeypatch, fake_change("get_recent_scores"))
+    before, after = write_modules(workspace)
+
+    report = pl.run_pipeline(before, after)
+    text = pl.format_report(report)
+
+    assert report["fallback"] is True
+    assert report["gemini_answers"] == 0
+    assert "fallback: on" in text
+    assert "answers from Gemini: 0" in text
+
+
+def test_a_run_counts_every_answer_that_came_from_gemini(workspace, fake_runs,
+                                                         monkeypatch):
+    """Both functions got their test from Gemini, so the count is two."""
+    one_change(monkeypatch, fake_change("first"), fake_change("second"))
+    before, after = write_modules(workspace)
+
+    def gemini_generate_tests(change):
+        llm_client.LAST_PROVIDER = "Gemini"
+        return GENERATED_TEST
+
+    monkeypatch.setattr(pl.tg, "generate_tests", gemini_generate_tests)
+
+    report = pl.run_pipeline(before, after)
+
+    assert report["gemini_answers"] == 2
+    assert "answers from Gemini: 2" in pl.format_report(report)

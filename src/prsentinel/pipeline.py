@@ -789,13 +789,19 @@ def build_summary_line(report: dict) -> str:
 
 def make_report(before_file, after_file, name, outcomes, results,
                 tests_source="generated", repairs=None,
-                repair_tests=False) -> dict:
+                repair_tests=False, fallback_allowed=True,
+                gemini_answers=0) -> dict:
     """Put everything we found into one dictionary, ready to save.
 
     repair_tests is whether --repair was given, which is not the same question
     as whether any repair happened. A run can have repair on and nothing to
     repair, so the report says which of the two it was rather than making the
     reader guess from an empty list.
+
+    fallback_allowed is the setting, not what happened: True means the run was
+    allowed to fall back to the second provider (the default), False means
+    --no-fallback was given. gemini_answers is how many answers actually came
+    from that fallback provider, so a reader can tell the two apart.
     """
     functions = []
     for outcome, result in zip([o for o in outcomes if o["path"]],
@@ -826,6 +832,8 @@ def make_report(before_file, after_file, name, outcomes, results,
         ],
         "repairs": list(repairs or []),
         "repair": bool(repair_tests),
+        "fallback": bool(fallback_allowed),
+        "gemini_answers": int(gemini_answers),
     }
     report["summary"] = build_summary_line(report)
     return report
@@ -841,6 +849,8 @@ def format_report(report: dict) -> str:
     lines.append(f"New file: {report['after']}")
     lines.append(f"Tests: {report.get('tests_source', 'generated')}")
     lines.append(f"repair: {'on' if report.get('repair') else 'off'}")
+    lines.append(f"fallback: {'on' if report.get('fallback', True) else 'off'}")
+    lines.append(f"answers from Gemini: {report.get('gemini_answers', 0)}")
     lines.append("")
 
     if not report["functions"]:
@@ -977,22 +987,34 @@ class DailyLimitStop(RuntimeError):
 # first time it happens, so it cannot be scrolled past unnoticed.
 GEMINI_ANNOUNCED = False
 
+# How many answers this run got from Gemini, the fallback provider. Reset at the
+# start of every run, so the number belongs to one run and not to the process.
+GEMINI_ANSWERS = 0
+
 
 def reset_gemini_warning():
-    """Start the once-per-run fallback warning again from nothing."""
-    global GEMINI_ANNOUNCED
+    """Start the once-per-run warning and the Gemini count again from nothing."""
+    global GEMINI_ANNOUNCED, GEMINI_ANSWERS
     GEMINI_ANNOUNCED = False
+    GEMINI_ANSWERS = 0
 
 
 def warn_if_gemini():
-    """Say clearly, once, when an answer came from the fallback provider.
+    """Count the answer, and say clearly the first time it came from Gemini.
 
     Reads the provider name ask_llm leaves behind after every call. A Groq
     answer, a failed call, and a run that asked no AI at all all leave it empty
-    or set to Groq, so nothing is printed for those.
+    or set to Groq, so nothing is counted and nothing is printed for those.
+
+    Every AI call in the pipeline calls this once, so the count is the number of
+    answers this run was built on that came from the fallback model.
     """
-    global GEMINI_ANNOUNCED
-    if GEMINI_ANNOUNCED or llm_client.LAST_PROVIDER != "Gemini":
+    global GEMINI_ANNOUNCED, GEMINI_ANSWERS
+    if llm_client.LAST_PROVIDER != "Gemini":
+        return
+
+    GEMINI_ANSWERS += 1
+    if GEMINI_ANNOUNCED:
         return
 
     GEMINI_ANNOUNCED = True
@@ -1036,7 +1058,8 @@ def print_stopped_on_daily_limit(error):
 
 def run_pipeline(before_file, after_file, name=None,
                  ai_second_opinion=False, reuse_tests=False,
-                 repair_tests=False, ask=None) -> dict:
+                 repair_tests=False, ask=None,
+                 fallback_allowed=True) -> dict:
     """Do all seven steps and return the report.
 
     With reuse_tests we skip writing tests and use the ones already saved. That
@@ -1049,6 +1072,10 @@ def run_pipeline(before_file, after_file, name=None,
 
     ask is the function used to reach the AI for a repair. It is a parameter so
     a test can put a fake in its place.
+
+    fallback_allowed is carried into the report, so a saved report can say
+    whether the run was allowed to fall back to the second provider. It is the
+    setting, not whether a fallback actually happened.
     """
     before_path = Path(before_file)
     after_path = Path(after_file)
@@ -1105,7 +1132,9 @@ def run_pipeline(before_file, after_file, name=None,
 
     report = make_report(before_path, after_path, name, outcomes, results,
                          tests_source=tests_source, repairs=repairs,
-                         repair_tests=repair_tests)
+                         repair_tests=repair_tests,
+                         fallback_allowed=fallback_allowed,
+                         gemini_answers=GEMINI_ANSWERS)
     print_report(report)
 
     # Step 7.
@@ -1167,12 +1196,15 @@ def main() -> int:
             return 1
 
     # Turn the fallback on or off for this run. Off by default, so a run
-    # without the flag behaves exactly as it always did.
+    # without the flag behaves exactly as it always did. The same answer goes
+    # into the report, so a saved report can say what the setting was.
     llm_client.ALLOW_FALLBACK = not args.no_fallback
+    fallback_allowed = not args.no_fallback
 
     try:
         run_pipeline(args.before_file, args.after_file, args.name,
-                     args.ai_second_opinion, args.reuse_tests, args.repair)
+                     args.ai_second_opinion, args.reuse_tests, args.repair,
+                     fallback_allowed=fallback_allowed)
     except DailyLimitStop:
         # The notice has already been printed in full, and no report was saved,
         # so there is nothing to add here. This has its own exit code so a

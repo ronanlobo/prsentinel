@@ -55,6 +55,7 @@ def run_main(monkeypatch, before, after, extra=()):
 
     def fake_run_pipeline(*args, **kwargs):
         seen["allow_fallback"] = llm_client.ALLOW_FALLBACK
+        seen["fallback_allowed"] = kwargs.get("fallback_allowed")
         return {}
 
     monkeypatch.setattr(pl, "run_pipeline", fake_run_pipeline)
@@ -94,6 +95,17 @@ def test_the_flag_turns_the_fallback_off(monkeypatch, workspace):
 
     assert code == 0
     assert seen["allow_fallback"] is False
+
+
+def test_main_hands_the_fallback_setting_to_the_report(monkeypatch, workspace):
+    """The report must be told which of the two settings the run used."""
+    before, after = write_modules(workspace)
+
+    _, default = run_main(monkeypatch, before, after)
+    _, stopped = run_main(monkeypatch, before, after, extra=["--no-fallback"])
+
+    assert default["fallback_allowed"] is True
+    assert stopped["fallback_allowed"] is False
 
 
 # ---------------------------------------------------------------------------
