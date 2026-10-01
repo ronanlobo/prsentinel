@@ -39,6 +39,15 @@ helps.
 
 Every answer about llm_full_v2 is a sample, because the AI is not the same
 twice. Use --repeats to see how much a single number moves.
+
+Two options change what gets asked, not how it is judged:
+
+    --only rule,llm_full     run only these classifiers. Useful when you want to
+                             compare two and the daily allowance is tight.
+    --no-fallback           stop the whole run if a provider runs out for the
+                             day, instead of answering the rest from the other
+                             model. A score made half from one model and half
+                             from another is not a score.
 """
 
 import argparse
@@ -67,6 +76,32 @@ AI_CLASSIFIERS = tuple(name for name in CLASSIFIERS if name != "rule")
 # looking. Until that classifier is in CLASSIFIERS there is nothing to report
 # and the summary stays quiet.
 SUMMARY_CLASSIFIER = "llm_full_v2"
+
+# The classifiers --only picked, or None to run all of them. This is set once in
+# main() from the command line and read by everything that loops over
+# classifiers, so there is only ever one answer to "which ones are we running".
+CHOSEN = None
+
+
+def chosen():
+    """Return the classifiers to run, in CLASSIFIERS order.
+
+    Order matters: the table, the accuracy list and the provider counts all
+    follow it, so the columns stay in the same place whatever was chosen. Names
+    the user gave out of order, or repeated, are therefore tidied up for them.
+    """
+    if CHOSEN is None:
+        return CLASSIFIERS
+    picked = set(CHOSEN)
+    return tuple(name for name in CLASSIFIERS if name in picked)
+
+
+# Raised by run_case when a provider runs out for the day and the run was told
+# not to fall back. It is separate from the client's own error so the two layers
+# are not confused: that one is about a provider, this one is about the run.
+class DailyLimitStop(RuntimeError):
+    """The run was stopped because a provider is out for the day."""
+
 
 # The providers we could get an answer from, in the order we try them.
 PROVIDERS = ("Groq", "Gemini")
@@ -158,7 +193,7 @@ def run_case(folder):
 
     results = {}
     errors = {}
-    for name in CLASSIFIERS:
+    for name in chosen():
         # One at a time, on purpose. Running them together would make the rate
         # limits much easier to hit, and ask_llm already retries those.
         #
@@ -168,6 +203,13 @@ def run_case(folder):
         try:
             results[name] = cl.classify(evidence, classifier=name)
             note_provider(name)
+        except llm_client.DailyLimitReached as error:
+            # Only reachable with --no-fallback, because otherwise ask_llm falls
+            # back to the other provider on its own. Ending the whole run is the
+            # point of the flag: a score made from part of the cases is worse
+            # than no score at all.
+            print_stopped_on_daily_limit(error)
+            raise DailyLimitStop(error)
         except cl.ClassifierError as error:
             # One unreadable reply should not throw away the other 17 answers.
             results[name] = {"label": "AI_ERROR", "confidence": "", "reason": ""}
@@ -182,6 +224,32 @@ def reset_provider_tally():
 
     PROVIDER_TALLY.clear()
     GEMINI_ANNOUNCED = False
+    llm_client.CALLS_MADE = 0
+
+
+def print_stopped_on_daily_limit(error):
+    """Say clearly that the run stopped early and its numbers mean nothing.
+
+    A run that dies half way has most of a report in it, and that report looks
+    exactly like a finished one. Without this, someone could read an accuracy
+    off a run that never finished and believe it.
+    """
+    print()
+    print("!" * 70)
+    print("! THE RUN STOPPED EARLY. A PROVIDER IS OUT FOR THE DAY.")
+    print("!")
+    print(f"! {error}")
+    print("!")
+    print(f"! Model calls completed before the stop: {llm_client.CALLS_MADE}")
+    print("!")
+    print("! Do not trust any score from this run. It did not finish, and the")
+    print("! answers it did get came from only part of the case set, so an")
+    print("! accuracy printed from them would be measuring the cases that were")
+    print("! reached first, not how good the classifier is.")
+    print("!")
+    print("! Wait for the daily allowance to reset and run it again.")
+    print("!" * 70)
+    print()
 
 
 def note_provider(name):
@@ -231,7 +299,7 @@ def print_provider_counts():
     print(header)
     print("-" * len(header))
 
-    for name in CLASSIFIERS:
+    for name in chosen():
         counts = PROVIDER_TALLY.get(name)
         if not counts:
             # The rule classifier asks nobody, so it has no row to be missing
@@ -254,10 +322,12 @@ def print_provider_counts():
 def print_table(rows):
     """Print the case-by-case comparison.
 
-    The loop is over CLASSIFIERS, so adding a classifier needs no change here.
+    The loop is over the chosen classifiers, so choosing fewer needs no change
+    here.
     """
+    running = chosen()
     header = f"{'case':{NAME_WIDTH}} {'expected':{CELL_WIDTH}}" + "".join(
-        f"{SHORT_NAMES.get(name, name):{CELL_WIDTH}}" for name in CLASSIFIERS)
+        f"{SHORT_NAMES.get(name, name):{CELL_WIDTH}}" for name in running)
     print("=" * len(header))
     print(header)
     print("=" * len(header))
@@ -265,14 +335,14 @@ def print_table(rows):
     for row in rows:
         wanted = row["expected"]
         cells = [mark_right_or_wrong(row["results"][name]["label"], wanted)
-                 for name in CLASSIFIERS]
+                 for name in running]
         print(f"{row['folder']:{NAME_WIDTH}} {wanted:{CELL_WIDTH}}"
               + "".join(f"{cell:{CELL_WIDTH}}" for cell in cells))
 
     print("=" * len(header))
     print("A star means the answer did not match the answer key.")
     print("Columns: " + ", ".join(
-        f"{SHORT_NAMES.get(name, name)} is {name}" for name in CLASSIFIERS))
+        f"{SHORT_NAMES.get(name, name)} is {name}" for name in running))
 
 
 def print_accuracy(rows):
@@ -280,7 +350,7 @@ def print_accuracy(rows):
     total = len(rows)
     print("\n=== Accuracy ===")
 
-    for name in CLASSIFIERS:
+    for name in chosen():
         right = sum(1 for row in rows
                     if row["results"][name]["label"] == row["expected"])
         share = (right / total * 100) if total else 0.0
@@ -297,7 +367,7 @@ def print_wrong_answers(rows, heading="=== Wrong answers ==="):
 
     any_wrong = False
     for row in rows:
-        for name in CLASSIFIERS:
+        for name in chosen():
             answer = row["results"][name]
             if answer["label"] == row["expected"]:
                 continue
@@ -323,7 +393,12 @@ def print_giveaway_check(rows, heading=None):
         heading = f"=== Does any reason mention {GIVEAWAY_PHRASE}? ==="
     print(f"\n{heading}")
 
-    for name in AI_CLASSIFIERS:
+    for name in chosen():
+        if name == "rule":
+            # The rule writes no reason for us to read, so there is nothing to
+            # check. Skipped rather than printed as a misleading "no".
+            continue
+
         hits = []
         for row in rows:
             reason = row["results"][name]["reason"]
@@ -355,7 +430,7 @@ def print_repeat_accuracy(runs):
     total = len(runs[0])
     print("\n=== Accuracy, every run ===")
 
-    for name in CLASSIFIERS:
+    for name in chosen():
         counts = [right_count(rows, name) for rows in runs]
         shares = [(count / total * 100) if total else 0.0 for count in counts]
 
@@ -382,7 +457,7 @@ def print_wrong_counts(runs):
     gap = "  "
 
     header = f"{'case':{NAME_WIDTH}}" + gap + gap.join(
-        f"{SHORT_NAMES.get(name, name):>{width}}" for name in CLASSIFIERS)
+        f"{SHORT_NAMES.get(name, name):>{width}}" for name in chosen())
     print("\n=== How many of the runs each case was wrong ===")
     print("=" * len(header))
     print(header)
@@ -390,7 +465,7 @@ def print_wrong_counts(runs):
 
     for position, first_row in enumerate(runs[0]):
         cells = []
-        for name in CLASSIFIERS:
+        for name in chosen():
             wrong = sum(1 for rows in runs
                         if rows[position]["results"][name]["label"]
                         != first_row["expected"])
@@ -412,7 +487,8 @@ def print_summary(runs):
     tried out, so it gets its own short list at the end.
     """
     name = SUMMARY_CLASSIFIER
-    if name not in CLASSIFIERS:
+    if name not in chosen():
+        # Left out by --only, so there is nothing of ours to report on.
         return
 
     runs_count = len(runs)
@@ -443,12 +519,51 @@ def parse_args():
                              "results change from run to run is measured "
                              "honestly rather than asked about the same fixed "
                              "evidence several times. Default is 1.")
+    parser.add_argument("--only", default=None,
+                        help="run only these classifiers, separated by commas. "
+                             f"Choose from: {', '.join(CLASSIFIERS)}. Default "
+                             "is all of them. Use this to spend fewer model "
+                             "calls when you only want to compare two.")
+    parser.add_argument("--no-fallback", action="store_true",
+                        help="do not fall back to the second provider. If a "
+                             "provider runs out for the day, stop the whole run "
+                             "and say so, because a score made half from one "
+                             "model and half from another is not a score. "
+                             "Default is off, so we fall back as usual.")
     args = parser.parse_args()
 
     if args.repeats < 1:
         parser.error("--repeats has to be 1 or more")
 
+    if args.only is not None:
+        args.only = check_only_names(args.only, parser)
+
     return args
+
+
+def check_only_names(text, parser):
+    """Check the --only list and give it back as a tuple of real names.
+
+    A name we do not recognise is refused here rather than being quietly
+    ignored, because a misspelled name that is skipped looks exactly like a
+    classifier that was never asked anything.
+    """
+    wanted = [piece.strip() for piece in text.split(",")]
+    wanted = [piece for piece in wanted if piece]
+
+    if not wanted:
+        parser.error("--only was given nothing to run. Write at least one of: "
+                     f"{', '.join(CLASSIFIERS)}")
+
+    unknown = [piece for piece in wanted if piece not in CLASSIFIERS]
+    if unknown:
+        # Every unknown name is listed, not just the first, so one go is enough
+        # to fix them all.
+        parser.error(
+            "--only does not know: " + ", ".join(unknown) + "\n"
+            f"       choose from: {', '.join(CLASSIFIERS)}")
+
+    return tuple(wanted)
 
 
 def run_all_cases(folders, repeats):
@@ -498,16 +613,26 @@ def main() -> int:
 
     args = parse_args()
 
+    # From here on, chosen() is the single answer to "which classifiers run".
+    # Everything else reads it, so there is no way for the table and the calls to
+    # disagree about what was asked for.
+    global CHOSEN
+    CHOSEN = args.only
+
     # Every count in this run starts at zero, so a second call to main() in the
     # same process cannot inherit the first one's numbers.
     reset_provider_tally()
+
+    # Set once, before any call, so llm_client can read it.
+    llm_client.ALLOW_FALLBACK = not args.no_fallback
 
     folders = case_folders()
     if not folders:
         print(f"No cases found in {CASES_FOLDER}")
         return 1
 
-    print(f"Scoring {len(folders)} cases with {len(CLASSIFIERS)} classifiers.")
+    running = chosen()
+    print(f"Scoring {len(folders)} cases with {len(running)} classifiers.")
     print(f"Each case is rerun {RERUN_TIMES} times to check whether it is "
           f"flaky.")
     print(f"Answers come from one model call at a time, so this takes a "
@@ -517,7 +642,14 @@ def main() -> int:
         print(f"Running the whole set {args.repeats} times. Everything is "
               f"collected again each time.\n")
 
-    runs = run_all_cases(folders, args.repeats)
+    try:
+        runs = run_all_cases(folders, args.repeats)
+    except DailyLimitStop:
+        # The reason has already been printed in full by run_case, in the shape
+        # that is meant to be impossible to miss. Nothing more is added here,
+        # and in particular no accuracy table is printed: a half-finished run has
+        # no accuracy to report.
+        return 2
 
     print()
 

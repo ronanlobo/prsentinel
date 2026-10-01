@@ -39,8 +39,64 @@ GEMINI_LOGGER_NAME = "google_genai.models"
 # nothing else from the call, ever goes in here.
 LAST_PROVIDER = ""
 
+# Whether we may try the second provider when the first one will not answer.
+# On by default, which is how the tool has always behaved. A run can turn it off
+# with --no-fallback so that running out for the day stops everything instead of
+# quietly switching models halfway through and mixing two sets of answers into
+# one score.
+ALLOW_FALLBACK = True
+
+# How many calls have gone out, so a run that stops can say how far it got.
+CALLS_MADE = 0
+
+
+class DailyLimitReached(RuntimeError):
+    """A provider said it has no allowance left for today.
+
+    This is not the same as being too fast for a moment. A per-minute limit
+    clears itself and waiting is the right thing to do. A daily limit does not,
+    so retrying the same provider wastes time and can never work. This is
+    raised instead of retrying, and a run that has forbidden fallback stops on
+    it rather than quietly answering from a different model.
+    """
+
 # Words that mean "you are going too fast, wait a moment".
 RATE_LIMIT_WORDS = ("429", "rate limit", "rate_limit", "resource_exhausted")
+
+# Words that mean the allowance for the whole day is used up. Waiting does not
+# help with these, so they must not be retried.
+#
+# We look for the day alongside a limit, because that is what tells them apart
+# from a per-minute limit. Both providers say it plainly: Groq writes "tokens per
+# day (TPD)", Gemini writes "requests per day" or "per day".
+DAILY_LIMIT_WORDS = (
+    "per day",
+    "tokens per day",
+    "requests per day",
+    "daily limit",
+    "daily rate limit",
+    "daily quota",
+    "quota exceeded",
+    "exceeded your current quota",
+    "resource_exhausted: daily",
+)
+
+
+def is_daily_limit_error(error) -> bool:
+    """Return True if this error means "not again until tomorrow".
+
+    A per-minute limit says nothing about the day and waiting clears it, so the
+    two must never be confused. Getting this wrong either wastes minutes
+    retrying a provider that will never answer again, or gives up on a provider
+    that would have answered after a short wait.
+    """
+    text = str(error).lower()
+
+    if not any(word in text for word in RATE_LIMIT_WORDS):
+        # Not a limit at all, so it cannot be a daily one.
+        return False
+
+    return any(word in text for word in DAILY_LIMIT_WORDS)
 
 # The provider sometimes says how long to wait. We look for these shapes,
 # for example: 'Please retry in 42.8s' or '"retryDelay": "42s"'.
@@ -99,6 +155,14 @@ def call_with_retry(provider_name: str, provider_call, prompt: str,
         try:
             return provider_call(prompt, temperature)
         except Exception as error:
+            # Checked before the retry, because a daily limit must never be
+            # waited on. Retrying it can only waste time and it can never work.
+            if is_daily_limit_error(error):
+                raise DailyLimitReached(
+                    f"{provider_name} has no allowance left for today. "
+                    f"{str(error)[:200]}"
+                ) from error
+
             if not is_rate_limit_error(error):
                 # Not a rate limit, so trying again will not help.
                 raise
@@ -152,14 +216,24 @@ def ask_llm(prompt: str, temperature=None) -> str:
         raise ValueError("The prompt is empty, so there is nothing to ask.")
 
     global LAST_PROVIDER
+    global CALLS_MADE
 
     # --- Try Groq first -----------------------------------------------------
     if config.has_groq_key():
         try:
+            CALLS_MADE += 1
             answer = call_with_retry("Groq", _ask_groq, prompt, temperature)
             LAST_PROVIDER = "Groq"
             print(f"[prsentinel] answer came from Groq ({config.GROQ_MODEL})")
             return answer
+        except DailyLimitReached as error:
+            # Out for the day, not just for a moment. Whether that ends the run
+            # or starts the other provider is up to the caller.
+            LAST_PROVIDER = ""
+            if not ALLOW_FALLBACK:
+                raise
+            print(f"[prsentinel] Groq is out for the day ({error}). "
+                  f"Trying Gemini...")
         except Exception as error:
             print(f"[prsentinel] Groq did not work ({error}). Trying Gemini...")
     else:
@@ -168,10 +242,16 @@ def ask_llm(prompt: str, temperature=None) -> str:
     # --- Then fall back to Gemini ------------------------------------------
     if config.has_gemini_key():
         try:
+            CALLS_MADE += 1
             answer = call_with_retry("Gemini", _ask_gemini, prompt, temperature)
             LAST_PROVIDER = "Gemini"
             print(f"[prsentinel] answer came from Gemini ({config.GEMINI_MODEL})")
             return answer
+        except DailyLimitReached as error:
+            # Both providers out for the day. There is nothing left to try, so
+            # this ends the run whatever the caller asked for.
+            LAST_PROVIDER = ""
+            raise
         except Exception as error:
             print(f"[prsentinel] Gemini did not work either ({error}).")
     else:
