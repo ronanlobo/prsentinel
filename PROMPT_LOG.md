@@ -290,6 +290,24 @@ against, so it is kept as small as the question needs it to be.
 
 ---
 
+## Held-back result
+
+- **Date:** 2026-10-01
+- **Cases:** 4, the kept-back set, 12 reruns each.
+- **Answers:** 8 of 8 from Groq, none from Gemini. One model, no fallback used.
+- **Result:** `rule` 2/4, `llm_full` 3/4, `llm_full_v2` 2/4.
+
+v2 scored 13/14 on the tuning set against v1's 12/14, but 2/4 on the
+held-back set against v1's 3/4. With 4 held-back cases (25 points each) and
+answers that vary between runs, the difference is within noise. We conclude v2
+shows no reliable improvement over v1. v1 (the original prompt) is the default
+for later steps. The held-back set was scored once.
+
+One thing the log records that this file cannot: the run happened exactly once.
+`heldback_runs.log` holds a single line, and it holds no score from any other
+run, because there was no other run. That is the whole point of keeping the log.
+It is not in git, so it is not part of the history of this file either.
+
 ## Why there is no v3
 
 There is no v3 because v2 is the last prompt change we make on the strength of
