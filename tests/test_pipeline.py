@@ -1118,6 +1118,23 @@ def test_the_header_says_how_many_answers_came_from_gemini():
     assert "answers from Gemini: 3" in text
 
 
+def test_the_early_exit_report_still_names_the_provenance():
+    """A report with no tests is still a report, so it still says how it was made.
+
+    The markdown returns early once there are no functions, so this pins that
+    the provenance lines are written before that return.
+    """
+    report = pl.make_report("b.py", "a.py", "n", [], [],
+                            fallback_allowed=False, gemini_answers=2)
+    text = pl.format_report(report)
+
+    assert "No test files were produced" in text
+    assert "fallback:" in text
+    assert "answers from Gemini:" in text
+    assert report["fallback"] is False
+    assert report["gemini_answers"] == 2
+
+
 def test_a_default_run_names_the_setting_and_a_zero_count(workspace, fake_ai,
                                                           fake_runs,
                                                           monkeypatch):
