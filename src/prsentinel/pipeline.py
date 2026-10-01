@@ -46,7 +46,9 @@ the next as .bak.2, then .bak.3, and so on.
 
 The exit code is 0 whenever the pipeline itself ran, even when it found bugs,
 because finding bugs is the job. It is non-zero only when the pipeline could
-not do its work at all.
+not do its work at all. A run stopped by --no-fallback, because the AI is out
+for the day, has an exit code of its own, so it can never be mistaken for a
+finished run.
 
 Nothing here ever writes an API key or any other secret. The report holds
 results only.
@@ -60,6 +62,7 @@ from pathlib import Path
 
 from prsentinel import classifier as cl
 from prsentinel import config
+from prsentinel import llm_client
 from prsentinel import repair
 from prsentinel import test_generator as tg
 from prsentinel import test_runner as tr
@@ -79,6 +82,11 @@ BACKUP_SUFFIX = ".bak"
 
 # The counts we show for each function, in this order.
 COUNT_LABELS = (tr.CATCHES_CHANGE, tr.TEST_WRONG_ON_BEFORE, tr.NO_SIGNAL, tr.ODD)
+
+# The exit code used when --no-fallback stops the run because a provider is out
+# for the day. It has its own number so it can never be mistaken for a broken
+# run (1) or for the --repair + --reuse-tests refusal (2).
+EXIT_DAILY_LIMIT = 6
 
 
 # ---------------------------------------------------------------------------
@@ -242,6 +250,10 @@ def generate_test_files(before_file, after_file, name) -> list:
         print(f"[prsentinel] asking for tests for {function} ({change_type})...")
         try:
             code = tg.generate_tests(change)
+        except llm_client.DailyLimitReached:
+            # Out for the day. With --no-fallback this ends the whole run, so it
+            # must not be mistaken for one function that failed to produce tests.
+            raise
         except Exception as error:
             # One function failing must not lose us the others.
             print(f"[prsentinel] could not write tests for {function}: {error}")
@@ -249,6 +261,7 @@ def generate_test_files(before_file, after_file, name) -> list:
                              "path": None, "error": str(error),
                              "skipped": False, "backed_up": False})
             continue
+        warn_if_gemini()
 
         path = folder / f"test_{tg.safe_file_name(function)}.py"
         backup, kept_old = write_with_backup(path, code)
@@ -319,6 +332,7 @@ def judge_one_test(before_run, after_run, rerun_run,
     if ai_second_opinion:
         # Only reached when the flag is on. Without it there is no extra call.
         second = cl.llm_classify(evidence, cl.MODE_FULL)
+        warn_if_gemini()
         result["ai_verdict"] = second["label"]
         result["ai_confidence"] = second["confidence"]
         result["ai_reason"] = second["reason"]
@@ -388,6 +402,10 @@ def check_one_file(before_file, after_file, test_file,
                                    before_file, after_file, test_file,
                                    row["name"], label=row["label"],
                                    ai_second_opinion=ai_second_opinion))
+            except llm_client.DailyLimitReached:
+                # Out for the day. This ends the whole run rather than skipping
+                # one judgement.
+                raise
             except Exception as error:
                 # A judgement we cannot make is worth reporting, not worth
                 # crashing the whole run over.
@@ -577,6 +595,10 @@ def repair_one_test(before_file, after_file, test_file, change, judgement,
                 change, Path(test_file).read_text(encoding="utf-8"),
                 test_name, failure_message, attempt,
                 weakened_before=last_was_weakened, ask=ask)
+        except llm_client.DailyLimitReached:
+            # Out for the day. With --no-fallback this ends the whole run, so it
+            # must not be treated as one attempt that came back empty.
+            raise
         except Exception as error:
             # A reply with no code in it, or a call that failed. That is one
             # used attempt, and the next one may do better.
@@ -585,6 +607,7 @@ def repair_one_test(before_file, after_file, test_file, change, judgement,
             every_attempt_weakened = False
             last_was_weakened = False
             continue
+        warn_if_gemini()
 
         try:
             result = test_candidate(before_file, after_file, test_file,
@@ -726,7 +749,9 @@ def build_summary_line(report: dict) -> str:
     """Write the one plain sentence that says what we found.
 
     Only tests that caught the change AND were judged a real bug are counted,
-    because a test that was itself wrong is not evidence of a bug.
+    because a test that was itself wrong is not evidence of a bug. A wrong test
+    that the repair loop corrected is a second, separate result, so it is added
+    to the same sentence rather than mixed into the bug count.
     """
     parts = []
     for function in report["functions"]:
@@ -744,6 +769,16 @@ def build_summary_line(report: dict) -> str:
             parts.append(f"1 test points to a real bug in {name}")
         else:
             parts.append(f"{real_bugs} tests point to a real bug in {name}")
+
+    # A repair that was accepted rewrote a test the writer had got wrong. That
+    # is worth saying out loud. It is kept out of the bug count above, because a
+    # corrected test says something about the test, not about the code.
+    repaired = sum(1 for item in report.get("repairs") or []
+                   if item["outcome"] == "repaired")
+    if repaired == 1:
+        parts.append("1 wrong test was corrected")
+    elif repaired > 1:
+        parts.append(f"{repaired} wrong tests were corrected")
 
     if not parts:
         return "No test points to a real bug in the code."
@@ -924,6 +959,78 @@ def save_report(report: dict, reports_dir: str = REPORTS_DIR) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Stopping when the AI is out for the day, and naming the fallback
+# ---------------------------------------------------------------------------
+# With --no-fallback, a provider that is out for the whole day ends the run
+# instead of quietly switching models. Half a run is not a smaller run: the
+# report it would write is missing the functions and tests it never reached, and
+# it would look exactly like a finished one. So we print a loud notice and stop.
+#
+# The notice has the same shape as the one classifier_eval prints, because both
+# runs share the same danger: numbers taken from a run that did not finish.
+
+class DailyLimitStop(RuntimeError):
+    """The run was stopped because the AI is out for the day."""
+
+
+# Whether we have already warned that an answer came from Gemini. Said once, the
+# first time it happens, so it cannot be scrolled past unnoticed.
+GEMINI_ANNOUNCED = False
+
+
+def reset_gemini_warning():
+    """Start the once-per-run fallback warning again from nothing."""
+    global GEMINI_ANNOUNCED
+    GEMINI_ANNOUNCED = False
+
+
+def warn_if_gemini():
+    """Say clearly, once, when an answer came from the fallback provider.
+
+    Reads the provider name ask_llm leaves behind after every call. A Groq
+    answer, a failed call, and a run that asked no AI at all all leave it empty
+    or set to Groq, so nothing is printed for those.
+    """
+    global GEMINI_ANNOUNCED
+    if GEMINI_ANNOUNCED or llm_client.LAST_PROVIDER != "Gemini":
+        return
+
+    GEMINI_ANNOUNCED = True
+    print()
+    print("!" * 70)
+    print("! AN ANSWER CAME FROM GEMINI, THE FALLBACK PROVIDER.")
+    print("! Groq could not answer every question, so this run mixes two")
+    print("! different models. Treat its output as a mixture, not as a run")
+    print("! that came from Groq alone.")
+    print("!" * 70)
+    print()
+
+
+def print_stopped_on_daily_limit(error):
+    """Say clearly that the run stopped early and its output means nothing.
+
+    A run that dies half way has most of a report in it, and that report looks
+    exactly like a finished one. Without this, someone could read results off a
+    run that never finished and believe them.
+    """
+    print()
+    print("!" * 70)
+    print("! THE RUN STOPPED EARLY. A PROVIDER IS OUT FOR THE DAY.")
+    print("!")
+    print(f"! {error}")
+    print("!")
+    print(f"! Model calls completed before the stop: {llm_client.CALLS_MADE}")
+    print("!")
+    print("! No results should be trusted. The run did not finish, so the")
+    print("! report it would have written is missing every function and test it")
+    print("! never reached, and no report was saved.")
+    print("!")
+    print("! Wait for the daily allowance to reset and run it again.")
+    print("!" * 70)
+    print()
+
+
+# ---------------------------------------------------------------------------
 # The command line
 # ---------------------------------------------------------------------------
 
@@ -952,26 +1059,40 @@ def run_pipeline(before_file, after_file, name=None,
 
     print(f"[prsentinel] pipeline for {name}")
 
-    # Steps 1 and 2.
-    if reuse_tests:
-        print("[prsentinel] --reuse-tests was given, so no AI is asked for "
-              "new tests. Using the saved ones.")
-        outcomes = reuse_test_files(before_path, after_path, name)
-    else:
-        outcomes = generate_test_files(before_path, after_path, name)
+    # The fallback warning is once per run, so start clean. A new run also starts
+    # with no provider named, so a run that asks no AI cannot look like it got
+    # its answers from the fallback.
+    reset_gemini_warning()
+    llm_client.LAST_PROVIDER = ""
 
-    # Steps 3, 4 and 5.
-    results = check_all_files(before_path, after_path, outcomes,
-                              ai_second_opinion)
+    # The AI can run out for the day. With --no-fallback that stops the whole
+    # run here: the notice is printed once and nothing is saved, because a report
+    # that covers only the functions reached first is not a finished report.
+    try:
+        # Steps 1 and 2.
+        if reuse_tests:
+            print("[prsentinel] --reuse-tests was given, so no AI is asked for "
+                  "new tests. Using the saved ones.")
+            outcomes = reuse_test_files(before_path, after_path, name)
+        else:
+            outcomes = generate_test_files(before_path, after_path, name)
 
-    # Step 5b. Only when --repair was given. Repairs run after the first
-    # judgement, because it is that judgement that decides which tests are wrong.
-    repairs = []
-    if repair_tests:
-        print("[prsentinel] --repair was given, so any test judged to be the "
-              "wrong test will be corrected and checked again.")
-        repairs = repair_bad_tests(before_path, after_path, outcomes, results,
-                                   ask=ask)
+        # Steps 3, 4 and 5.
+        results = check_all_files(before_path, after_path, outcomes,
+                                  ai_second_opinion)
+
+        # Step 5b. Only when --repair was given. Repairs run after the first
+        # judgement, because it is that judgement that decides which tests are
+        # wrong.
+        repairs = []
+        if repair_tests:
+            print("[prsentinel] --repair was given, so any test judged to be "
+                  "the wrong test will be corrected and checked again.")
+            repairs = repair_bad_tests(before_path, after_path, outcomes,
+                                       results, ask=ask)
+    except llm_client.DailyLimitReached as error:
+        print_stopped_on_daily_limit(error)
+        raise DailyLimitStop(error)
 
     # Step 6. When we reused tests, the report names the folder each file came
     # from, so a saved report always says whether it was a live file or a
@@ -1019,6 +1140,12 @@ def main() -> int:
                              "test, ask the writer to correct that test, then "
                              "check it again. Only ever touches a test judged "
                              "to be the wrong test. Off by default.")
+    parser.add_argument("--no-fallback", action="store_true",
+                        help="do not fall back to the second provider. If a "
+                             "provider runs out for the day, stop the whole run "
+                             "and say so, because results made part from one "
+                             "model and part from another are not results. "
+                             "Default is off, so we fall back as usual.")
     args = parser.parse_args()
 
     # Repaired tests are written for the code that is running, so they cannot be
@@ -1039,9 +1166,18 @@ def main() -> int:
             print(f"Cannot read that file: {path}")
             return 1
 
+    # Turn the fallback on or off for this run. Off by default, so a run
+    # without the flag behaves exactly as it always did.
+    llm_client.ALLOW_FALLBACK = not args.no_fallback
+
     try:
         run_pipeline(args.before_file, args.after_file, args.name,
                      args.ai_second_opinion, args.reuse_tests, args.repair)
+    except DailyLimitStop:
+        # The notice has already been printed in full, and no report was saved,
+        # so there is nothing to add here. This has its own exit code so a
+        # stopped run can never be mistaken for a finished one.
+        return EXIT_DAILY_LIMIT
     except Exception as error:
         # The pipeline could not do its job, which is the one thing that is
         # worth a non-zero exit.

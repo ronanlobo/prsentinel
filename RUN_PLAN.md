@@ -145,7 +145,7 @@ whole pipeline with the repair loop on, just to see that path work end to end.
 **It has not been run.**
 
 ```powershell
-& ".venv\Scripts\python.exe" -u -m prsentinel.pipeline examples\round2_mutable_default\before.py examples\round2_mutable_default\after.py --repair
+& ".venv\Scripts\python.exe" -u -m prsentinel.pipeline examples\round2_mutable_default\before.py examples\round2_mutable_default\after.py --repair --no-fallback
 ```
 
 - It uses **fresh generated tests**. `--reuse-tests` is not given, so the writer
@@ -153,9 +153,10 @@ whole pipeline with the repair loop on, just to see that path work end to end.
 - The report must show a `--- Repairs ---` section. With `--repair` given, the
   section is printed even when nothing needed repair, so its absence means the
   run never reached the repair step.
-- **Groq only, no fallback.** The pipeline has no `--no-fallback` flag, so start
-  a fresh session and load only the Groq key (leave `GEMINI_API_KEY` unloaded).
-  With no Gemini key the fallback has nowhere to go:
+- **Groq only, no fallback.** `--no-fallback` is given, so if Groq runs out for
+  the day the whole run stops and says so instead of quietly answering the rest
+  from Gemini. Start a fresh session and load only the Groq key (leave
+  `GEMINI_API_KEY` unloaded) as well, so there is no second model to mix in:
 
   ```powershell
   $v = [Environment]::GetEnvironmentVariable("GROQ_API_KEY","User")

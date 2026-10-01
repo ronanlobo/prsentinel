@@ -820,6 +820,62 @@ def test_a_repair_run_with_nothing_to_repair_still_shows_the_section():
 
 
 # ---------------------------------------------------------------------------
+# The summary line
+# ---------------------------------------------------------------------------
+
+def summary_report(judgements, repairs):
+    """A report with the judgements and repairs we choose, for the summary."""
+    function = {"function": "get_recent_scores", "change_type": "modified",
+                "test_file": "test_x.py", "from_folder": "", "counts": {},
+                "judgements": judgements, "needs_a_look": []}
+    return {"functions": [function], "repairs": repairs}
+
+
+def test_the_summary_says_how_many_wrong_tests_were_corrected():
+    report = summary_report(
+        [{"label": tr.CATCHES_CHANGE, "verdict": cl.REAL_BUG}],
+        [repair_record(), repair_record()])
+
+    assert pl.build_summary_line(report) == \
+        "1 test points to a real bug in get_recent_scores; " \
+        "2 wrong tests were corrected."
+
+
+def test_the_summary_uses_the_singular_for_one_correction():
+    report = summary_report([], [repair_record()])
+
+    assert pl.build_summary_line(report) == "1 wrong test was corrected."
+
+
+def test_the_summary_says_nothing_about_corrections_when_there_were_none():
+    """An unrepaired bad test is not a correction, so it stays out."""
+    report = summary_report([], [repair_record(outcome="unrepaired BAD_TEST")])
+
+    assert pl.build_summary_line(report) == \
+        "No test points to a real bug in the code."
+
+
+def test_a_correction_is_not_counted_as_a_real_bug():
+    """The bug count stays about the code; the correction is added, not mixed."""
+    report = summary_report(
+        [{"label": tr.CATCHES_CHANGE, "verdict": cl.REAL_BUG},
+         {"label": tr.TEST_WRONG_ON_BEFORE, "verdict": cl.BAD_TEST}],
+        [repair_record()])
+
+    assert pl.build_summary_line(report) == \
+        "1 test points to a real bug in get_recent_scores; " \
+        "1 wrong test was corrected."
+
+
+def test_make_report_puts_a_correction_in_the_summary():
+    """The whole path, not just the helper, so the wiring is proven."""
+    report = pl.make_report("b.py", "a.py", "n", [], [],
+                            repairs=[repair_record()])
+
+    assert report["summary"] == "1 wrong test was corrected."
+
+
+# ---------------------------------------------------------------------------
 # The command line
 # ---------------------------------------------------------------------------
 
