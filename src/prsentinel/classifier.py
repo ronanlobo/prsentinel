@@ -47,7 +47,8 @@ ALL_LABELS = (REAL_BUG, BAD_TEST, FLAKY)
 MODE_FULL = "full"
 MODE_CODE_ONLY = "code_only"
 MODE_FULL_WITH_INTENT = "full_with_intent"
-ALL_MODES = (MODE_FULL, MODE_CODE_ONLY, MODE_FULL_WITH_INTENT)
+MODE_FULL_V2 = "full_v2"
+ALL_MODES = (MODE_FULL, MODE_CODE_ONLY, MODE_FULL_WITH_INTENT, MODE_FULL_V2)
 
 # How much of each file we put in the prompt, so one huge file cannot fill it.
 MAX_CODE_CHARS = 4000
@@ -325,6 +326,31 @@ DESCRIPTION_HEADING = "Here is what the change was for."
 # nothing worth writing down", which is a different thing.
 NO_DESCRIPTION = "No description was provided."
 
+# The second extra section, shown only by the full_v2 mode. The results are just
+# two numbers and they are easy to skim past, and the numbers alone do not say
+# what a run that passes sometimes is telling us. This section explains that.
+#
+# It deliberately never mentions a label and never tells the AI what to pick. It
+# only describes what mixed results mean, so the choosing is still the AI's job.
+# It also uses no names, values or wording from any case, so it cannot leak the
+# answer key. Everything here is fixed text, and the frozen-string test proves
+# that removing this section from the full_v2 prompt leaves the full prompt
+# exactly as it was.
+RERUN_SECTION_HEADING = "How to read the results above."
+
+RERUN_SECTION = f"""{RERUN_SECTION_HEADING}
+
+The last line above says how the same code and the same test behaved when the
+test was run again. If that line reports both passes and fails, then the test
+did not settle on one answer. The code was identical between those runs, and
+what the test is asking for did not change either, so the only thing left that
+could move the outcome is chance: something outside the code and outside what
+the test is asking for is deciding the result from one run to the next.
+
+When that happens the result cannot be trusted as evidence about the code or
+about the test. An outcome that changes by chance is not showing a fault in
+either one, so it should not be read as one."""
+
 
 def _label_list_text() -> str:
     """Write out the three labels and what they mean, one per line."""
@@ -355,10 +381,14 @@ def build_prompt(evidence: dict, mode: str) -> str:
     "code_only"          shows only the code, the diff, the test and the message
     "full_with_intent"   shows the results and also the description of why the
                          change was made
+    "full_v2"            shows the results, plus a short section explaining what
+                         it means when the same test gives different results
+                         when it is run again
 
-    The prompts for "full" and "code_only" are exactly what they have always
-    been. Adding the description must not move a single character of either,
-    because those two scores are already measured and have to stay comparable.
+    The prompts for "full", "code_only" and "full_with_intent" are exactly what
+    they have always been. Adding a section must not move a single character of
+    any of them, because those scores are already measured and have to stay
+    comparable.
     """
     if mode not in ALL_MODES:
         raise ValueError(
@@ -407,6 +437,12 @@ def build_prompt(evidence: dict, mode: str) -> str:
         parts.append("```text")
         parts.append(evidence.get("description", "") or NO_DESCRIPTION)
         parts.append("```")
+        parts.append("")
+
+    if mode == MODE_FULL_V2:
+        parts.append(_results_text(evidence))
+        parts.append("")
+        parts.append(RERUN_SECTION)
         parts.append("")
 
     parts.extend([
@@ -507,8 +543,8 @@ def classify(evidence: dict, classifier: str = "rule",
              mode: str = MODE_FULL) -> dict:
     """Run one classifier over the evidence and always give the same keys.
 
-    classifier is "rule", "llm_full", "llm_full_with_intent" or
-    "llm_code_only".
+    classifier is "rule", "llm_full", "llm_full_with_intent",
+    "llm_full_v2" or "llm_code_only".
     """
     if classifier == "rule":
         answer = rule_classify(evidence)
@@ -520,8 +556,10 @@ def classify(evidence: dict, classifier: str = "rule",
         return llm_classify(evidence, MODE_CODE_ONLY)
     if classifier == "llm_full_with_intent":
         return llm_classify(evidence, MODE_FULL_WITH_INTENT)
+    if classifier == "llm_full_v2":
+        return llm_classify(evidence, MODE_FULL_V2)
 
     raise ValueError(
         f"Unknown classifier {classifier!r}. Use rule, llm_full, "
-        f"llm_full_with_intent or llm_code_only."
+        f"llm_full_with_intent, llm_full_v2 or llm_code_only."
     )

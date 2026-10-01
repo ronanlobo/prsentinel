@@ -15,3 +15,8 @@ src/prsentinel.egg-info/
 # Old copies of a generated test, kept when the pipeline writes over one.
 *.bak
 *.bak.*
+
+# Saved output from a scoring run. These are long and are written over each
+# time, and the numbers that matter go into PROMPT_LOG.md by hand.
+eval_*_output.txt
+heldback_runs.log

@@ -23,6 +23,7 @@ classifier_eval.py. This is the only file allowed to name the held-back folder.
 """
 
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -109,6 +110,17 @@ def add_to_log(cases, scores):
 
 def main() -> int:
     """Score every kept-back case and print only the totals."""
+    # The AI writes its own reasons. We do not print them here, but the scores
+    # are read from the same replies, so the stream is made safe the same way as
+    # in classifier_eval.py. A reason that cannot be printed must not be able to
+    # stop a held-back run halfway.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError, OSError):
+        # Not every stdout can do this, and not being able to is not a reason to
+        # refuse to score the cases.
+        pass
+
     folders = case_folders()
     if not folders:
         print(f"No kept-back cases found in {HELDBACK_FOLDER}")

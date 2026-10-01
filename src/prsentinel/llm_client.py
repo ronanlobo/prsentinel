@@ -30,6 +30,15 @@ GEMINI_NOISY_TEXT = "automatic function calling"
 # The exact logger name the SDK uses. Note the underscore in "google_genai".
 GEMINI_LOGGER_NAME = "google_genai.models"
 
+# Which provider gave the most recent answer. It starts empty and is set only
+# on the way out of a successful call, so it always names the provider that
+# actually produced the text we are holding.
+#
+# This exists so a run can report where its answers came from. It holds a
+# provider name or nothing at all. No key, no header, no part of a key, and
+# nothing else from the call, ever goes in here.
+LAST_PROVIDER = ""
+
 # Words that mean "you are going too fast, wait a moment".
 RATE_LIMIT_WORDS = ("429", "rate limit", "rate_limit", "resource_exhausted")
 
@@ -142,10 +151,13 @@ def ask_llm(prompt: str, temperature=None) -> str:
     if not prompt or not prompt.strip():
         raise ValueError("The prompt is empty, so there is nothing to ask.")
 
+    global LAST_PROVIDER
+
     # --- Try Groq first -----------------------------------------------------
     if config.has_groq_key():
         try:
             answer = call_with_retry("Groq", _ask_groq, prompt, temperature)
+            LAST_PROVIDER = "Groq"
             print(f"[prsentinel] answer came from Groq ({config.GROQ_MODEL})")
             return answer
         except Exception as error:
@@ -157,12 +169,17 @@ def ask_llm(prompt: str, temperature=None) -> str:
     if config.has_gemini_key():
         try:
             answer = call_with_retry("Gemini", _ask_gemini, prompt, temperature)
+            LAST_PROVIDER = "Gemini"
             print(f"[prsentinel] answer came from Gemini ({config.GEMINI_MODEL})")
             return answer
         except Exception as error:
             print(f"[prsentinel] Gemini did not work either ({error}).")
     else:
         print("[prsentinel] GEMINI_API_KEY is not set, so we cannot fall back.")
+
+    # Nobody answered, so there is no provider to name. Clearing it stops a
+    # failed call from looking like it came from whoever answered last.
+    LAST_PROVIDER = ""
 
     raise RuntimeError(
         "No LLM could answer. Check GROQ_API_KEY and GEMINI_API_KEY."

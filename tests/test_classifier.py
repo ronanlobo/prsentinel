@@ -7,7 +7,10 @@ result and cost nothing.
 
 import ast
 import inspect
+import io
 import json
+import re
+import sys
 import textwrap
 from pathlib import Path
 
@@ -728,6 +731,128 @@ def test_the_heldback_eval_prints_nothing_per_case(capsys, monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+# Output has to survive whatever characters the AI writes
+# ---------------------------------------------------------------------------
+# The AI writes its own reasons, and it can put any character in them. The
+# default Windows console encoding is cp1252, which cannot hold many of them.
+# Before this was fixed, one reason containing a non-breaking hyphen stopped the
+# whole report with a UnicodeEncodeError, which cut off the last wrong answer
+# and the giveaway check.
+
+# The character that caused the real crash. It looks like a dash but is not one.
+NON_BREAKING_HYPHEN = "\u2011"
+
+
+def narrow_stdout(monkeypatch):
+    """Put a cp1252 stdout in place, which is what Windows normally gives us.
+
+    This is a real text stream, not a stand-in, so reconfigure really does
+    something to it. That is the whole point: the fix only works on a real one.
+    """
+    buffer = io.BytesIO()
+    stream = io.TextIOWrapper(buffer, encoding="cp1252", errors="strict")
+    monkeypatch.setattr(sys, "stdout", stream)
+    return stream, buffer
+
+
+def read_back(stream, buffer):
+    """Flush the fake stdout and give back everything written to it."""
+    stream.flush()
+    # After the fix the stream is utf-8, so that is how we read it.
+    return buffer.getvalue().decode("utf-8")
+
+
+def test_the_crash_character_really_would_have_stopped_the_run():
+    """Why this test exists at all: cp1252 cannot hold the character."""
+    with pytest.raises(UnicodeEncodeError):
+        NON_BREAKING_HYPHEN.encode("cp1252")
+
+
+def test_printing_a_reason_with_that_character_does_not_crash(monkeypatch):
+    """The eval must finish and print the reason, on a cp1252 console."""
+    from prsentinel import classifier_eval as ce
+
+    reply = json.dumps({
+        "label": "BAD_TEST",
+        "confidence": "high",
+        "reason": f"the value {NON_BREAKING_HYPHEN}3 is not what the code gives",
+    })
+
+    monkeypatch.setattr(cl, "ask_llm", lambda prompt: reply)
+    # classifier_eval calls the classifier's own collect_evidence, so that is
+    # the name to replace. This keeps the test off the real test runner.
+    monkeypatch.setattr(cl, "collect_evidence", lambda *a, **k: frozen_evidence())
+    # main() reads the command line, and under pytest that would be pytest's own
+    # flags. This test only cares about the printing.
+    monkeypatch.setattr(sys, "argv", ["classifier_eval"])
+
+    stream, buffer = narrow_stdout(monkeypatch)
+
+    assert ce.main() == 0, "the run stopped instead of finishing"
+
+    printed = read_back(stream, buffer)
+    assert NON_BREAKING_HYPHEN in printed, \
+        "the reason was not printed, so it cannot have been printed safely"
+    assert "Wrong answers" in printed
+    assert "giveaway phrase" in printed or "RUN_INDEX" in printed
+
+
+def test_the_heldback_eval_also_survives_a_narrow_console(monkeypatch):
+    """Same guard in the other command, so a held-back run cannot be cut off."""
+    from prsentinel import heldback_eval as he
+
+    monkeypatch.setattr(he, "run_case", lambda folder: {
+        name: {"label": "BAD_TEST", "confidence": "", "reason": ""}
+        for name in he.CLASSIFIERS
+    })
+    monkeypatch.setattr(he, "add_to_log", lambda *a, **k: None)
+
+    stream, buffer = narrow_stdout(monkeypatch)
+
+    assert he.main() == 0
+    assert "cases: 4" in read_back(stream, buffer)
+
+
+def test_the_guard_survives_a_stdout_that_cannot_be_reconfigured(monkeypatch):
+    """Not every stdout has reconfigure, and that must not stop the run.
+
+    Some environments hand us something that is not a text stream at all, and
+    some hand us a closed one. Both used to be a reason to give up, which would
+    mean no score at all.
+    """
+    from prsentinel import classifier_eval as ce
+    from prsentinel import heldback_eval as he
+
+    class NoReconfigure:
+        """A stdout that only looks like one."""
+
+        def write(self, text):
+            return len(text)
+
+        def flush(self):
+            pass
+
+    monkeypatch.setattr(ce, "run_case", lambda folder: {
+        "folder": folder.name,
+        "results": {name: {"label": "REAL_BUG", "confidence": "", "reason": ""}
+                    for name in ce.CLASSIFIERS},
+        "errors": {},
+    })
+    monkeypatch.setattr(he, "run_case", lambda folder: {
+        name: {"label": "REAL_BUG", "confidence": "", "reason": ""}
+        for name in he.CLASSIFIERS
+    })
+    monkeypatch.setattr(he, "add_to_log", lambda *a, **k: None)
+
+    monkeypatch.setattr(sys, "stdout", NoReconfigure())
+    monkeypatch.setattr(sys, "argv", ["classifier_eval"])
+    assert ce.main() == 0
+
+    monkeypatch.setattr(sys, "stdout", NoReconfigure())
+    assert he.main() == 0
+
+
+# ---------------------------------------------------------------------------
 # The old prompts must not change
 # ---------------------------------------------------------------------------
 
@@ -909,6 +1034,244 @@ def test_the_intent_mode_shows_the_description():
 
     assert "This change was made on purpose." in prompt
     assert cl.DESCRIPTION_HEADING in prompt
+
+
+# ---------------------------------------------------------------------------
+# The full_v2 mode
+# ---------------------------------------------------------------------------
+# full_v2 is the full prompt plus one new section. The section is fixed text, and
+# taking it back out has to leave the full prompt exactly as it was. That is what
+# makes the two scores comparable: v2 is being measured against a prompt we have
+# already measured, not against one that quietly drifted.
+
+# How the new section sits in the prompt: the section itself, then one newline
+# that joins it to the next part, then one blank line, which is the same gap
+# every other section ends with.
+V2_INSERTED_BLOCK = cl.RERUN_SECTION + "\n\n"
+
+
+def test_full_v2_is_the_full_prompt_plus_only_the_new_section():
+    """Taking the new section back out must give the frozen full prompt."""
+    prompt = cl.build_prompt(frozen_evidence(), cl.MODE_FULL_V2)
+
+    assert prompt.count(V2_INSERTED_BLOCK) == 1, \
+        "the section has to go in exactly once, so it can be taken back out"
+    assert prompt.replace(V2_INSERTED_BLOCK, "", 1) == EXPECTED_FULL_PROMPT
+
+
+def test_full_v2_still_shows_the_code_and_the_results():
+    """The new section is added to the full prompt, not instead of it."""
+    evidence = frozen_evidence()
+    prompt = cl.build_prompt(evidence, cl.MODE_FULL_V2)
+
+    assert evidence["old_code"] in prompt
+    assert evidence["new_code"] in prompt
+    assert evidence["test_code"] in prompt
+    assert "Here is how this test behaved when it was run." in prompt
+    # The rerun numbers themselves are unchanged, only explained.
+    assert (f"{evidence['rerun']['passes']} pass and "
+            f"{evidence['rerun']['fails']} fail") in prompt
+
+
+def test_the_new_section_sits_after_the_results_and_before_the_labels():
+    """Where it sits decides what it reads as being about."""
+    prompt = cl.build_prompt(frozen_evidence(), cl.MODE_FULL_V2)
+
+    assert (prompt.index("Here is how this test behaved when it was run.")
+            < prompt.index(cl.RERUN_SECTION_HEADING))
+    assert (prompt.index(cl.RERUN_SECTION_HEADING)
+            < prompt.index("Choose exactly one label:"))
+
+
+def test_the_new_section_never_names_a_label():
+    """It explains what the numbers mean, and stops there.
+
+    If it said which label to pick we would be measuring the label list, not the
+    AI. The whole point is that the AI still has to work the label out.
+    """
+    section = cl.RERUN_SECTION
+
+    for label, _ in cl.LABEL_MEANINGS:
+        assert label not in section, f"the section names the label {label}"
+
+    for phrase in ("choose", "pick", "should be", "answer with"):
+        assert phrase not in section.lower(), \
+            f"the section tells the AI what to do: {phrase!r}"
+
+
+def test_the_new_section_says_the_outcome_is_left_to_chance():
+    """That is the one thing the section has to get across.
+
+    The AI's real weakness is the cases where the same test gives different
+    answers when it is run again. Saying that depends on chance, and not on the
+    code or on what the test is asking for, is the whole change.
+    """
+    section = cl.RERUN_SECTION.lower()
+
+    assert "chance" in section
+    assert "both passes and fails" in section
+    assert "cannot be trusted" in section
+
+
+def test_the_new_section_mentions_no_case_and_no_answer():
+    """Nothing from any case may leak into the fixed text."""
+    section = cl.RERUN_SECTION
+
+    for word in ("flaky", "bug", "wrong", "outdated", "deprecated", "intentional",
+                 "apple", "banana", "leap", "discount", "average", "month",
+                 "money", "round", "cells", "steps", "north", "south", "label_of",
+                 "first_and_complete", "pick_one"):
+        assert word not in section.lower(), f"case word leaked in: {word!r}"
+
+
+def test_only_the_v2_mode_shows_the_new_section():
+    """Every other prompt has to be exactly what it was."""
+    evidence = frozen_evidence()
+
+    for mode in (cl.MODE_FULL, cl.MODE_CODE_ONLY, cl.MODE_FULL_WITH_INTENT):
+        assert cl.RERUN_SECTION not in cl.build_prompt(evidence, mode), \
+            f"{mode} must not show the new section"
+
+
+def test_the_v2_mode_ignores_a_description_entirely():
+    """v2 is full plus the rerun section, not full plus intent."""
+    with_text = frozen_evidence()
+    without_text = frozen_evidence()
+    without_text["description"] = ""
+
+    assert (cl.build_prompt(with_text, cl.MODE_FULL_V2)
+            == cl.build_prompt(without_text, cl.MODE_FULL_V2))
+    assert cl.DESCRIPTION_HEADING not in cl.build_prompt(with_text, cl.MODE_FULL_V2)
+
+
+# ---------------------------------------------------------------------------
+# PROMPT_LOG.md
+# ---------------------------------------------------------------------------
+# The log is what stops the prompt being rewritten against the tuning set until
+# it scores well on it. Two versions, and a v3 that would quietly turn the tuning
+# score into a memory test.
+
+PROMPT_LOG = Path(__file__).resolve().parents[1] / "PROMPT_LOG.md"
+
+VERSION_HEADING = re.compile(r"^## v(\d+)\b", re.MULTILINE)
+
+
+def prompt_log_text():
+    return PROMPT_LOG.read_text(encoding="utf-8")
+
+
+def test_the_prompt_log_exists_and_says_it_has_two_versions():
+    assert PROMPT_LOG.is_file(), "PROMPT_LOG.md is missing"
+
+
+def test_the_prompt_log_holds_at_most_two_versions():
+    """A third version is the thing this file exists to stop."""
+    versions = [int(number) for number in VERSION_HEADING.findall(prompt_log_text())]
+
+    assert len(versions) <= 2, f"too many prompt versions: {versions}"
+    assert versions == sorted(versions), f"versions out of order: {versions}"
+    assert all(number in (1, 2) for number in versions), \
+        f"a version above 2 exists, which should never be added: {versions}"
+
+
+def test_the_prompt_log_records_how_each_version_was_scored():
+    """Every version says where its score came from and that it was the tuning set."""
+    text = prompt_log_text()
+
+    assert "Tuned on the tuning set only." in text
+    for version in VERSION_HEADING.finditer(text):
+        # Look at the block belonging to this heading only.
+        following = text[version.end():]
+        block = following.split("\n## ", 1)[0]
+        assert "**Date:**" in block, f"v{version.group(1)} has no date"
+        assert "Tuning scores" in block, f"v{version.group(1)} has no score line"
+        assert "Mean" in block or "mean" in block, \
+            f"v{version.group(1)} does not give a mean"
+
+
+def test_the_prompt_log_holds_the_real_prompts_not_a_copy_that_can_drift():
+    """Both complete prompts and the new section have to be the live ones."""
+    text = prompt_log_text()
+
+    assert cl.build_prompt(frozen_evidence(), cl.MODE_FULL) in text
+    assert cl.build_prompt(frozen_evidence(), cl.MODE_FULL_V2) in text
+    assert cl.RERUN_SECTION in text
+
+
+def test_the_prompt_log_wide_fences_survive_the_inner_ones():
+    """The prompts bring their own code fences, so the outer ones have to be wider.
+
+    A three-backtick outer fence closes at the first ```python inside the prompt
+    and everything after it renders as prose instead of code.
+    """
+    text = prompt_log_text()
+
+    for version in VERSION_HEADING.finditer(text):
+        block = text[version.end():].split("\n## ", 1)[0]
+        assert "````" in block, f"v{version.group(1)} has no wide code fence"
+
+
+def test_the_prompt_log_never_claims_the_kept_back_cases_were_scored():
+    """The kept-back cases are unspent, and the log must not say otherwise."""
+    text = prompt_log_text().lower()
+
+    assert "have never been scored" in text
+    for phrase in ("kept-back score is", "held-back score of", "held back score of"):
+        if phrase in text:
+            tail = text[text.index(phrase):]
+            assert "worth" in tail or "never" in tail, \
+                f"the log sounds as though the kept-back cases were scored: {phrase!r}"
+
+
+def test_v2_is_scored_on_the_tuning_set_only():
+    """It is a classifier like the others, so the tuning eval has to ask for it.
+
+    The kept-back cases are the one honest measurement we get, and they must not
+    be spent on something that was written while looking at the tuning set. The
+    kept-back command must never grow this classifier.
+    """
+    from prsentinel import classifier_eval as ce
+    from prsentinel import heldback_eval as he
+
+    assert "llm_full_v2" in ce.CLASSIFIERS
+    assert "llm_full_v2" not in he.CLASSIFIERS
+
+
+def test_v2_is_the_one_the_final_summary_is_about():
+    """The repeats report names the classifier being tried out."""
+    from prsentinel import classifier_eval as ce
+
+    assert ce.SUMMARY_CLASSIFIER == "llm_full_v2"
+    assert ce.SUMMARY_CLASSIFIER in ce.CLASSIFIERS
+    assert ce.SUMMARY_CLASSIFIER in ce.AI_CLASSIFIERS
+
+
+def test_the_table_has_a_column_for_every_classifier():
+    """A missing column would make the score look better than it is."""
+    from prsentinel import classifier_eval as ce
+
+    assert set(ce.SHORT_NAMES) >= set(ce.CLASSIFIERS)
+
+
+def test_v2_is_a_real_mode_and_a_real_classifier():
+    """It has to be reachable by name, or the eval cannot ask for it."""
+    assert cl.MODE_FULL_V2 in cl.ALL_MODES
+
+    called = []
+
+    def fake_llm(evidence, mode):
+        called.append(mode)
+        return {"label": "FLAKY", "confidence": "", "reason": ""}
+
+    original = cl.llm_classify
+    try:
+        cl.llm_classify = fake_llm
+        answer = cl.classify(frozen_evidence(), classifier="llm_full_v2")
+    finally:
+        cl.llm_classify = original
+
+    assert called == [cl.MODE_FULL_V2]
+    assert answer["label"] == "FLAKY"
 
 
 def test_the_intent_mode_says_so_when_there_is_no_description():
