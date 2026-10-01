@@ -88,6 +88,23 @@ MAX_REPAIR_CALLS_PER_RUN = _int_from_env("PRSENTINEL_MAX_REPAIR_CALLS_PER_RUN",
 
 
 # ---------------------------------------------------------------------------
+# Measuring how many faults the tests catch (mutation testing).
+# ---------------------------------------------------------------------------
+
+# The most mutants we make for one function in a single run. A function with a
+# lot of operators can offer far more mutants than we want to run, and every
+# mutant is a whole pytest run, so we take the first N and say plainly when the
+# cap cut the list.
+MAX_MUTANTS_PER_FUNCTION = _int_from_env("PRSENTINEL_MAX_MUTANTS_PER_FUNCTION",
+                                         30)
+
+# How long one mutant may run before we give up on it. A mutant that hangs is
+# stopped and counted on its own, never left running forever.
+MUTATION_TIMEOUT_SECONDS = _int_from_env("PRSENTINEL_MUTATION_TIMEOUT_SECONDS",
+                                         30)
+
+
+# ---------------------------------------------------------------------------
 # How creative the AI is allowed to be.
 # ---------------------------------------------------------------------------
 

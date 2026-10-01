@@ -63,6 +63,7 @@ from pathlib import Path
 from prsentinel import classifier as cl
 from prsentinel import config
 from prsentinel import llm_client
+from prsentinel import mutation as mt
 from prsentinel import repair
 from prsentinel import test_generator as tg
 from prsentinel import test_runner as tr
@@ -742,6 +743,55 @@ def repair_bad_tests(before_file, after_file, outcomes, results, ask=None) -> li
 
 
 # ---------------------------------------------------------------------------
+# Step 5c: mutation testing, when --mutation was given
+# ---------------------------------------------------------------------------
+
+def measure_mutation(before_file, outcomes) -> list:
+    """Check how many faults each changed function's tests catch.
+
+    Only a modified function has an old version to mutate, so an added or a
+    removed function is listed as not defined instead. Every mutant is run
+    through the ordinary test runner, which keeps the child environment
+    allow-listed and writes only to a temporary folder.
+    """
+    results = []
+    for outcome in outcomes:
+        function = outcome["function"]
+        change_type = outcome["change_type"]
+
+        if change_type != "modified":
+            results.append({
+                "function": function,
+                "change_type": change_type,
+                "defined": False,
+                "reason": "not defined (no old version)",
+            })
+            continue
+
+        if outcome["path"] is None:
+            results.append({
+                "function": function,
+                "change_type": change_type,
+                "defined": False,
+                "reason": "not defined (no test file was produced)",
+            })
+            continue
+
+        print(f"[prsentinel] checking the tests for {function} against small "
+              f"deliberate faults...")
+        measured = mt.run_mutation(before_file, outcome["path"], function)
+        measured["change_type"] = change_type
+
+        if measured.get("capped"):
+            print(f"[prsentinel] note: {function} offered {measured['found']} "
+                  f"mutants, but only the first {measured['cap']} were used "
+                  f"(the cap).")
+        results.append(measured)
+
+    return results
+
+
+# ---------------------------------------------------------------------------
 # Step 6: the report
 # ---------------------------------------------------------------------------
 
@@ -790,7 +840,7 @@ def build_summary_line(report: dict) -> str:
 def make_report(before_file, after_file, name, outcomes, results,
                 tests_source="generated", repairs=None,
                 repair_tests=False, fallback_allowed=True,
-                gemini_answers=0) -> dict:
+                gemini_answers=0, mutation=None) -> dict:
     """Put everything we found into one dictionary, ready to save.
 
     repair_tests is whether --repair was given, which is not the same question
@@ -802,6 +852,9 @@ def make_report(before_file, after_file, name, outcomes, results,
     allowed to fall back to the second provider (the default), False means
     --no-fallback was given. gemini_answers is how many answers actually came
     from that fallback provider, so a reader can tell the two apart.
+
+    mutation is None unless --mutation was given. Only then does the report
+    grow a mutation section, so an ordinary run reads exactly as it did before.
     """
     functions = []
     for outcome, result in zip([o for o in outcomes if o["path"]],
@@ -835,8 +888,66 @@ def make_report(before_file, after_file, name, outcomes, results,
         "fallback": bool(fallback_allowed),
         "gemini_answers": int(gemini_answers),
     }
+    # Only a run that asked for mutation testing carries the section, so an
+    # ordinary saved report is byte for byte what it always was.
+    if mutation is not None:
+        report["mutation"] = list(mutation)
     report["summary"] = build_summary_line(report)
     return report
+
+
+def format_mutation(mutation) -> list:
+    """Write the mutation section: do the tests really catch a fault?
+
+    Only ever reached when --mutation was given. A function with no old version
+    has nothing to mutate, so it is listed as not defined rather than scored.
+    """
+    lines = []
+    lines.append("--- Mutation (do the tests really catch a fault?) ---")
+    lines.append("  A mutant is a copy of the changed function with one small")
+    lines.append("  deliberate fault, such as + changed to - or < changed to")
+    lines.append("  <=. If a test fails on it the mutant is killed; if every")
+    lines.append("  test still passes it survived. Some survivors may be")
+    lines.append("  equivalent mutants, which no test could ever kill, so the")
+    lines.append("  score is a lower bound, not an exact grade.")
+
+    for item in mutation:
+        lines.append("")
+        lines.append(f"  {item['function']}  ({item.get('change_type', '')})")
+
+        if not item.get("defined"):
+            lines.append("    mutation score  : not defined")
+            lines.append(f"    reason          : {item.get('reason', '')}")
+            continue
+
+        lines.append(f"    version mutated : {item.get('version', '')} "
+                     "(the version the tests pass on)")
+        lines.append(f"    mutants found   : {item['found']}")
+        if item.get("capped"):
+            lines.append(f"    note            : only the first {item['cap']} "
+                         "were used (the cap)")
+        lines.append(f"    killed          : {item['killed']}")
+        lines.append(f"    survived        : {item['survived']}")
+        lines.append(f"    equivalent      : {item['equivalent']}")
+        lines.append(f"    timed out       : {item['timed_out']}")
+        lines.append(f"    could not run   : {item['could_not_run']}")
+
+        if item.get("score") is None:
+            lines.append("    mutation score  : not defined")
+            lines.append(f"    reason          : {item.get('reason', '')}")
+        else:
+            counted = item["killed"] + item["survived"]
+            percent = round(item["score"] * 100)
+            lines.append(f"    mutation score  : {percent}% "
+                         f"({item['killed']} of {counted})")
+
+        duds = [t["test"] for t in item.get("tests", []) if t.get("dud")]
+        if duds:
+            lines.append("    tests that killed nothing (possible duds):")
+            for name in duds:
+                lines.append(f"      {name}")
+
+    return lines
 
 
 def format_report(report: dict) -> str:
@@ -892,6 +1003,10 @@ def format_report(report: dict) -> str:
             for name in function["needs_a_look"]:
                 lines.append(f"    {name} - needs a human look "
                              "(fails on the old code, passes on the new one)")
+
+    if report.get("mutation") is not None:
+        lines.append("")
+        lines.extend(format_mutation(report["mutation"]))
 
     if report.get("repairs") or report.get("repair"):
         lines.append("")
@@ -1059,7 +1174,7 @@ def print_stopped_on_daily_limit(error):
 def run_pipeline(before_file, after_file, name=None,
                  ai_second_opinion=False, reuse_tests=False,
                  repair_tests=False, ask=None,
-                 fallback_allowed=True) -> dict:
+                 fallback_allowed=True, mutation=False) -> dict:
     """Do all seven steps and return the report.
 
     With reuse_tests we skip writing tests and use the ones already saved. That
@@ -1076,6 +1191,10 @@ def run_pipeline(before_file, after_file, name=None,
     fallback_allowed is carried into the report, so a saved report can say
     whether the run was allowed to fall back to the second provider. It is the
     setting, not whether a fallback actually happened.
+
+    With mutation, every changed function is checked against small deliberate
+    faults to see how many of them the tests catch. That asks no AI at all, and
+    it adds a mutation section to the report.
     """
     before_path = Path(before_file)
     after_path = Path(after_file)
@@ -1121,6 +1240,14 @@ def run_pipeline(before_file, after_file, name=None,
         print_stopped_on_daily_limit(error)
         raise DailyLimitStop(error)
 
+    # Step 5c. Only when --mutation was given. This asks no AI at all: it makes
+    # small faults in each changed function and checks whether the tests notice.
+    mutation_results = None
+    if mutation:
+        print("[prsentinel] --mutation was given, so each changed function will "
+              "be checked against small deliberate faults.")
+        mutation_results = measure_mutation(before_path, outcomes)
+
     # Step 6. When we reused tests, the report names the folder each file came
     # from, so a saved report always says whether it was a live file or a
     # frozen baseline.
@@ -1134,7 +1261,8 @@ def run_pipeline(before_file, after_file, name=None,
                          tests_source=tests_source, repairs=repairs,
                          repair_tests=repair_tests,
                          fallback_allowed=fallback_allowed,
-                         gemini_answers=GEMINI_ANSWERS)
+                         gemini_answers=GEMINI_ANSWERS,
+                         mutation=mutation_results)
     print_report(report)
 
     # Step 7.
@@ -1175,6 +1303,11 @@ def main() -> int:
                              "and say so, because results made part from one "
                              "model and part from another are not results. "
                              "Default is off, so we fall back as usual.")
+    parser.add_argument("--mutation", action="store_true",
+                        help="also check how many small deliberate faults in "
+                             "each changed function the tests catch. This asks "
+                             "no AI. Off by default, so an ordinary run reads "
+                             "exactly as it did before.")
     args = parser.parse_args()
 
     # Repaired tests are written for the code that is running, so they cannot be
@@ -1204,7 +1337,8 @@ def main() -> int:
     try:
         run_pipeline(args.before_file, args.after_file, args.name,
                      args.ai_second_opinion, args.reuse_tests, args.repair,
-                     fallback_allowed=fallback_allowed)
+                     fallback_allowed=fallback_allowed,
+                     mutation=args.mutation)
     except DailyLimitStop:
         # The notice has already been printed in full, and no report was saved,
         # so there is nothing to add here. This has its own exit code so a
