@@ -1,10 +1,12 @@
 """Measure how many faults in the changed function the tests really catch.
 
 A "mutant" is a copy of one function with a single small deliberate fault in
-it: "+ changed to -", "< changed to <=", "True changed to False", and the same
-the other way round. We run the test file against each mutant.
+it: "+ changed to -", "< changed to <=", "is None changed to is not None", "a
+number changed to one more", and the same the other way round. We run the test
+file against each mutant.
 
 - If a test fails on the mutant, the mutant is "killed": the tests caught it.
+  A test that fails by raising an exception counts as a kill.
 - If every test still passes, the mutant "survived": the tests missed it.
 
 Mutation score = killed / (killed + survived).
@@ -20,8 +22,9 @@ Three rules keep this safe and small:
    pass on (the old file). A survivor is then a weak test, not a broken one.
 2. Every mutant is built and run in a throwaway temporary folder. Nothing is
    ever written into examples/ or generated_tests/.
-3. A mutant that cannot run, or that leaves the function exactly as it was, is
-   counted on its own and kept out of the score.
+3. A mutant that cannot run at all (a syntax or import failure), or that leaves
+   the function exactly as it was, is counted on its own and kept out of the
+   score. A test that fails by raising an exception is a kill.
 
 The tests are run through the ordinary test runner, so they get the same
 allow-listed child environment: no API key ever reaches a mutant.
@@ -31,13 +34,15 @@ import ast
 import copy
 import shutil
 import tempfile
+import textwrap
 from pathlib import Path
 
 from prsentinel import config
 from prsentinel import test_runner as tr
 
-# The four pairs of operators we swap. Each direction is listed on its own so
-# the report can name exactly what was changed.
+# Every fault we know how to make. Each direction is listed on its own so the
+# report can name exactly what was changed. This list is fixed: widen it only on
+# purpose, because every entry here changes what a score means.
 KIND_LABELS = {
     "add_to_sub": "+ to -",
     "sub_to_add": "- to +",
@@ -47,6 +52,16 @@ KIND_LABELS = {
     "ge_to_gt": ">= to >",
     "true_to_false": "True to False",
     "false_to_true": "False to True",
+    "eq_to_noteq": "== to !=",
+    "noteq_to_eq": "!= to ==",
+    "is_none_to_is_not_none": "is None to is not None",
+    "is_not_none_to_is_none": "is not None to is None",
+    "and_to_or": "and to or",
+    "or_to_and": "or to and",
+    "int_to_int_plus_one": "n to n + 1",
+    "default_none_to_empty_list": "None default to []",
+    "default_empty_list_to_none": "[] default to None",
+    "return_to_none": "return expr to return None",
 }
 
 # The buckets a mutant can land in. Only KILLED and SURVIVED go into the score.
@@ -55,6 +70,15 @@ SURVIVED = "survived"
 EQUIVALENT = "equivalent"
 TIMED_OUT = "timed out"
 COULD_NOT_RUN = "could not run"
+
+# How each outcome is spelled in the per-operator tally.
+BUCKET_KEYS = {
+    KILLED: "killed",
+    SURVIVED: "survived",
+    EQUIVALENT: "equivalent",
+    TIMED_OUT: "timed_out",
+    COULD_NOT_RUN: "could_not_run",
+}
 
 
 def find_function(tree, dotted_name):
@@ -81,36 +105,110 @@ def find_function(tree, dotted_name):
     return None
 
 
+def _is_none(node) -> bool:
+    """True when a tree node is the literal None."""
+    return isinstance(node, ast.Constant) and node.value is None
+
+
+def _is_empty_list(node) -> bool:
+    """True when a tree node is an empty list literal, []."""
+    return isinstance(node, ast.List) and not node.elts
+
+
+def _comparison_point(op, node, index):
+    """Name the fault for one comparison, or None if we leave it alone.
+
+    "is None" is only worth changing when the other side really is the literal
+    None. "a is b" is left alone, because changing it is a different question.
+    """
+    right = node.comparators[index]
+    if isinstance(op, ast.Lt):
+        return "lt_to_le"
+    if isinstance(op, ast.LtE):
+        return "le_to_lt"
+    if isinstance(op, ast.Gt):
+        return "gt_to_ge"
+    if isinstance(op, ast.GtE):
+        return "ge_to_gt"
+    if isinstance(op, ast.Eq):
+        return "eq_to_noteq"
+    if isinstance(op, ast.NotEq):
+        return "noteq_to_eq"
+    if isinstance(op, ast.Is) and _is_none(right):
+        return "is_none_to_is_not_none"
+    if isinstance(op, ast.IsNot) and _is_none(right):
+        return "is_not_none_to_is_none"
+    return None
+
+
 def find_mutation_points(function_node) -> list:
-    """List the little faults we can make inside one function, in a fixed order.
+    """List the little faults we can make in one function, in a fixed order.
 
     Each point is a pair of (kind, target). The kind is the fault's name, and
-    the target is the tree node to change. The order is the fixed order of
-    ast.walk, so the same function always offers the same list of mutants.
+    the target is the tree node to change. The order is fixed: the function's
+    own parameter defaults first, then ast.walk over the body. The same
+    function always offers the same list of mutants.
+
+    Only the function's OWN parameter defaults are changed. A default on a
+    nested function inside it is left alone, so the score stays about the
+    changed function.
     """
     points = []
+
+    # The function's own parameters. "None default to []" and "[] default to
+    # None" only look at this function's signature, never a nested function's.
+    for field in ("defaults", "kw_defaults"):
+        for index, default in enumerate(getattr(function_node.args, field)):
+            if default is None:
+                continue
+            if _is_none(default):
+                points.append(("default_none_to_empty_list",
+                               (function_node.args, field, index)))
+            elif _is_empty_list(default):
+                points.append(("default_empty_list_to_none",
+                               (function_node.args, field, index)))
+
     for node in ast.walk(function_node):
         if isinstance(node, ast.BinOp):
             if isinstance(node.op, ast.Add):
                 points.append(("add_to_sub", node))
             elif isinstance(node.op, ast.Sub):
                 points.append(("sub_to_add", node))
+        elif isinstance(node, ast.BoolOp):
+            if isinstance(node.op, ast.And):
+                points.append(("and_to_or", node))
+            elif isinstance(node.op, ast.Or):
+                points.append(("or_to_and", node))
         elif isinstance(node, ast.Compare):
             for index, op in enumerate(node.ops):
-                if isinstance(op, ast.Lt):
-                    points.append(("lt_to_le", (node, index)))
-                elif isinstance(op, ast.LtE):
-                    points.append(("le_to_lt", (node, index)))
-                elif isinstance(op, ast.Gt):
-                    points.append(("gt_to_ge", (node, index)))
-                elif isinstance(op, ast.GtE):
-                    points.append(("ge_to_gt", (node, index)))
-        elif isinstance(node, ast.Constant) and isinstance(node.value, bool):
-            if node.value:
-                points.append(("true_to_false", node))
-            else:
-                points.append(("false_to_true", node))
+                kind = _comparison_point(op, node, index)
+                if kind is not None:
+                    points.append((kind, (node, index)))
+        elif isinstance(node, ast.Constant):
+            if isinstance(node.value, bool):
+                if node.value:
+                    points.append(("true_to_false", node))
+                else:
+                    points.append(("false_to_true", node))
+            elif type(node.value) is int:
+                points.append(("int_to_int_plus_one", node))
+        elif isinstance(node, ast.Return):
+            if node.value is not None and not _is_none(node.value):
+                points.append(("return_to_none", node))
     return points
+
+
+# The comparison operators and what each one swaps for.
+COMPARE_SWAPS = {
+    "lt_to_le": ast.LtE,
+    "le_to_lt": ast.Lt,
+    "gt_to_ge": ast.GtE,
+    "ge_to_gt": ast.Gt,
+    "eq_to_noteq": ast.NotEq,
+    "noteq_to_eq": ast.Eq,
+    "is_none_to_is_not_none": ast.IsNot,
+    "is_not_none_to_is_none": ast.Is,
+}
 
 
 def apply_mutation(target, kind) -> None:
@@ -119,19 +217,33 @@ def apply_mutation(target, kind) -> None:
         target.op = ast.Sub()
     elif kind == "sub_to_add":
         target.op = ast.Add()
-    elif kind in ("lt_to_le", "le_to_lt", "gt_to_ge", "ge_to_gt"):
+    elif kind == "and_to_or":
+        target.op = ast.Or()
+    elif kind == "or_to_and":
+        target.op = ast.And()
+    elif kind in COMPARE_SWAPS:
         node, index = target
-        replacement = {
-            "lt_to_le": ast.LtE,
-            "le_to_lt": ast.Lt,
-            "gt_to_ge": ast.GtE,
-            "ge_to_gt": ast.Gt,
-        }
-        node.ops[index] = replacement[kind]()
+        node.ops[index] = COMPARE_SWAPS[kind]()
     elif kind == "true_to_false":
         target.value = False
     elif kind == "false_to_true":
         target.value = True
+    elif kind == "int_to_int_plus_one":
+        target.value = target.value + 1
+    elif kind == "default_none_to_empty_list":
+        arguments, field, index = target
+        getattr(arguments, field)[index] = ast.List(elts=[], ctx=ast.Load())
+    elif kind == "default_empty_list_to_none":
+        arguments, field, index = target
+        getattr(arguments, field)[index] = ast.Constant(value=None)
+    elif kind == "return_to_none":
+        target.value = ast.Constant(value=None)
+
+
+def operator_lines(width=66) -> list:
+    """The names of every fault we try, wrapped so the report reads well."""
+    names = ", ".join(KIND_LABELS.values())
+    return textwrap.wrap(names, width=width)
 
 
 def rebuild(code: str) -> str:
@@ -259,6 +371,7 @@ def run_mutation(before_file, test_file, function_name, mutants=None,
         "could_not_run": 0,
         "score": None,
         "operators": [],
+        "operator_totals": [],
         "tests": [],
     }
 
@@ -280,6 +393,17 @@ def run_mutation(before_file, test_file, function_name, mutants=None,
         test_names = list(baseline["tests"].keys())
         kills = {name: 0 for name in test_names}
 
+        # Count kills per operator name, so the report can say which kinds of
+        # fault the tests catch and which they miss.
+        totals = {}
+
+        def note(operator, outcome):
+            row = totals.setdefault(operator, {
+                "killed": 0, "survived": 0, "equivalent": 0,
+                "timed_out": 0, "could_not_run": 0,
+            })
+            row[BUCKET_KEYS[outcome]] += 1
+
         for number, mutant in enumerate(mutants, start=1):
             if mutant["identical"]:
                 result["equivalent"] += 1
@@ -288,6 +412,7 @@ def run_mutation(before_file, test_file, function_name, mutants=None,
                     "outcome": EQUIVALENT,
                     "killed_by": [],
                 })
+                note(mutant["operator"], EQUIVALENT)
                 continue
 
             mutant_file = work_dir / f"mutant_{number}.py"
@@ -301,6 +426,7 @@ def run_mutation(before_file, test_file, function_name, mutants=None,
                 "outcome": outcome,
                 "killed_by": killed_by,
             })
+            note(mutant["operator"], outcome)
 
             if outcome == KILLED:
                 result["killed"] += 1
@@ -312,6 +438,13 @@ def run_mutation(before_file, test_file, function_name, mutants=None,
                 result["timed_out"] += 1
             else:
                 result["could_not_run"] += 1
+
+        result["operator_totals"] = []
+        for label in KIND_LABELS.values():
+            if label in totals:
+                row = {"operator": label}
+                row.update(totals[label])
+                result["operator_totals"].append(row)
 
         counted = result["killed"] + result["survived"]
         if counted:

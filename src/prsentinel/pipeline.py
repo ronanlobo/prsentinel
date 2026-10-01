@@ -910,6 +910,15 @@ def format_mutation(mutation) -> list:
     lines.append("  test still passes it survived. Some survivors may be")
     lines.append("  equivalent mutants, which no test could ever kill, so the")
     lines.append("  score is a lower bound, not an exact grade.")
+    lines.append("")
+    lines.append("  Operators tried:")
+    for part in mt.operator_lines():
+        lines.append(f"    {part}")
+    lines.append("")
+    lines.append('  Note: "return expr to return None" fires on almost every')
+    lines.append("  function and is killed by almost any test that looks at the")
+    lines.append("  result, so it can push the score up. Read it as \"the tests")
+    lines.append('  check the result", not as extra strength.')
 
     for item in mutation:
         lines.append("")
@@ -946,6 +955,23 @@ def format_mutation(mutation) -> list:
             lines.append("    tests that killed nothing (possible duds):")
             for name in duds:
                 lines.append(f"      {name}")
+
+        totals = item.get("operator_totals", [])
+        if totals:
+            lines.append("    kills per operator (killed of scored):")
+            for row in totals:
+                scored = row["killed"] + row["survived"]
+                line = f"      {row['operator']:<30} {row['killed']} of {scored}"
+                extra = []
+                if row["equivalent"]:
+                    extra.append(f"{row['equivalent']} equivalent")
+                if row["timed_out"]:
+                    extra.append(f"{row['timed_out']} timed out")
+                if row["could_not_run"]:
+                    extra.append(f"{row['could_not_run']} could not run")
+                if extra:
+                    line += "  (" + ", ".join(extra) + ")"
+                lines.append(line)
 
     return lines
 
