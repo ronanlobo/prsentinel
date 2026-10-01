@@ -374,6 +374,62 @@ def test_a_repaired_test_is_relabelled_in_the_judgement(rep, monkeypatch,
     assert mark["repair"]["attempts"] == 1
 
 
+def test_a_candidate_that_passes_on_both_versions_is_kept(rep, monkeypatch,
+                                                          workspace):
+    """A harmless change plus a wrong test: fixing the test is enough.
+
+    The classifier has no answer for "this test is fine now", so without the
+    label rule this repair would be thrown away and described as BAD_TEST.
+    """
+    before, after = write_modules(workspace)
+    test_file = write_test_file(workspace)
+    one_change(monkeypatch, a_change())
+
+    rep.baseline = [row("t::test_bad", tr.FAILED, tr.FAILED,
+                        tr.TEST_WRONG_ON_BEFORE),
+                    row("t::test_good", tr.PASSED, tr.PASSED, tr.NO_SIGNAL)]
+    fixed = {
+        "before": {"t::test_bad": tr.PASSED, "t::test_good": tr.PASSED},
+        "after": {"t::test_bad": tr.PASSED, "t::test_good": tr.PASSED},
+        "rerun": {"t::test_bad": {"passes": 5, "fails": 0,
+                                  "verdict": tr.ALWAYS_PASSES}},
+    }
+    rep.install(monkeypatch, {"attempt-1": fixed})
+
+    records = pl.repair_bad_tests(before, after, [outcome(test_file)],
+                                  [result([judgement("t::test_bad")])],
+                                  ask=RepairAI())
+
+    assert records[0]["outcome"] == "repaired"
+    assert records[0]["final_label"] == tr.NO_SIGNAL
+    assert records[0]["final_verdict"] == tr.NO_SIGNAL
+
+
+def test_a_candidate_that_turned_the_test_flaky_is_thrown_away(
+        rep, monkeypatch, workspace):
+    """Passing on both single runs is not enough if reruns disagree."""
+    before, after = write_modules(workspace)
+    original = "# the original, wrong test file\n"
+    test_file = write_test_file(workspace, original)
+    one_change(monkeypatch, a_change())
+
+    rep.baseline = [row("t::test_bad", tr.FAILED, tr.FAILED,
+                        tr.TEST_WRONG_ON_BEFORE)]
+    flaky = {
+        "before": {"t::test_bad": tr.PASSED},
+        "after": {"t::test_bad": tr.PASSED},
+        "rerun": {"t::test_bad": {"passes": 3, "fails": 2, "verdict": tr.FLAKY}},
+    }
+    rep.install(monkeypatch, {"attempt-1": flaky, "attempt-2": flaky})
+
+    records = pl.repair_bad_tests(before, after, [outcome(test_file)],
+                                  [result([judgement("t::test_bad")])],
+                                  ask=RepairAI())
+
+    assert records[0]["outcome"] == "unrepaired BAD_TEST"
+    assert test_file.read_text(encoding="utf-8") == original
+
+
 # ---------------------------------------------------------------------------
 # A repair that leaves the suite weaker is thrown away
 # ---------------------------------------------------------------------------
@@ -676,14 +732,14 @@ def repair_record(outcome="repaired", attempts=1,
             "final_label": final_label, "backup": ""}
 
 
-def sample_report(repairs):
+def sample_report(repairs, repair=False):
     function = {"function": "get_recent_scores", "change_type": "modified",
                 "test_file": "test_x.py", "from_folder": "", "counts": {},
                 "judgements": [], "needs_a_look": []}
     return {"name": "my_example", "before": "before.py", "after": "after.py",
             "tests_source": "generated", "functions": [function],
             "generation_failed": [], "skipped": [], "repairs": repairs,
-            "summary": "one bug found"}
+            "repair": repair, "summary": "one bug found"}
 
 
 def test_the_json_report_carries_a_repairs_key():
@@ -732,6 +788,35 @@ def test_a_run_without_repair_still_has_an_empty_repairs_key():
     report = pl.make_report("b.py", "a.py", "n", [], [])
 
     assert report["repairs"] == []
+
+
+def test_the_json_report_says_whether_repair_was_on():
+    off = pl.make_report("b.py", "a.py", "n", [], [])
+    on = pl.make_report("b.py", "a.py", "n", [], [], repair_tests=True)
+
+    assert off["repair"] is False
+    assert on["repair"] is True
+
+
+def test_the_report_header_says_repair_off_by_default():
+    text = pl.format_report(sample_report([]))
+
+    assert "repair: off" in text
+
+
+def test_the_report_header_says_repair_on_when_it_was_asked_for():
+    text = pl.format_report(sample_report([], repair=True))
+
+    assert "repair: on" in text
+
+
+def test_a_repair_run_with_nothing_to_repair_still_shows_the_section():
+    """Repair on plus no bad tests must not look the same as repair off."""
+    text = pl.format_report(sample_report([], repair=True))
+
+    assert "--- Repairs ---" in text
+    assert "nothing to repair" in text
+    assert "repaired: 0" in text
 
 
 # ---------------------------------------------------------------------------

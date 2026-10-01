@@ -135,3 +135,36 @@ tokens to that call. Even if one call in ten needed a second try, that is under
 (`RERUN_TIMES = 12`) to check whether it is flaky, but that is local Python. It
 takes wall-clock time, not allowance, which is why a run takes minutes rather
 than seconds.
+
+---
+
+## One live run of the repair loop (written down, not run yet)
+
+The runs above measure the classifier. This is different: one live run of the
+whole pipeline with the repair loop on, just to see that path work end to end.
+**It has not been run.**
+
+```powershell
+& ".venv\Scripts\python.exe" -u -m prsentinel.pipeline examples\round2_mutable_default\before.py examples\round2_mutable_default\after.py --repair
+```
+
+- It uses **fresh generated tests**. `--reuse-tests` is not given, so the writer
+  makes new tests and the run does not depend on anything saved earlier.
+- The report must show a `--- Repairs ---` section. With `--repair` given, the
+  section is printed even when nothing needed repair, so its absence means the
+  run never reached the repair step.
+- **Groq only, no fallback.** The pipeline has no `--no-fallback` flag, so start
+  a fresh session and load only the Groq key (leave `GEMINI_API_KEY` unloaded).
+  With no Gemini key the fallback has nowhere to go:
+
+  ```powershell
+  $v = [Environment]::GetEnvironmentVariable("GROQ_API_KEY","User")
+  if ($v) { Set-Item -Path "Env:GROQ_API_KEY" -Value $v }
+  ```
+
+  Before trusting the output, check that every `[prsentinel] answer came from
+  Groq` line is Groq. One `answer came from Gemini` line means two models were
+  mixed and the run is thrown away.
+
+This is a separate one-off. It does not touch `examples/classifier_cases/`,
+`examples/classifier_cases_heldback/`, `PROMPT_LOG.md`, or `heldback_runs.log`.

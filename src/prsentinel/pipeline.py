@@ -500,18 +500,36 @@ def test_candidate(before_file, after_file, original_test_file, candidate_text,
     rows = labelled_rows(before_run, after_run)
 
     before_result = before_run["tests"].get(test_name, tr.TEST_ERROR)
+    label = next((row["label"] for row in rows
+                  if row["name"] == test_name), "")
 
     verdict = cl.rule_classify(
         cl.build_evidence(before_run, after_run, rerun_run,
                           before_file, after_file, candidate_path, test_name))
+
+    # rule_classify answers one question: what does this failing test mean? It
+    # has three answers and none of them is "this test is fine now", so a
+    # candidate whose test passes on both versions falls through to its last
+    # resort and comes back as BAD_TEST. The runner's label says what actually
+    # happened, so when the test no longer fails on the old code, say that
+    # instead of calling a corrected test wrong. A flaky candidate is left
+    # alone here so the caller can still see it and throw it away.
+    if (label == tr.NO_SIGNAL
+            and before_result in (tr.PASSED, tr.SKIPPED)
+            and verdict["label"] != cl.FLAKY):
+        verdict = {
+            "label": tr.NO_SIGNAL,
+            "reason": ("After the repair it passes on the old code and on the "
+                       "new code, so it no longer says anything about the "
+                       "change."),
+        }
 
     return {
         "passes_on_before": before_result in (tr.PASSED, tr.SKIPPED),
         "weakened": suite_weakened(baseline_rows, rows, before_run),
         "verdict": verdict["label"],
         "reason": verdict["reason"],
-        "label": next((row["label"] for row in rows
-                       if row["name"] == test_name), ""),
+        "label": label,
     }
 
 
@@ -581,8 +599,15 @@ def repair_one_test(before_file, after_file, test_file, change, judgement,
             last_was_weakened = False
             continue
 
+        # A repair is kept when the corrected test now passes on the old code
+        # and is no longer the runner's "wrong on the old code" case, the file
+        # is not weaker, and the test is not flaky. rule_classify cannot say
+        # "this test is fine now", so the runner's label is what decides whether
+        # the test stopped being wrong; the classifier is only used to catch a
+        # candidate that turned the test flaky.
         accepted = (result["passes_on_before"]
-                    and result["verdict"] != cl.BAD_TEST
+                    and result["label"] != tr.TEST_WRONG_ON_BEFORE
+                    and result["verdict"] != cl.FLAKY
                     and not result["weakened"])
 
         if accepted:
@@ -728,8 +753,15 @@ def build_summary_line(report: dict) -> str:
 
 
 def make_report(before_file, after_file, name, outcomes, results,
-                tests_source="generated", repairs=None) -> dict:
-    """Put everything we found into one dictionary, ready to save."""
+                tests_source="generated", repairs=None,
+                repair_tests=False) -> dict:
+    """Put everything we found into one dictionary, ready to save.
+
+    repair_tests is whether --repair was given, which is not the same question
+    as whether any repair happened. A run can have repair on and nothing to
+    repair, so the report says which of the two it was rather than making the
+    reader guess from an empty list.
+    """
     functions = []
     for outcome, result in zip([o for o in outcomes if o["path"]],
                                results):
@@ -758,6 +790,7 @@ def make_report(before_file, after_file, name, outcomes, results,
             for o in outcomes if o["skipped"]
         ],
         "repairs": list(repairs or []),
+        "repair": bool(repair_tests),
     }
     report["summary"] = build_summary_line(report)
     return report
@@ -772,6 +805,7 @@ def format_report(report: dict) -> str:
     lines.append(f"Old file: {report['before']}")
     lines.append(f"New file: {report['after']}")
     lines.append(f"Tests: {report.get('tests_source', 'generated')}")
+    lines.append(f"repair: {'on' if report.get('repair') else 'off'}")
     lines.append("")
 
     if not report["functions"]:
@@ -814,16 +848,22 @@ def format_report(report: dict) -> str:
                 lines.append(f"    {name} - needs a human look "
                              "(fails on the old code, passes on the new one)")
 
-    if report.get("repairs"):
+    if report.get("repairs") or report.get("repair"):
         lines.append("")
         lines.append("--- Repairs ---")
         lines.append("  A test judged to be the wrong test was sent back to the")
         lines.append("  writer to be corrected. Nothing was changed unless the")
         lines.append("  corrected test passed on the old code and left the rest of")
         lines.append("  the file as strong as it was.")
+        if not report.get("repairs"):
+            # Repair was on and every test was fine, so the section is still
+            # shown, with zeros. A run that says nothing would leave a reader
+            # unable to tell "nothing needed repair" from "repair was off".
+            lines.append("  No test was judged to be the wrong test, so there was")
+            lines.append("  nothing to repair.")
         counted = {"repaired": 0, "unrepaired BAD_TEST": 0, "weakened": 0,
                    "not attempted, repair budget reached": 0}
-        for item in report["repairs"]:
+        for item in report.get("repairs") or []:
             counted[item["outcome"]] = counted.get(item["outcome"], 0) + 1
             lines.append("")
             lines.append(f"  {item['function']} / {item['test']}")
@@ -943,7 +983,8 @@ def run_pipeline(before_file, after_file, name=None,
         tests_source = "generated"
 
     report = make_report(before_path, after_path, name, outcomes, results,
-                         tests_source=tests_source, repairs=repairs)
+                         tests_source=tests_source, repairs=repairs,
+                         repair_tests=repair_tests)
     print_report(report)
 
     # Step 7.
