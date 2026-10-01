@@ -380,7 +380,13 @@ def test_the_heldback_command_has_no_only_option():
 
 
 def test_choosing_nothing_does_not_change_the_heldback_classifier_list():
+    """--only stays a tuning-only option.
+
+    The held-back run scores three classifiers and has no way to choose them.
+    That is deliberate: it is the one set the prompt was never tuned against, so
+    it scores the two prompts that were measured against each other on the tuning
+    set, plus the free rule baseline, and nothing else.
+    """
     from prsentinel import heldback_eval as he
 
-    assert he.CLASSIFIERS == ("rule", "llm_full", "llm_full_with_intent",
-                              "llm_code_only")
+    assert he.CLASSIFIERS == ("rule", "llm_full", "llm_full_v2")

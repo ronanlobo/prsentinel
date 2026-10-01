@@ -32,11 +32,20 @@ believing, and it is still unspent.
 
 ## v1 - `full`  (the starting point)
 
-- **Date:** 2026-09-30
+- **Date:** 2026-09-30 (first measured). Re-measured 2026-10-01, see the two
+  score lines below.
 - **Mode:** `full`  |  **Classifier name:** `llm_full`
-- **Tuning scores:** run 1 **12/14 (86%)**, run 2 **12/14 (86%)**.
-  **Mean 12/14 (86%)**, lowest 86%, highest 86%.
-- **Measured during:** Step 7A, after the five hard cases were added.
+- **Tuning scores, 2026-09-30 (Step 7A, four classifiers scored):** run 1
+  **12/14 (86%)**, run 2 **12/14 (86%)**. Mean 12/14 (86%), lowest 86%, highest
+  86%.
+- **Tuning scores, 2026-10-01 (Step 7C, `rule`, `llm_full` and `llm_full_v2`
+  scored):** run 1 **12/14 (86%)**, run 2 **12/14 (86%)**. Mean 12/14 (86%),
+  lowest 86%, highest 86%.
+- **Measured during:** both sets above. 2026-09-30 during Step 7A, after the
+  five hard cases were added. 2026-10-01 during Step 7C, two separate single
+  runs, Groq only, 28 of 28 answers from Groq and none from Gemini, no early
+  stop, 12 reruns per case.
+- **Note:** tuned on the tuning set only.
 
 This is the prompt everything else is compared against. It shows the code, the
 diff, the test, the failure message and the run results, and nothing else.
@@ -121,14 +130,17 @@ No other text.
 
 ## v2 - `full_v2`
 
-- **Date:** 2026-09-30
+- **Date:** 2026-10-01
 - **Mode:** `full_v2`  |  **Classifier name:** `llm_full_v2`
 - **Change from v1:** one added section, and nothing else. Take that section out
   of the prompt below and what is left is v1, character for character. A test
   checks that; it is not just a claim made here.
-- **Tuning scores:** not measured yet. This number is the reason the step
-  exists, and running the eval is what fills it in.
-- **Measured during:** not yet run.
+- **Tuning scores:** run 1 **13/14 (93%)**, run 2 **13/14 (93%)**. Mean 13/14
+  (93%), lowest 93%, highest 93%.
+- **Measured during:** Step 7C, two separate single runs on 2026-10-01, Groq
+  only, 28 of 28 answers from Groq and none from Gemini, no early stop, 12
+  reruns per case.
+- **Note:** tuned on the tuning set only.
 
 ### The added section, on its own
 
@@ -225,6 +237,56 @@ Reply with JSON only, using exactly this shape:
 {"label": "REAL_BUG" | "BAD_TEST" | "FLAKY", "confidence": "low" | "medium" | "high", "reason": "one or two plain sentences"}
 No other text.
 ````
+
+---
+
+## Result
+
+v2 was one case ahead of v1 in both runs, which is 7 percentage points. But the
+case that v2 got right and v1 got wrong was not the same case in the two runs:
+in run 1 it was `flaky_current_time`, and in run 2 it was `flaky_set_order`. So
+this is a small and inconsistent improvement, not a proven one. A consistent
+gain would have fixed the same case twice.
+
+`flaky_random_pick` was wrong in both versions, in both runs. It is the one case
+neither prompt solves, and neither the older prompt nor the newer one reaches it.
+
+Only two runs were done. A third was skipped for time. Both are written above
+rather than one of them being kept, because picking the better of two runs is
+exactly what this file exists to prevent.
+
+The three old flaky cases contain a `RUN_INDEX` giveaway. Some of the AI reasons
+mention it, which means part of what these scores measure is the AI noticing a
+name rather than reasoning about the evidence. The prompts themselves never name
+it, and a test checks that no prompt leaks it.
+
+v2 was the second and last prompt version. There is no v3, and the section below
+says why.
+
+One thing worth keeping in mind when reading the v2 number: the added section
+partly gives the AI a hint by elimination. It reasons that if the result cannot
+be trusted, then it is not a fault in the code or the test, and works back from
+there. That is the intended effect, but it is guidance rather than the AI
+working the answer out from the evidence on its own, so part of any gain is the
+effect of that guidance rather than a better reading of the rerun line. A
+version that only stated the fact, with no reasoning attached to it, was not
+tried, so this cannot be separated from the score.
+
+## Frozen
+
+The prompts are frozen as of the hashes below. A test fails if any of them
+changes.
+
+- **HEAD when v2 was frozen:** `c826fab717153bf81344771f581e937289a24201`
+- **Last commit to change `src/prsentinel/classifier.py`:**
+  `6115ed0dcedca83b922ef1e38b5155b68c62f0db`
+
+## What the kept-back run scores
+
+The kept-back run scores three classifiers and no others: **`rule`,
+`llm_full`, `llm_full_v2`**. `llm_full_with_intent` and `llm_code_only` are not
+scored there. The kept-back run is the one number this project cannot tune
+against, so it is kept as small as the question needs it to be.
 
 ---
 

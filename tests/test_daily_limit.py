@@ -418,13 +418,19 @@ def test_the_stopped_run_never_prints_a_key_name(monkeypatch, capsys):
         assert secret_word not in banner
 
 
-def test_the_held_back_command_never_stops_on_a_daily_limit():
-    """One score on kept-back cases. It has no --no-fallback to miss."""
+def test_the_held_back_command_never_falls_back():
+    """The kept-back run stops on a daily limit and never switches model.
+
+    classifier_eval gets --no-fallback as a choice, because a mixed score there
+    is one sample of a sample. The kept-back run gets no choice at all: it is the
+    one number we cannot repeat, so it is either one model or no score.
+    """
     import inspect
     from prsentinel import heldback_eval as he
 
-    assert "no_fallback" not in inspect.getsource(he)
-    assert "ALLOW_FALLBACK" not in inspect.getsource(he)
+    source = inspect.getsource(he)
+    assert "no_fallback" not in source
+    assert "llm_client.ALLOW_FALLBACK = False" in source
 
 
 def test_a_stopped_run_does_not_also_warn_about_gemini(monkeypatch, capsys):

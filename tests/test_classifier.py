@@ -1223,18 +1223,24 @@ def test_the_prompt_log_never_claims_the_kept_back_cases_were_scored():
                 f"the log sounds as though the kept-back cases were scored: {phrase!r}"
 
 
-def test_v2_is_scored_on_the_tuning_set_only():
-    """It is a classifier like the others, so the tuning eval has to ask for it.
+def test_v2_is_scored_on_both_sets():
+    """It is a classifier like the others, so both evals have to ask for it.
 
-    The kept-back cases are the one honest measurement we get, and they must not
-    be spent on something that was written while looking at the tuning set. The
-    kept-back command must never grow this classifier.
+    v2's added section was written after looking at the tuning set, and it was
+    measured there on 2026-10-01. The kept-back cases exist to answer one
+    question: does a prompt tuned that way still hold up on cases it never saw?
+    Measuring it anywhere else would not answer that.
+
+    What the kept-back set must never do is be used to choose the prompt. That
+    is guarded by the refusal in heldback_eval, which will not start until the
+    tuning scores are filled in.
     """
     from prsentinel import classifier_eval as ce
     from prsentinel import heldback_eval as he
 
     assert "llm_full_v2" in ce.CLASSIFIERS
-    assert "llm_full_v2" not in he.CLASSIFIERS
+    assert "llm_full_v2" in he.CLASSIFIERS
+    assert "llm_full_v2" == ce.SUMMARY_CLASSIFIER
 
 
 def test_v2_is_the_one_the_final_summary_is_about():
