@@ -1,0 +1,310 @@
+name: PRSentinel
+
+# Runs on pull requests from this repository, and on demand with two SHAs.
+#
+# It never runs on pull_request_target. That trigger runs in the base repository
+# with the base repository's secrets, and it checks out the pull request's code,
+# which means anyone who can open a pull request could get their code read by a
+# job holding the Groq key. This workflow only runs when the pull request comes
+# from this same repository, so the code it reads is code somebody with write
+# access already put here.
+#
+# Known Linux risk, deliberately not fixed here. This is the first time the test
+# suite and the pipeline run on Linux in CI. test_runner has Windows-specific
+# branches in its subprocess path (CHILD_ENV_ALLOW_WINDOWS and its POSIX
+# counterpart), and the real bug cases need Python 3.7 and 3.8 for two of their
+# three witnesses, which this job does not use. If the suite workflow fails on
+# Linux, that list is the place to start. Nothing was changed to make it pass.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      before_sha:
+        description: "The older commit to compare from"
+        required: true
+      after_sha:
+        description: "The newer commit to compare to"
+        required: true
+
+# Read the code, write one comment. Nothing else.
+permissions:
+  contents: read
+  pull-requests: write
+
+# One run per pull request. A second push cancels the first, so a busy branch
+# cannot queue up ten runs and spend ten days of the shared allowance.
+concurrency:
+  group: prsentinel-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # A pull request from a fork gets a note and no model call. The note uses the
+  # same marker as the real comment, so it replaces the previous note rather than
+  # leaving one per push.
+  fork_note:
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Explain why nothing was scored
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const marker = '<!-- prsentinel-report -->';
+            const body = [
+              marker,
+              '',
+              '## PRSentinel',
+              '',
+              '**Tests are AI-generated. A catching test is a hint, not proof.**',
+              '',
+              'This pull request comes from a fork, so it was not scored.',
+              '',
+              'The job that generates tests needs the Groq key. GitHub does not',
+              'give a workflow running on a fork the secrets of this repository,',
+              'and there is no safe way around that, so the run stops here rather',
+              'than guessing.',
+              '',
+              'Open the pull request from a branch in this repository if you want',
+              'it scored.',
+              '',
+            ].join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const { data: existing } = await github.rest.issues.listComments({
+              owner, repo, issue_number, per_page: 100,
+            });
+            const mine = existing.find((comment) => comment.body?.includes(marker));
+
+            if (mine) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+              core.info('Updated the existing PRSentinel note.');
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              core.info('Left a PRSentinel note saying why nothing was scored.');
+            }
+
+  report:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha || inputs.before_sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.after_sha }}
+
+    steps:
+      # fetch-depth 0 so both commits are here and git show can reach either one
+      # of them. A shallow clone cannot get the base of a pull request.
+      - name: Get the code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install PRSentinel
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      - name: Work out which files to score
+        id: files
+        run: |
+          set -uo pipefail
+          # Only files that still exist on the new side, so a deleted file is not
+          # scored. Only .py. Nothing under tests/, because this workflow writes
+          # new tests and has no business looking at someone else's test files.
+          #
+          # git's own exit code is kept on its own, on purpose. Two SHAs that
+          # cannot be compared is a mistake worth failing on, and it must not end
+          # up looking exactly like a pull request that changed nothing.
+          git diff --name-only --diff-filter=d "$BASE_SHA" "$HEAD_SHA" \
+            -- '*.py' > py_files.txt
+          git_code=$?
+
+          if [ "$git_code" -ne 0 ]; then
+            echo "Could not compare $BASE_SHA against $HEAD_SHA. Check that both" >&2
+            echo "commits exist in this repository, and that both are fetched." >&2
+            exit "$git_code"
+          fi
+
+          grep -v '^tests/' py_files.txt | sed '/^$/d' > all_files.txt || true
+
+          TOTAL=$(wc -l < all_files.txt | tr -d ' ')
+          head -5 all_files.txt > scored_files.txt
+
+          if [ "$TOTAL" -gt 5 ]; then
+            MISSING=$(( TOTAL - 5 ))
+            echo "skipped=$MISSING of $TOTAL changed .py files were not scored, because this workflow scores at most 5 per pull request so the cost of the shared key stays bounded" >> "$GITHUB_OUTPUT"
+          else
+            echo "skipped=" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "total=$TOTAL" >> "$GITHUB_OUTPUT"
+          echo "changed .py files to consider: $TOTAL"
+
+      # The one step that sees the key. It is here and nowhere else, so no other
+      # step, and no code that runs in any other step, can reach it.
+      #
+      # No GEMINI_API_KEY is passed and --no-fallback is hardcoded, so a second
+      # provider cannot answer any of these calls. No --repair either: this
+      # workflow never edits anyone's code or anyone's tests.
+      - name: Run PRSentinel on each file
+        id: run
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          set -uo pipefail
+          mkdir -p work
+          : > scored.tsv
+          STOPPED=""
+
+          index=0
+          while IFS= read -r path; do
+            [ -n "$path" ] || continue
+            index=$(( index + 1 ))
+            mkdir -p "work/$index"
+
+            # before is the base commit, after is the head commit. That is the
+            # same direction a real pull request reads in.
+            git show "$BASE_SHA:$path" > "work/$index/before.py" \
+              || { echo "no base version of $path, skipping"; continue; }
+            git show "$HEAD_SHA:$path" > "work/$index/after.py" \
+              || { echo "no head version of $path, skipping"; continue; }
+
+            set +e
+            python -m prsentinel.pipeline "work/$index/before.py" \
+                "work/$index/after.py" \
+                --name "prsentinel_$index" \
+                --no-fallback \
+                --mutation
+            code=$?
+            set -e
+
+            if [ "$code" = "6" ]; then
+              # Six is the pipeline's code for the allowance running out. Neutral,
+              # not a failure: the code was never shown to be fine, it was never
+              # checked. Whatever finished before this point is still written to
+              # disk and still uploaded, but the comment says there is no result.
+              STOPPED="Groq's daily allowance ran out while scoring $path, so the run stopped and there is no result to report."
+              break
+            fi
+
+            if [ "$code" != "0" ]; then
+              echo "PRSentinel exited $code on $path" >&2
+              exit "$code"
+            fi
+
+            printf '%s\t%s\n' "$index" "$path" >> scored.tsv
+          done < scored_files.txt
+
+          echo "stopped=$STOPPED" >> "$GITHUB_OUTPUT"
+
+      # Every function in every scored file is reported. A file with no catching
+      # test is reported like any other file and does not fail the job. The only
+      # thing that fails the job is the pipeline breaking.
+      - name: Build the comment
+        env:
+          SKIPPED: ${{ steps.files.outputs.skipped }}
+          STOPPED: ${{ steps.run.outputs.stopped }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -uo pipefail
+          args=()
+
+          # The report is named after the loop counter, which is no use to a
+          # reader, so the changed file's own path is passed along as its label.
+          while IFS=$'\t' read -r index path; do
+            [ -n "$index" ] || continue
+            if [ -f "reports/prsentinel_$index.json" ]; then
+              args+=(--report "reports/prsentinel_$index.json" --label "$path")
+            fi
+          done < scored.tsv
+
+          if [ -n "$STOPPED" ]; then
+            # A stopped run says no result, even though some files finished. The
+            # finished reports are still in the artifact.
+            args+=(--no-result "$STOPPED")
+          elif [ "${#args[@]}" -eq 0 ]; then
+            args+=(--no-result "No changed .py file outside tests/ was found in this pull request, so there was nothing to score.")
+          fi
+
+          if [ -n "$SKIPPED" ]; then
+            args+=(--skipped "$SKIPPED")
+          fi
+
+          python scripts/make_pr_comment.py "${args[@]}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --pr "${PR:-0}" \
+            --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA" \
+            > comment.md
+
+          cat comment.md
+
+      - name: Post the comment, or update the one already there
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const marker = '<!-- prsentinel-report -->';
+            const body = fs.readFileSync('comment.md', 'utf8');
+            const { owner, repo } = context.repo;
+
+            // A pull request event knows its number. A manual run does not, so
+            // look for an open pull request on this branch.
+            let prNumber = context.payload.pull_request
+              ? context.payload.pull_request.number
+              : null;
+
+            if (prNumber === null) {
+              const branch = context.ref.replace('refs/heads/', '');
+              const found = await github.rest.pulls.list({
+                owner, repo, head: `${owner}:${branch}`, state: 'open',
+              });
+              prNumber = found.data.length ? found.data[0].number : null;
+            }
+
+            if (prNumber === null) {
+              core.info('No open pull request for this branch. The comment was printed in the job log.');
+              return;
+            }
+
+            // One comment per pull request, edited rather than added to, so ten
+            // pushes do not leave ten comments.
+            const existing = await github.rest.issues.listComments({
+              owner, repo, issue_number: prNumber, per_page: 100,
+            });
+            const mine = existing.data.find((comment) => comment.body?.includes(marker));
+
+            if (mine) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+              core.info(`Updated PRSentinel's comment on #${prNumber}.`);
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number: prNumber, body });
+              core.info(`Left a PRSentinel comment on #${prNumber}.`);
+            }
+
+      - name: Keep the reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prsentinel-reports-${{ github.run_id }}
+          path: |
+            reports/*.json
+            reports/*.md
+            comment.md
+          retention-days: 14
+          if-no-files-found: warn

@@ -1,0 +1,42 @@
+name: Tests
+
+# Runs the whole test suite on Linux, every push and every pull request.
+#
+# This workflow holds no secrets at all. There is no GROQ_API_KEY anywhere in it,
+# no provider is named, and every test in the suite either uses a made-up answer
+# or reads a file that is already committed. If a test ever needs a live model
+# call it does not belong in the suite, and this workflow is what says so: it
+# fails loudly rather than quietly skipping.
+#
+# A separate workflow from PRSentinel on purpose. PRSentinel's workflow needs the
+# Groq key and runs people's code; this one needs nothing and runs on every fork.
+# Keeping them apart means a bug in one cannot take the other down with it, and
+# it means the permission this one needs is only contents:read.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install PRSentinel
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      - name: Run the test suite
+        run: python -m pytest -q

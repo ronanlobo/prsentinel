@@ -37,11 +37,15 @@ prsentinel/
     classifier.py        <- real bug, bad test, or flaky
     classifier_eval.py   <- scores the classifier on nine known answers
     pipeline.py          <- all of it, with one command
+  .github/workflows/
+    prsentinel.yml      <- scores a pull request and leaves one comment
+    tests.yml           <- the whole test suite, on Linux, with no secrets
   scripts/
     smoke_llm.py           <- checks the real providers (uses the internet)
     check_real_cases.py    <- checks examples/real_cases, no AI at all
     eval_real_cases.py     <- scores the pipeline on examples/real_cases
     baseline_single_prompt.py  <- one plain prompt per case, the cheapest baseline
+    make_pr_comment.py     <- turns the reports into the pull request comment
   tests/
     test_diff_extractor.py
     test_llm_client.py   <- fake providers, never uses the internet
@@ -50,6 +54,7 @@ prsentinel/
     test_classifier.py
     test_classifier_cases.py
     test_pipeline.py
+    test_workflows.py    <- guards both workflow files, and the comment
   examples/
     round1_off_by_one/       <- before.py, after.py, diff.patch
     round2_mutable_default/  <- before.py, after.py, diff.patch
@@ -126,6 +131,89 @@ fell through to Gemini.
 ```
 
 You should see 240 passing tests. None of them use the internet.
+
+## Running on a pull request
+
+Two workflows, in `.github/workflows/`. Neither of them has ever run yet, so
+treat this section as a description of what was written rather than as a
+record of what happened.
+
+**`tests.yml`** runs the whole test suite on Linux on every push and every pull
+request. It holds no secrets of any kind, which is why it also runs on pull
+requests from forks.
+
+**`prsentinel.yml`** scores a pull request and leaves one comment on it. It:
+
+- scores only changed `.py` files, skips anything under `tests/`, and takes at
+  most five of them so the cost of the shared key stays bounded. If it leaves
+  any out, the comment says so and how many.
+- takes the old code from the base commit and the new code from the head commit,
+  the same direction a pull request reads in.
+- asks Groq only. No second provider is configured, and fallback is switched
+  off, so every number in the comment came from one model.
+- runs the mutation check, because that is the number which says whether the new
+  tests were any use.
+- never repairs a test, never edits a file, and never writes to the pull request
+  except one comment.
+- if the daily allowance runs out, stops and says there is no result. That is
+  not a pass, and the comment says so in those words.
+
+The comment is built by `scripts/make_pr_comment.py`, which reads saved reports
+and prints markdown. It asks the model nothing and reaches nothing. To see the
+shape of it without running the workflow:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\make_pr_comment.py --report reports\round1_off_by_one.json --repo owner/name --pr 12 --base-sha aaa --head-sha bbb
+```
+
+That report was saved before `--no-fallback` was the normal setting, so the
+comment says so in a footnote rather than presenting the numbers as a
+single-model result. A run made by the workflow will never have that note.
+
+The comment always opens with one fixed sentence, held in a constant and checked
+by a test:
+
+> Tests are AI-generated. A catching test is a hint, not proof.
+
+### The security note
+
+**Only pull requests opened from a branch in this repository are scored.** A
+pull request from a fork gets a comment saying it was skipped and why, and no
+model is called.
+
+That is not politeness, it is the whole safety argument. The job needs the Groq
+key. GitHub does not give a workflow running on a fork the secrets of this
+repository, so a fork's pull request cannot be scored. The workflow therefore
+does not run on `pull_request_target` either, because that trigger *does* get
+the secrets while checking out the pull request's code, which would let anybody
+who can open a pull request have their code read by a job holding the key.
+
+**The pull request's code goes into the prompt.** This is the honest cost of the
+thing, and it is not hidden. For each changed function the old source and the
+new source are sent to Groq so the model can write tests for them. Anything in
+that code is sent off this machine. It is never printed, never logged, and never
+written into the report, but it does leave the repository, and somebody
+reviewing a pull request should know that before they open it.
+
+The key itself is passed to exactly one step, the one that calls the model, and
+is read from a repository secret. It is never echoed, never written to a file,
+and never given to a step that runs somebody's other code. `tests/test_workflows.py`
+checks all of that by reading the workflow file, and also checks that the
+workflows never name the evaluation data, because a run that could reach the
+real cases could be pointed at them and stop being an evaluation.
+
+### What is not settled
+
+The action versions are pinned to major tags (`actions/checkout@v4`,
+`actions/setup-python@v5`, `actions/upload-artifact@v4`,
+`actions/github-script@v7`). These were written from memory without checking
+GitHub, so **none of them has been verified**. Pinning to a commit hash instead
+would be better and needs a network call this project has not made.
+
+This is also the first time the suite and the pipeline have run on Linux. The
+known risks are listed at the top of `prsentinel.yml`; nothing has been changed
+to work around them, because changing the pipeline to suit the runner would
+change the thing being measured.
 
 ## Checking the real LLM providers
 
