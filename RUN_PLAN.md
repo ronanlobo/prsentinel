@@ -169,3 +169,119 @@ whole pipeline with the repair loop on, just to see that path work end to end.
 
 This is a separate one-off. It does not touch `examples/classifier_cases/`,
 `examples/classifier_cases_heldback/`, `PROMPT_LOG.md`, or `heldback_runs.log`.
+
+---
+
+## The real bug cases (written down, not run yet)
+
+Everything above scores the classifier on cases we wrote ourselves. This runs
+the whole pipeline over the three real bugs in `examples/real_cases/`, where the
+right answer is known because the project's own history says so.
+
+**It has not been run.** The script exists and its offline tests pass. Nothing
+has been tuned since those three cases were chosen, and nothing may be tuned
+after this run finishes.
+
+### The command
+
+```powershell
+& ".venv\Scripts\python.exe" -u scripts\eval_real_cases.py
+```
+
+There are no flags, on purpose. The two settings that make a result mean
+anything are fixed inside the script and cannot be left off by accident:
+
+| Setting | Why it is fixed |
+|---|---|
+| `--no-fallback` | If Groq runs out for the day the whole evaluation stops, prints the cases that finished, prints **no table**, and exits 6. A result made from part Groq and part Gemini is not a result. |
+| `--mutation` | Each changed function is also checked against small deliberate faults to see how many the tests catch. Asks no AI. The score lands in the report and in the final table. |
+
+The script never asks for, reads, prints or writes an API key. It runs the same
+`run_pipeline` function `python -m prsentinel.pipeline` runs, and it hands that
+function one before file and one after file. The generator never sees
+`existing_test.py`, `witness.md` or `source.md`; `tests/test_real_cases.py`
+checks that three separate ways.
+
+### What it writes
+
+The pipeline saves `reports/<case>.md` and `reports/<case>.json` as usual. The
+script then moves both into `reports/real_cases/`. It never overwrites: if a
+report is already there it refuses, moves nothing, and exits 2. A second live
+run therefore needs the first run's reports moved or deleted first.
+
+Those reports get their own commit, after the numbers have been read. They are
+not part of the commit that adds the script.
+
+### What it costs
+
+Each case has one changed function, so each case asks the model once to write
+tests. Three cases, three calls, plus a possible extra call when a reply cannot
+be read and has to be asked for again. Nothing else asks anything: the plain rule
+classifier, the mutation measurement and the project's own test are all local
+Python.
+
+### Groq only, no fallback
+
+`--no-fallback` is given, so start a fresh session and load **only** the Groq
+key. Leave `GEMINI_API_KEY` unloaded, so there is no second model to mix in:
+
+```powershell
+$v = [Environment]::GetEnvironmentVariable("GROQ_API_KEY","User")
+if ($v) { Set-Item -Path "Env:GROQ_API_KEY" -Value $v }
+```
+
+### Before trusting the real-case run
+
+Check all four. A run that fails any one of them is thrown away, not patched
+up, and nothing from it is written down.
+
+1. **Exit code 0.** `$LASTEXITCODE` must be `0`. `6` means a provider ran out
+   and there is no table at all; `2` means a report was already there and
+   nothing was overwritten; `1` means the script broke.
+2. **Groq only.** Each of the three `.md` reports must say `fallback: off` and
+   `answers from Gemini: 0`, under the header at the top of the report. The
+   console also ends with `answers from Gemini across every case: 0`, with no
+   `must be 0` warning next to it.
+3. **No warning banner.** The line `AN ANSWER CAME FROM GEMINI` must not appear
+   anywhere in the output.
+4. **No early stop.** Neither `THE RUN STOPPED EARLY` nor `THE EVALUATION
+   STOPPED EARLY` may appear. If either does, the cases that did finish were
+   never scored and the table was deliberately not printed.
+
+### Reading the output
+
+Per case, one line:
+
+```
+  real_youtube-dl_bug43  funcs 1 (mod 1 add 0 rem 0)  tests 6  CATCHES_CHANGE 3 of which REAL_BUG 2  catches: yes  project test: CATCHES_CHANGE
+```
+
+- `funcs` is what `diff_extractor` found, with how many were modified, added or
+  removed. A removed function is never given tests.
+- `tests` counts pytest test items: one per test function, **plus one per
+  parametrized case**. A parametrized test with five cases counts as five. It is
+  not a count of files.
+- `CATCHES_CHANGE` is how many of those pass on `before.py` and fail on
+  `after.py`.
+- `REAL_BUG` is how many of *those* were also judged to be pointing at a real
+  bug, by the plain rule classifier. It is counted out of the catching tests,
+  never out of all tests, so it can never exceed `CATCHES_CHANGE`.
+- `catches` is `yes` when `CATCHES_CHANGE` is 1 or more. One test is enough.
+- `project test` is the project's own test, run the same way, so the generated
+  tests have something to be compared against. It is read after each run
+  finishes, never before.
+
+A case that finished but produced no tests prints `STOPPED` and **no numbers**.
+A zero would read as "the model looked and found nothing", which is a different
+claim from "there was nothing to look at".
+
+The last three lines of a clean run are the headline and the two checks that
+go with it:
+
+```
+  at least one generated test caught the bug in 3 of 3 cases
+  answers from Gemini across every case: 0
+  a report for each case is in reports/real_cases/
+```
+
+Whatever the first number turns out to be, it is written down as it comes out.
