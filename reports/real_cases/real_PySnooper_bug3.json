@@ -1,0 +1,52 @@
+{
+  "name": "real_PySnooper_bug3",
+  "before": "before.py",
+  "after": "after.py",
+  "tests_source": "generated",
+  "functions": [
+    {
+      "function": "get_write_function",
+      "change_type": "modified",
+      "test_file": "test_get_write_function.py",
+      "from_folder": "",
+      "counts": {
+        "CATCHES_CHANGE": 0,
+        "TEST_WRONG_ON_BEFORE": 0,
+        "NO_SIGNAL": 3,
+        "ODD": 1
+      },
+      "judgements": [],
+      "needs_a_look": [
+        "test_get_write_function::test_path_output_raises_name_error"
+      ]
+    }
+  ],
+  "generation_failed": [],
+  "skipped": [],
+  "repairs": [],
+  "repair": false,
+  "fallback": false,
+  "gemini_answers": 0,
+  "mutation": [
+    {
+      "function": "get_write_function",
+      "version": "before.py",
+      "found": 2,
+      "cap": 30,
+      "capped": false,
+      "defined": false,
+      "reason": "the tests already fail on the un-mutated code, so there is no green starting point",
+      "killed": 0,
+      "survived": 0,
+      "equivalent": 0,
+      "timed_out": 0,
+      "could_not_run": 0,
+      "score": null,
+      "operators": [],
+      "operator_totals": [],
+      "tests": [],
+      "change_type": "modified"
+    }
+  ],
+  "summary": "No test points to a real bug in the code."
+}

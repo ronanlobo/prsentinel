@@ -1,0 +1,102 @@
+{
+  "name": "real_youtube-dl_bug3",
+  "before": "before.py",
+  "after": "after.py",
+  "tests_source": "generated",
+  "functions": [
+    {
+      "function": "unescapeHTML",
+      "change_type": "modified",
+      "test_file": "test_unescapeHTML.py",
+      "from_folder": "",
+      "counts": {
+        "CATCHES_CHANGE": 0,
+        "TEST_WRONG_ON_BEFORE": 3,
+        "NO_SIGNAL": 16,
+        "ODD": 0
+      },
+      "judgements": [
+        {
+          "test": "test_unescapeHTML::test_unescapeHTML_basic_cases[&lt;div&gt;Hello &amp; welcome&#33;&lt;/div&gt;-<div>Hello & welcome!<\\\\/div>]",
+          "label": "TEST_WRONG_ON_BEFORE",
+          "verdict": "BAD_TEST",
+          "reason": "It failed on the old code as well (failed), so the test is not agreeing with code that was already working.",
+          "before": "failed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_unescapeHTML::test_unescapeHTML_basic_cases[&amp;;-&&]",
+          "label": "TEST_WRONG_ON_BEFORE",
+          "verdict": "BAD_TEST",
+          "reason": "It failed on the old code as well (failed), so the test is not agreeing with code that was already working.",
+          "before": "failed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_unescapeHTML::test_unescapeHTML_compare_with_html_unescape",
+          "label": "TEST_WRONG_ON_BEFORE",
+          "verdict": "BAD_TEST",
+          "reason": "It failed on the old code as well (failed), so the test is not agreeing with code that was already working.",
+          "before": "failed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        }
+      ],
+      "needs_a_look": []
+    }
+  ],
+  "generation_failed": [],
+  "skipped": [],
+  "repairs": [],
+  "repair": false,
+  "fallback": false,
+  "gemini_answers": 0,
+  "mutation": [
+    {
+      "function": "unescapeHTML",
+      "version": "before.py",
+      "found": 4,
+      "cap": 30,
+      "capped": false,
+      "defined": false,
+      "reason": "the tests already fail on the un-mutated code, so there is no green starting point",
+      "killed": 0,
+      "survived": 0,
+      "equivalent": 0,
+      "timed_out": 0,
+      "could_not_run": 0,
+      "score": null,
+      "operators": [],
+      "operator_totals": [],
+      "tests": [],
+      "change_type": "modified"
+    }
+  ],
+  "summary": "No test points to a real bug in the code."
+}

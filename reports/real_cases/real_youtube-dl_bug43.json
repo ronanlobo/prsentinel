@@ -1,0 +1,336 @@
+{
+  "name": "real_youtube-dl_bug43",
+  "before": "before.py",
+  "after": "after.py",
+  "tests_source": "generated",
+  "functions": [
+    {
+      "function": "url_basename",
+      "change_type": "modified",
+      "test_file": "test_url_basename.py",
+      "from_folder": "",
+      "counts": {
+        "CATCHES_CHANGE": 5,
+        "TEST_WRONG_ON_BEFORE": 0,
+        "NO_SIGNAL": 19,
+        "ODD": 0
+      },
+      "judgements": [
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/a/b/c-c]",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[https://example.com/one/two/three/-three]",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[//example.com/x/y/z?query-z]",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/segment1/segment2/segment3#frag-segment3]",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        },
+        {
+          "test": "test_url_basename::test_url_basename_regression_multiple_segments",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        }
+      ],
+      "needs_a_look": []
+    }
+  ],
+  "generation_failed": [],
+  "skipped": [],
+  "repairs": [],
+  "repair": false,
+  "fallback": false,
+  "gemini_answers": 0,
+  "mutation": [
+    {
+      "function": "url_basename",
+      "version": "before.py",
+      "found": 3,
+      "cap": 30,
+      "capped": false,
+      "defined": true,
+      "reason": "",
+      "killed": 3,
+      "survived": 0,
+      "equivalent": 0,
+      "timed_out": 0,
+      "could_not_run": 0,
+      "score": 1.0,
+      "operators": [
+        {
+          "operator": "return expr to return None",
+          "outcome": "killed",
+          "killed_by": [
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[https://example.com/foo/-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo?bar=1-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo#section-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/?bar=1#sec-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[//example.com/foo-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[//example.com/foo/-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/a/b/c-c]",
+            "test_url_basename::test_url_basename_expected_behavior[https://example.com/one/two/three/-three]",
+            "test_url_basename::test_url_basename_expected_behavior[//example.com/x/y/z?query-z]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/segment1/segment2/segment3#frag-segment3]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/abc?def/ghi-abc]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/abc#def/ghi-abc]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/?-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/#-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo-bar_baz-foo-bar_baz]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/.hidden-.hidden]",
+            "test_url_basename::test_url_basename_regression_multiple_segments",
+            "test_url_basename::test_url_basename_unicode_handling"
+          ]
+        },
+        {
+          "operator": "return expr to return None",
+          "outcome": "killed",
+          "killed_by": [
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com-]",
+            "test_url_basename::test_url_basename_expected_behavior[https://example.com/-]",
+            "test_url_basename::test_url_basename_expected_behavior[//example.com-]",
+            "test_url_basename::test_url_basename_expected_behavior[-]",
+            "test_url_basename::test_url_basename_non_matching_strings"
+          ]
+        },
+        {
+          "operator": "n to n + 1",
+          "outcome": "killed",
+          "killed_by": [
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[https://example.com/foo/-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo?bar=1-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo#section-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/?bar=1#sec-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[//example.com/foo-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[//example.com/foo/-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/a/b/c-c]",
+            "test_url_basename::test_url_basename_expected_behavior[https://example.com/one/two/three/-three]",
+            "test_url_basename::test_url_basename_expected_behavior[//example.com/x/y/z?query-z]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/segment1/segment2/segment3#frag-segment3]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/abc?def/ghi-abc]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/abc#def/ghi-abc]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/?-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/#-foo]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo-bar_baz-foo-bar_baz]",
+            "test_url_basename::test_url_basename_expected_behavior[http://example.com/.hidden-.hidden]",
+            "test_url_basename::test_url_basename_regression_multiple_segments",
+            "test_url_basename::test_url_basename_unicode_handling"
+          ]
+        }
+      ],
+      "operator_totals": [
+        {
+          "operator": "n to n + 1",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        },
+        {
+          "operator": "return expr to return None",
+          "killed": 2,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        }
+      ],
+      "tests": [
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[https://example.com/foo/-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo?bar=1-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo#section-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/?bar=1#sec-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[//example.com/foo-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[//example.com/foo/-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com-]",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[https://example.com/-]",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[//example.com-]",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[-]",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/a/b/c-c]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[https://example.com/one/two/three/-three]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[//example.com/x/y/z?query-z]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/segment1/segment2/segment3#frag-segment3]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/abc?def/ghi-abc]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/abc#def/ghi-abc]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/?-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo/#-foo]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/foo-bar_baz-foo-bar_baz]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_expected_behavior[http://example.com/.hidden-.hidden]",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_regression_multiple_segments",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_non_matching_strings",
+          "kills": 1,
+          "dud": false
+        },
+        {
+          "test": "test_url_basename::test_url_basename_unicode_handling",
+          "kills": 2,
+          "dud": false
+        }
+      ],
+      "change_type": "modified"
+    }
+  ],
+  "summary": "5 tests point to a real bug in url_basename."
+}
