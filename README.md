@@ -41,6 +41,7 @@ prsentinel/
     smoke_llm.py           <- checks the real providers (uses the internet)
     check_real_cases.py    <- checks examples/real_cases, no AI at all
     eval_real_cases.py     <- scores the pipeline on examples/real_cases
+    baseline_single_prompt.py  <- one plain prompt per case, the cheapest baseline
   tests/
     test_diff_extractor.py
     test_llm_client.py   <- fake providers, never uses the internet
@@ -55,10 +56,12 @@ prsentinel/
     real_cases/              <- three real BugsInPy bugs, evaluation only
     classifier_cases/        <- nine cases with known answers
   baselines/                 <- frozen test files, the reference for the paper
+  baselines_single_prompt/   <- the baseline arm's five replies, saved
   generated_tests/           <- written by the pipeline, not kept in git
   reports/                   <- written by the pipeline
   reports/real_cases/        <- the three real-case evaluation reports, saved
   requirements.txt
+  NOTES_COVERUP.md           <- why CoverUp is not the baseline, and what stopped it
   README.md
 ```
 
@@ -227,6 +230,101 @@ starting point to measure from.
 - **Evaluation only.** No prompt, no operator and no threshold was changed after
   seeing these numbers, and nothing in `src/prsentinel` can read this folder.
   `tests/test_real_cases.py` fails if it so much as names it.
+
+## The cheapest baseline: one plain prompt per case
+
+The three cases above cannot say how much of PRSentinel's result is the model and
+how much is the machinery around it. `scripts/baseline_single_prompt.py` asks
+that with the smallest thing that can go on the other side of the comparison:
+
+```powershell
+.\.venv\Scripts\python.exe -u scripts\baseline_single_prompt.py
+```
+
+**One call to the same model.** The same `before.py`, the same `after.py`, and
+the same one changed function's old and new source. No pipeline, no mutation, no
+rerun loop, no judge, no repair. One prompt, one reply, and then the reply is
+run through `test_runner` and scored with the runner's own labels, so "caught the
+bug" means exactly one thing on both sides of the table.
+
+It has no command line, for the same reason `eval_real_cases.py` has none. The
+prompt was frozen on 2026-10-02 **before** the run, and `tests/test_real_cases.py`
+holds its exact text character for character, so it cannot be improved once the
+numbers are known. It is a plain task with no advice in it: no edge cases, no
+"look for anything the change could have made worse". The pipeline prompt has all
+of that, and that difference is part of what is being compared rather than an
+oversight.
+
+It ran on 2026-10-02, Groq (`openai/gpt-oss-120b`) only. Five calls, one per
+case. All five replies are saved in `baselines_single_prompt/`.
+
+### Both arms, side by side
+
+| Case | Project | Function | Plain prompt | PRSentinel | Project's own test |
+|---|---|---|---|---|---|
+| bug 43 | youtube-dl | `url_basename` | **caught** - 5 of 24 | **caught** - 5 of 24 | caught |
+| bug 3 | youtube-dl | `unescapeHTML` | missed - 0 of 15 | missed - 0 of 19 | caught |
+| bug 3 | PySnooper | `get_write_function` | **caught** - 1 of 3 | missed - 0 of 4 | caught |
+
+| | Caught the bug |
+|---|---|
+| **One plain prompt** | **2 of 3** |
+| **PRSentinel** | **1 of 3** |
+| The project's own test | **3 of 3** |
+
+Three observations, not a rate. But the ordering is the finding, and it does not
+flatter this project:
+
+- **The project's own test caught all three bugs.** That is what a human wrote,
+  and it is the bar. PRSentinel is not close to it on three real bugs.
+- **One plain prompt beat PRSentinel, 2 of 3 to 1 of 3.** On PySnooper bug 3 the
+  plain prompt wrote a test that caught the bug and PRSentinel's four did not;
+  on youtube-dl bug 3 both wrote tests that all passed on both versions.
+- On youtube-dl bug 43 both arms produced 24 test items and 5 catching tests.
+  **That is a coincidence, not a shared file**: the two replies are different
+  files of different lengths (2875 and 1727 bytes) and neither was copied from the
+  other. The same counts coming out of two different prompts on one case should
+  not be read as agreement between the arms.
+
+The one place the two arms genuinely agree is youtube-dl bug 3, where both
+missed: the plain prompt wrote 15 tests that all passed on both versions, and
+PRSentinel wrote 19 that were 16 `NO_SIGNAL` and 3 that failed on `before.py` too.
+
+### Where the baseline's numbers come from
+
+The baseline script saved its five replies but not a report, so the table above
+was re-scored from those saved files with the same `test_runner.evaluate_tests`
+the live run used. That is deterministic pytest, not a model call, so it costs
+nothing and reproduces exactly. There is no command to show for it here: the
+script itself refuses to run twice, on purpose, because a saved reply is the only
+record of one live run. `RESULTS.md` records the same numbers and where each one
+came from.
+
+### A footnote on the two synthetic rows
+
+The baseline also ran on the two synthetic rounds, and those two rows are **not**
+like for like. PRSentinel's side of them was scored on frozen hand-checked tests
+saved in `baselines/` in an earlier step, not on a fresh generation, while the
+baseline's side is a fresh call on all five cases. The script prints a `tests
+from` column for exactly this reason, and the two reports say
+`tests_source: reused from baselines`. They are not evidence that PRSentinel's
+generator beats one plain call.
+
+`NOTES_COVERUP.md` records why the more obvious baseline, CoverUp, could not be
+run on this machine at all, and why it would not have been a fair comparison
+even if it had: it is coverage-driven and PRSentinel is change-driven.
+
+### What the baseline result does not say
+
+- **It is not an evaluation in the strict sense.** It was written *after* the
+  real-case numbers were known. The real cases were protected from exactly that,
+  and the baseline arm was not. A baseline written without seeing the results it
+  is compared against is worth more than this one, and this one was not written
+  that way. Say so in the paper.
+- **Three cases.** As above.
+- **Five calls, one per case, is the cheapest possible comparison, not the
+  strongest.** A baseline with a second call, or a self-check, or two prompts
+  averaged, would be a fairer opponent and would probably score higher.
 
 ## Using the diff extractor
 
