@@ -62,6 +62,7 @@ prsentinel/
   reports/real_cases/        <- the three real-case evaluation reports, saved
   requirements.txt
   NOTES_COVERUP.md           <- why CoverUp is not the baseline, and what stopped it
+  RESULTS.md                 <- every number this project produced, and where from
   README.md
 ```
 
