@@ -39,6 +39,7 @@ prsentinel/
     pipeline.py          <- all of it, with one command
   scripts/
     smoke_llm.py         <- checks the real providers (uses the internet)
+    check_real_cases.py  <- checks examples/real_cases, no AI at all
   tests/
     test_diff_extractor.py
     test_llm_client.py   <- fake providers, never uses the internet
@@ -50,6 +51,7 @@ prsentinel/
   examples/
     round1_off_by_one/       <- before.py, after.py, diff.patch
     round2_mutable_default/  <- before.py, after.py, diff.patch
+    real_cases/              <- three real BugsInPy bugs, evaluation only
     classifier_cases/        <- nine cases with known answers
   baselines/                 <- frozen test files, the reference for the paper
   generated_tests/           <- written by the pipeline, not kept in git
@@ -130,6 +132,25 @@ The one script that does use the internet:
 It checks Groq on its own, Gemini on its own, and that a broken Groq key falls
 through to Gemini. It reads your keys from the environment but never prints
 them and never writes them anywhere.
+
+## Checking the real bug cases
+
+The other script, which uses no AI at all:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\check_real_cases.py
+```
+
+It goes through each folder in `examples/real_cases`, runs that project's own
+test through `prsentinel.test_runner` against both versions, and runs the
+witness in `witness.md` against both. If a witness gives the same answer on both
+versions the case is rejected, because that means the bug does not reproduce on
+the Python you are on. It exits 1 if any case is rejected.
+
+Nothing in `src/prsentinel` reads `examples/real_cases`. Those cases are for
+evaluation only, so the pipeline cannot be pointed at them.
+`tests/test_real_cases.py` fails if anything in the package so much as names the
+folder.
 
 **Do not run it more than a few times in a row.** The Gemini free tier allows
 only **5 requests per minute** for `gemini-3.5-flash`. Go over that and Gemini
