@@ -285,3 +285,161 @@ go with it:
 ```
 
 Whatever the first number turns out to be, it is written down as it comes out.
+
+---
+
+## The single-prompt baseline (written down, not run yet)
+
+This one is not measuring PRSentinel. It is measuring how much of PRSentinel's
+result comes from the model and how much comes from the machinery around it, by
+running the cheapest thing on the other side of the comparison: **one plain call
+per case**, same model, same `before.py`, same `after.py`, same one changed
+function's old and new source, no pipeline, no mutation, no rerun loop, no judge.
+
+**It has not been run.**
+
+```powershell
+& ".venv\Scripts\python.exe" -u scripts\baseline_single_prompt.py
+```
+
+There is no command line, on purpose, the same as the evaluation script.
+
+### What it costs
+
+**Five model calls, one per case.** That is the whole point of it. The
+evaluation above spends far more, because the pipeline asks per changed function
+and then reruns and mutates locally.
+
+The prompt is frozen. It is a plain task with no advice in it:
+
+````
+You are writing pytest tests for a Python function named <<NAME>>.
+
+A developer has just changed this function.
+
+OLD CODE:
+```python
+<<OLD CODE>>
+```
+
+NEW CODE:
+```python
+<<NEW CODE>>
+```
+
+The OLD CODE is the behaviour the function is supposed to have.
+
+Please write pytest tests that check the new code still behaves like the old code.
+
+Rules for your answer:
+- Import the function from a module named `target`, for example: `from target import <<NAME>>`
+- Reply with pytest code only.
+- Put all of it in one single code block.
+- Do not explain anything.
+````
+
+Frozen on **2026-10-02**, before any run. `tests/test_real_cases.py` holds that
+exact text and asserts it character for character, so it cannot be improved once
+the numbers are in. Note what is **not** in it: no edge cases, no "look for
+anything the change could have made worse", no list of things to check. The
+pipeline prompt has all of that, and that difference is part of what is being
+compared rather than an oversight.
+
+### The five cases
+
+| Case | Group | Where |
+|---|---|---|
+| `real_PySnooper_bug3` | real | `examples/real_cases/real_PySnooper_bug3` |
+| `real_youtube-dl_bug3` | real | `examples/real_cases/real_youtube-dl_bug3` |
+| `real_youtube-dl_bug43` | real | `examples/real_cases/real_youtube-dl_bug43` |
+| `round1_off_by_one` | synthetic | `examples/round1_off_by_one` |
+| `round2_mutable_default` | synthetic | `examples/round2_mutable_default` |
+
+The real case folders are read from `check_real_cases.py`, so this script and
+that one cannot disagree about which real cases exist.
+
+### What it writes
+
+`baselines_single_prompt/<case>/test_<function>.py`, one file per case, holding
+that case's reply. The folder is **tracked in git**, the way `baselines/` is,
+because after the live run these are the only record of what the baseline arm
+actually answered. After the run they get a commit of their own.
+
+It never overwrites. If a reply is already saved, or one of the five PRSentinel
+reports is missing so the other half of a row could not be printed, the run is
+**refused with exit 2 before a single model call is made**.
+
+### Groq only, no fallback
+
+Set inside the script, before the first call, so no case can accidentally be
+answered by the second model. The temperature is
+`config.GENERATION_TEMPERATURE`, the same setting the pipeline uses, so both arms
+ask the model the same way.
+
+`$LASTEXITCODE` must be `0`. Each saved test file's matching PRSentinel report
+must say `fallback: off` and `answers from Gemini: 0`; the three synthetic ones
+will say `fallback: true`, because they were run with fallback permitted in
+step 9.5. The baseline's own run cannot produce that, and must not.
+
+### Before trusting the run
+
+- `$LASTEXITCODE` is `0`.
+- No `THE RUN STOPPED EARLY` anywhere in the output.
+- `baselines_single_prompt/` holds **five** test files, one per case.
+- Each file has at least one test in it. An empty one means the reply was not
+  usable and that case reports `STOPPED` rather than a number.
+- No line in any saved file is a long opaque token that is not a pytest node id.
+
+### Reading the output
+
+The table has both arms on one row per case:
+
+```
+case               tests  CATCHES  WRONG_ON_BEFORE  caught | PRS tests  PRS CATCHES  PRS caught  PRS tests from  PRS fallback  PRS gemini  project test
+```
+
+- The first four number columns are the **baseline**, from this run.
+- The `PRS` columns are **PRSentinel**, read out of the five saved reports. No
+  number there was typed into the script.
+- `project test` is the project's own test. It belongs to neither arm; it is the
+  same for both. The two synthetic cases have no `existing_test.py` and report
+  `n/a`.
+
+Three things in that table are there because they change how it should be read:
+
+- **`PRS tests from`.** `generated` means fresh generation in that run.
+  `baseline copy` means frozen hand-checked tests from `baselines/`. The two
+  synthetic rows say `baseline copy`, which the footnote spells out: PRSentinel's
+  side of those two rows was scored on tests saved in an earlier step, while the
+  baseline's side is a fresh call on all five. Those two rows are not a
+  like-for-like comparison.
+- **`PRS fallback`.** Whether fallback was permitted in that run. The synthetic
+  reports say `on` (permitted, never used); the real ones say `off`.
+- **`PRS gemini`.** Answers that came from Gemini. Must be `0` everywhere.
+
+A report without the provenance keys is marked **`older report`** in those two
+columns and named in a note, rather than printing a blank that would read as a
+zero. None of the five saved reports is like that, so that branch is covered by a
+test with a made-up report rather than by real data.
+
+### The subtotals
+
+There is **no grand total**. Two labelled subtotals instead:
+
+```
+  real cases: N of 3 caught the bug
+  synthetic cases: N of 2 caught the bug
+```
+
+Five observations across two different kinds of case are not a rate, and a single
+number over the top of them invites being read as one.
+
+If a case printed `STOPPED`, its subtotal names it as **not measured at all** and
+says the line is not a rate. A case that was never asked is not a case where the
+model looked and found nothing.
+
+### After the run
+
+Read the console headline first, then the five saved files, then the table.
+Whatever it says is written down as it comes out. No prompt, no operator, no
+threshold and no table is changed afterwards.
