@@ -38,8 +38,9 @@ prsentinel/
     classifier_eval.py   <- scores the classifier on nine known answers
     pipeline.py          <- all of it, with one command
   scripts/
-    smoke_llm.py         <- checks the real providers (uses the internet)
-    check_real_cases.py  <- checks examples/real_cases, no AI at all
+    smoke_llm.py           <- checks the real providers (uses the internet)
+    check_real_cases.py    <- checks examples/real_cases, no AI at all
+    eval_real_cases.py     <- scores the pipeline on examples/real_cases
   tests/
     test_diff_extractor.py
     test_llm_client.py   <- fake providers, never uses the internet
@@ -56,6 +57,7 @@ prsentinel/
   baselines/                 <- frozen test files, the reference for the paper
   generated_tests/           <- written by the pipeline, not kept in git
   reports/                   <- written by the pipeline
+  reports/real_cases/        <- the three real-case evaluation reports, saved
   requirements.txt
   README.md
 ```
@@ -161,6 +163,70 @@ and simply retrying works.
 This matters for later steps: generating several tests for one change will use
 several Gemini calls in a row, so PRSentinel will need to retry with a wait
 before it can rely on the fallback.
+
+## Scoring the real bug cases
+
+`examples/real_cases/` holds three real bugs taken from
+[BugsInPy](https://github.com/soarsmu/bugsinpy). `scripts/check_real_cases.py`
+above only proves each one still reproduces. `scripts/eval_real_cases.py` is
+what runs PRSentinel over them and scores the result:
+
+```powershell
+.\.venv\Scripts\python.exe -u scripts\eval_real_cases.py
+```
+
+It has no flags on purpose. `--no-fallback` and `--mutation` are fixed inside
+it, so it cannot be run in a configuration that makes the number flattering. It
+calls the same `run_pipeline` the CLI calls, and writes one `.md` and one
+`.json` report per case into `reports/real_cases/`.
+
+The generator is only ever handed `before.py` and `after.py`.
+`existing_test.py`, `witness.md` and `source.md` are never passed to the
+pipeline; `existing_test.py` is read once per case, after that case's run has
+finished, purely to print a comparison number. `tests/test_real_cases.py` checks
+that three separate ways.
+
+### The result
+
+Run on 2026-10-02, Groq (`openai/gpt-oss-120b`) only, `answers from Gemini: 0`
+in all three reports:
+
+| Case | Project | Function | Tests | Caught the bug | Mutation |
+|---|---|---|---|---|---|
+| bug 43 | youtube-dl | `url_basename` | 24 | **yes** - 5 of them, all judged `REAL_BUG` | 100%, 3 of 3 mutants killed |
+| bug 3 | youtube-dl | `unescapeHTML` | 19 | no | not defined |
+| bug 3 | PySnooper | `get_write_function` | 4 | no | not defined |
+
+**At least one generated test caught the bug in 1 of 3 cases.**
+
+"Caught the bug" means the runner's own `CATCHES_CHANGE` label: the test passes
+on `before.py` and fails on `after.py`. 47 test items were generated in total.
+
+Where the two misses go wrong is worth reading in the reports rather than
+skipping: for youtube-dl bug 3, three tests failed on `before.py` as well, so
+they were judged `BAD_TEST`, and the other sixteen passed on both versions
+(`NO_SIGNAL`). For PySnooper bug 3, one test *fails on the old code and passes on
+the new one* - it encoded the buggy behaviour as the expected behaviour. The
+mutation score could only be computed for bug 43; for the other two the report
+says why: the tests already fail on the un-mutated code, so there is no green
+starting point to measure from.
+
+### What this result does not say
+
+- **The "pull request" is a fix run backwards.** `before.py` is the commit that
+  *fixed* the bug and `after.py` is the commit that *had* it, so the diff reads
+  in the opposite direction to a real PR. Nobody in the project ever wrote this
+  change; it was reconstructed from history.
+- **Both projects are public and BugsInPy is public.** The models may have seen
+  these fixes and these functions in training data. If anything this would
+  inflate the result, not deflate it.
+- **The bugs target Python 3.7 and 3.8; the run was on 3.13.9.** The check
+  script above rejected two of the three witness inputs for exactly this reason
+  before any of this was measured. Three cases on one interpreter is not a
+  rate, it is three observations.
+- **Evaluation only.** No prompt, no operator and no threshold was changed after
+  seeing these numbers, and nothing in `src/prsentinel` can read this folder.
+  `tests/test_real_cases.py` fails if it so much as names it.
 
 ## Using the diff extractor
 
