@@ -130,7 +130,39 @@ fell through to Gemini.
 .\.venv\Scripts\python.exe -m pytest -v
 ```
 
-You should see 240 passing tests. None of them use the internet.
+You should see 916 passing tests. None of them use the internet.
+
+## Showing it to somebody
+
+```powershell
+.\scripts\run_demo.ps1
+```
+
+Then open <http://127.0.0.1:8000>. `.\scripts\run_demo.ps1 -Check` starts the app,
+checks that it serves its page, prints the cases it offers and stops again.
+
+The app is a thin wrapper. It copies the chosen case's saved test into the place
+the pipeline looks for it, calls the real `run_pipeline`, and draws whatever
+comes back. It decides nothing itself and reimplements nothing. It binds to
+`127.0.0.1` only, so nothing on the network can reach it.
+
+The first option on the page is **Saved tests**, which reuses a test file that
+already exists and therefore needs no key and no AI. That is the mode to show,
+because it works on a machine that has never had a key on it. `DEMO.md` has the
+case-by-case walkthrough, including the honest odds of the flaky one.
+
+### One warning you will see once, and can ignore
+
+```
+StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is
+deprecated; install `httpx2` instead.
+```
+
+starlette 1.7.0 prefers `httpx2` for its test client. The project pins
+`httpx==0.28.1` instead, because that is the version that was installed and
+actually run here. This test suite does not turn warnings into errors, so the
+one line is harmless. Moving to `httpx2` would mean a different package and two
+more dependencies, which is not worth it for a demo.
 
 ## Running on a pull request
 

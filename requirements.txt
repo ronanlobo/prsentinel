@@ -6,3 +6,27 @@ google-genai         # talks to Gemini (the backup provider)
 
 # Testing
 pytest               # runs our tests
+httpx==0.28.1        # the HTTP client FastAPI's test client needs
+
+# Demo web app (src/prsentinel/app.py). Reads and writes local files only.
+uvicorn==0.54.0      # the server that runs the app on 127.0.0.1
+fastapi==0.142.2     # the web framework the app is written in
+
+# These three are pinned exactly and the lines above are not, on purpose.
+#
+# The pinned ones are here because a demo that is shown to somebody has to work
+# on every machine, including the Linux runner where the test suite runs, and a
+# version that moved between two machines would mean the app was only ever
+# half-tested. These are the exact versions that were installed and actually run
+# on Windows with Python 3.13.9.
+#
+# httpx is pinned rather than httpx2, which is what starlette now prefers. httpx
+# works and this suite does not turn warnings into errors, so the app uses the
+# package it was proven with. starlette prints this once when the test client is
+# imported:
+#
+#   StarletteDeprecationWarning: Using `httpx` with `starlette.testclient`
+#   is deprecated; install `httpx2` instead.
+#
+# That warning is expected and harmless. Moving to httpx2 would mean a different
+# package and two more dependencies, which is not worth it for a demo.

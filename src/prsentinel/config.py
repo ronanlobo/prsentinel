@@ -105,6 +105,22 @@ MUTATION_TIMEOUT_SECONDS = _int_from_env("PRSENTINEL_MUTATION_TIMEOUT_SECONDS",
 
 
 # ---------------------------------------------------------------------------
+# The demo web app (src/prsentinel/app.py)
+# ---------------------------------------------------------------------------
+
+# How long one run in the demo app may take before it is stopped. The app runs
+# each job in a child process precisely so that this limit can actually stop
+# something: a thread cannot be killed, so a run that hangs would sit there and
+# hold the one-run-at-a-time lock for ever.
+APP_RUN_TIMEOUT_SECONDS = _int_from_env("PRSENTINEL_APP_RUN_TIMEOUT_SECONDS", 300)
+
+# How much pasted source the demo app will accept, in bytes. Pasted code is
+# written to disk and then read by pytest, so there has to be a ceiling on how
+# much of someone's file we hold. Comfortably bigger than any example here.
+APP_MAX_PASTED_BYTES = _int_from_env("PRSENTINEL_APP_MAX_PASTED_BYTES", 60000)
+
+
+# ---------------------------------------------------------------------------
 # How creative the AI is allowed to be.
 # ---------------------------------------------------------------------------
 

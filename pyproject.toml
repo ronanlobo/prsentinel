@@ -13,6 +13,9 @@ requires-python = ">=3.10"
 dependencies = [
     "groq",
     "google-genai",
+    "fastapi==0.142.2",
+    "uvicorn==0.54.0",
+    "httpx==0.28.1",
 ]
 
 [project.optional-dependencies]
@@ -20,6 +23,13 @@ dev = ["pytest"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# The demo app serves one HTML file from inside the package. Without this the
+# page would be missing from a real install and only work from an editable one,
+# which is the kind of thing that works for the person who wrote it and nobody
+# else.
+[tool.setuptools.package-data]
+prsentinel = ["static/*.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

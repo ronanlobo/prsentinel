@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRSentinel demo</title>
+<style>
+  :root {
+    --ink: #1c1c1c;
+    --muted: #5f6b76;
+    --line: #d7dde3;
+    --paper: #ffffff;
+    --wash: #f4f6f8;
+    --bug: #0b6b3a;
+    --wrong: #8a5a00;
+    --flaky: #6b3fa0;
+    --stop: #9a2020;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 17px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--wash);
+  }
+  header {
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+    padding: 18px 26px;
+  }
+  header h1 { margin: 0; font-size: 24px; letter-spacing: -0.2px; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+  main {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 22px;
+    padding: 22px 26px 60px;
+    align-items: start;
+  }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  section, aside {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+  }
+  h2 { font-size: 16px; margin: 0 0 12px; text-transform: uppercase;
+       letter-spacing: 0.6px; color: var(--muted); }
+  h3 { font-size: 19px; margin: 0 0 4px; font-family: Consolas, monospace; }
+  label { display: block; font-size: 14px; color: var(--muted);
+          margin: 14px 0 5px; }
+  select, textarea {
+    width: 100%; font: inherit; padding: 8px 9px;
+    border: 1px solid var(--line); border-radius: 6px; background: #fff;
+  }
+  textarea { font: 14px/1.45 Consolas, monospace; height: 132px; resize: vertical; }
+  .radio label { display: flex; gap: 8px; align-items: flex-start;
+                 color: var(--ink); font-size: 15px; margin: 9px 0; }
+  .radio small { display: block; color: var(--muted); font-size: 13px; }
+  .radio input { margin-top: 4px; }
+  button {
+    font: inherit; font-weight: 600; padding: 11px 20px; border-radius: 6px;
+    border: 1px solid #123f2c; background: #17603c; color: #fff; cursor: pointer;
+    width: 100%; margin-top: 18px;
+  }
+  button:disabled { background: #8d9aa4; border-color: #8d9aa4; cursor: default; }
+  .note { font-size: 14px; color: var(--muted); margin: 8px 0 0; }
+  .hidden { display: none; }
+  #progress {
+    font: 14px/1.5 Consolas, monospace; white-space: pre-wrap;
+    max-height: 260px; overflow-y: auto; background: #1d2227; color: #d7e0e8;
+    border-radius: 6px; padding: 12px; margin: 0;
+  }
+  .banner { border-radius: 6px; padding: 12px 14px; margin: 0 0 14px;
+            font-size: 15px; border: 1px solid; }
+  .banner.stop { background: #fdf0f0; border-color: #e4b4b4; color: var(--stop); }
+  .banner.busy { background: #fdf8ec; border-color: #e0cf9a; color: var(--wrong); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 6px 0 18px; }
+  th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid var(--line);
+           vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+       color: var(--muted); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  code, .mono { font-family: Consolas, monospace; font-size: 13px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 4px;
+         font-size: 12px; font-weight: 700; letter-spacing: 0.4px; color: #fff; }
+  .REAL_BUG { background: var(--bug); }
+  .BAD_TEST { background: var(--wrong); }
+  .FLAKY { background: var(--flaky); }
+  .reason { color: var(--muted); font-size: 13px; }
+  .safety { border-left: 4px solid #17603c; background: #eef6f1;
+            padding: 11px 14px; margin-top: 20px; font-size: 15px; }
+  .meta { font-size: 14px; color: var(--muted); margin: 4px 0 16px; }
+  ul.look { margin: 6px 0 18px; padding-left: 20px; font-size: 14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>PRSentinel</h1>
+  <p>Given the old code and the new code, it works out which tests point at a
+     real bug, which tests are simply wrong, and which ones cannot be trusted.</p>
+</header>
+
+<main>
+  <aside>
+    <h2>Choose a change</h2>
+
+    <label for="demo">Built-in case</label>
+    <select id="demo"></select>
+    <p class="note" id="demoNote"></p>
+
+    <div class="hidden" id="pasteBox">
+      <label for="before">Old code</label>
+      <textarea id="before" spellcheck="false"
+                placeholder="def f(x):&#10;    return x + 1"></textarea>
+      <label for="after">New code</label>
+      <textarea id="after" spellcheck="false"
+                placeholder="def f(x):&#10;    return x - 1"></textarea>
+    </div>
+
+    <div class="radio" style="margin-top:16px">
+      <label><input type="radio" name="mode" value="saved" checked>
+        <span>Saved tests<small>Already written. No AI, nothing is spent,
+        starts immediately.</small></span></label>
+      <label><input type="radio" name="mode" value="fresh">
+        <span>Generate fresh tests<small>Writes new tests with Groq. Needs a
+        Groq key on this machine.</small></span></label>
+    </div>
+
+    <label><input type="checkbox" id="mutation" checked>
+      Measure how many faults the tests catch (slower)</label>
+
+    <button id="run">Run</button>
+    <p class="note" id="limits"></p>
+  </aside>
+
+  <section>
+    <div id="banner" class="banner hidden"></div>
+    <h2>Progress</h2>
+    <pre id="progress">Waiting for you to press Run.</pre>
+
+    <div id="results" class="hidden" style="margin-top:22px">
+      <h2>Result</h2>
+      <div id="resultBody"></div>
+      <div class="safety" id="safety"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+let current = null;
+
+// ---------------------------------------------------------------- the page
+
+async function loadDemos() {
+  const answer = await fetch("/api/demos");
+  const info = await answer.json();
+
+  const picker = $("demo");
+  picker.add(new Option("Paste my own change...", ""));
+
+  for (const one of info.demos) {
+    picker.add(new Option(one.title, one.name));
+  }
+
+  $("limits").textContent =
+    `One run at a time. A run that takes longer than ` +
+    `${Math.round(info.timeout_seconds / 60)} minutes is stopped and reported ` +
+    `as no result. Pasted code is capped at ` +
+    `${Math.round(info.max_pasted_bytes / 1000)} KB per half.`;
+
+  $("safety").textContent = info.safety_sentence;
+  return info;
+}
+
+function showBanner(kind, text) {
+  const box = $("banner");
+  box.className = "banner " + kind;
+  box.textContent = text;
+  box.classList.remove("hidden");
+}
+
+function hideBanner() {
+  $("banner").classList.add("hidden");
+}
+
+function setBusy(busy) {
+  $("run").disabled = busy;
+  $("run").textContent = busy ? "Running..." : "Run";
+}
+
+// ------------------------------------------------------------ the results
+
+function verdictCell(judgement) {
+  const cell = document.createElement("td");
+  const tag = document.createElement("span");
+  tag.className = "tag " + judgement.verdict;
+  tag.textContent = judgement.verdict.replace(/_/g, " ");
+  cell.appendChild(tag);
+  return cell;
+}
+
+function judgementRow(judgement) {
+  const row = document.createElement("tr");
+
+  const name = document.createElement("td");
+  name.className = "mono";
+  name.textContent = judgement.test.split("::").pop();
+  row.appendChild(name);
+
+  const where = document.createElement("td");
+  where.className = "reason";
+  where.textContent = judgement.reason;
+  row.appendChild(where);
+
+  row.appendChild(verdictCell(judgement));
+
+  const rerun = document.createElement("td");
+  rerun.className = "num reason";
+  const seen = judgement.rerun || {};
+  rerun.textContent = seen.passes !== undefined
+    ? `${seen.passes} pass / ${seen.fails} fail` : "";
+  row.appendChild(rerun);
+
+  return row;
+}
+
+function table(headings, rows) {
+  const made = document.createElement("table");
+  const head = document.createElement("tr");
+  for (const heading of headings) {
+    const cell = document.createElement("th");
+    cell.textContent = heading;
+    head.appendChild(cell);
+  }
+  made.appendChild(head);
+  for (const row of rows) {
+    made.appendChild(row);
+  }
+  return made;
+}
+
+function renderFunction(one) {
+  const block = document.createElement("div");
+
+  const title = document.createElement("h3");
+  title.textContent = one.function;
+  block.appendChild(title);
+
+  const kind = document.createElement("p");
+  kind.className = "meta";
+  const counts = one.counts || {};
+  kind.textContent =
+    `${one.change_type} - ${one.test_file} from ${one.from_folder} - ` +
+    `${counts.CATCHES_CHANGE || 0} catch the change, ` +
+    `${counts.TEST_WRONG_ON_BEFORE || 0} fail on the old code too, ` +
+    `${counts.NO_SIGNAL || 0} say nothing, ${counts.ODD || 0} odd`;
+  block.appendChild(kind);
+
+  if (one.judgements && one.judgements.length) {
+    block.appendChild(table(
+      ["test", "why", "verdict", "5 more runs"],
+      one.judgements.map(judgementRow)));
+  } else {
+    const none = document.createElement("p");
+    none.className = "meta";
+    none.textContent = "No test failed on the new code, so there is nothing to judge.";
+    block.appendChild(none);
+  }
+
+  if (one.needs_a_look && one.needs_a_look.length) {
+    const list = document.createElement("ul");
+    list.className = "look";
+    for (const item of one.needs_a_look) {
+      const entry = document.createElement("li");
+      entry.textContent = typeof item === "string" ? item : JSON.stringify(item);
+      list.appendChild(entry);
+    }
+    const head = document.createElement("p");
+    head.className = "meta";
+    head.textContent = "Worth a human eye:";
+    block.appendChild(head);
+    block.appendChild(list);
+  }
+
+  return block;
+}
+
+function renderMutation(score) {
+  const line = document.createElement("p");
+  line.className = "meta";
+
+  if (!score.defined) {
+    line.textContent =
+      "Mutation check: not defined - " + (score.reason || "nothing to mutate")
+      + ".";
+    return line;
+  }
+
+  const killed = score.killed || 0;
+  const survived = score.survived || 0;
+  const tried = killed + survived;
+
+  // Shown as a whole percentage, the way the written report shows it, rather
+  // than the raw fraction, which would read 0.6666666666666666.
+  const caught = (score.score === null || score.score === undefined)
+    ? "not scored"
+    : Math.round(score.score * 100) + "%";
+
+  line.textContent =
+    `Mutation check on ${score.version}, the version the tests pass on: ` +
+    `${caught} - ${killed} of ${tried} deliberate faults were caught. ` +
+    `${score.equivalent || 0} equivalent, ${score.timed_out || 0} timed out, ` +
+    `${score.could_not_run || 0} could not run.`;
+  return line;
+}
+
+function render(report) {
+  const body = $("resultBody");
+  body.textContent = "";
+
+  const source = report.app_mode === "saved" ? "saved" : "generated";
+  const head = document.createElement("p");
+  head.className = "meta";
+  head.textContent =
+    `Tests: ${source} - ${report.tests_source || "unknown"}. ` +
+    (report.gemini_answers
+      ? `${report.gemini_answers} answered by the backup model.`
+      : "No answers from the backup model.");
+  body.appendChild(head);
+
+  if (report.skipped && report.skipped.length) {
+    const skipped = document.createElement("div");
+    skipped.className = "banner stop";
+    skipped.textContent = "Skipped: " + report.skipped.join("; ");
+    body.appendChild(skipped);
+  }
+  if (report.generation_failed && report.generation_failed.length) {
+    const failed = document.createElement("div");
+    failed.className = "banner stop";
+    failed.textContent = "Tests could not be written for: "
+      + report.generation_failed.join("; ");
+    body.appendChild(failed);
+  }
+
+  if (!report.functions || !report.functions.length) {
+    const none = document.createElement("div");
+    none.className = "banner stop";
+    none.textContent =
+      "No function could be found in that change, so there is nothing to " +
+      "judge. Check that the two halves really are a before and an after of " +
+      "the same function.";
+    body.appendChild(none);
+    $("results").classList.remove("hidden");
+    return;
+  }
+
+  for (const one of report.functions) {
+    body.appendChild(renderFunction(one));
+    const score = (report.mutation || []).find((m) => m.function === one.function);
+    if (score) {
+      body.appendChild(renderMutation(score));
+    }
+  }
+
+  if (report.summary) {
+    const said = document.createElement("p");
+    said.className = "meta";
+    said.textContent = report.summary;
+    body.appendChild(said);
+  }
+
+  $("results").classList.remove("hidden");
+}
+
+// ------------------------------------------------------------- the running
+
+function drawProgress(text) {
+  const box = $("progress");
+  box.textContent += text + "\n";
+  box.scrollTop = box.scrollHeight;
+}
+
+function watch(runId) {
+  const source = new EventSource("/api/stream?run_id=" + encodeURIComponent(runId));
+
+  source.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    if (message.type === "progress") {
+      drawProgress(message.text);
+    } else if (message.type === "result") {
+      render(message.report);
+    } else if (message.type === "stopped") {
+      showBanner("stop", message.message);
+    } else if (message.type === "error") {
+      showBanner("stop", message.message);
+    } else if (message.type === "done") {
+      source.close();
+      current = null;
+      setBusy(false);
+    }
+  };
+
+  source.onerror = () => {
+    source.close();
+    current = null;
+    setBusy(false);
+    showBanner("stop",
+      "The connection to the app closed before the run finished. " +
+      "The app may have been stopped. Press Run again.");
+  };
+}
+
+async function start() {
+  if (current) {
+    showBanner("busy", "A run is already going. Wait for it to finish.");
+    return;
+  }
+
+  hideBanner();
+  $("results").classList.add("hidden");
+  $("progress").textContent = "Starting...\n";
+
+  const chosen = $("demo").value;
+  const body = {
+    mode: document.querySelector('input[name="mode"]:checked').value,
+    mutation: $("mutation").checked,
+    demo: chosen,
+  };
+
+  if (!chosen) {
+    body.before = $("before").value;
+    body.after = $("after").value;
+  }
+
+  setBusy(true);
+
+  let answer;
+  try {
+    answer = await fetch("/api/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch (broken) {
+    setBusy(false);
+    showBanner("stop", "Could not reach the app. Is it still running?");
+    return;
+  }
+
+  if (answer.status === 409) {
+    setBusy(false);
+    showBanner("busy",
+      "A run is already going. Wait for it to finish, then press Run again.");
+    return;
+  }
+
+  const said = await answer.json();
+  if (!answer.ok) {
+    setBusy(false);
+    showBanner("stop", said.detail || "The run could not be started.");
+    return;
+  }
+
+  current = said.run_id;
+  watch(said.run_id);
+}
+
+// -------------------------------------------------------------- the wiring
+
+$("demo").addEventListener("change", () => {
+  const chosen = $("demo").value;
+  const note = $("demoNote");
+  $("pasteBox").classList.toggle("hidden", Boolean(chosen));
+
+  if (!chosen) {
+    note.textContent = "Fresh tests only: there are no saved tests for pasted code.";
+    const saved = document.querySelector('input[name="mode"][value="saved"]');
+    const fresh = document.querySelector('input[name="mode"][value="fresh"]');
+    saved.checked = false;
+    fresh.checked = true;
+    return;
+  }
+
+  const info = window.demos || [];
+  const found = info.find((one) => one.name === chosen);
+  note.textContent = found ? (found.note || found.test_file) : "";
+  document.querySelector('input[name="mode"][value="saved"]').checked = true;
+});
+
+$("run").addEventListener("click", start);
+
+loadDemos().then((info) => { window.demos = info.demos; });
+</script>
+</body>
+</html>
