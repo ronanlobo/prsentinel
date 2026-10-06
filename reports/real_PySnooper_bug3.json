@@ -1,0 +1,126 @@
+{
+  "name": "real_PySnooper_bug3",
+  "before": "before.py",
+  "after": "after.py",
+  "tests_source": "generated",
+  "functions": [
+    {
+      "function": "get_write_function",
+      "change_type": "modified",
+      "test_file": "test_get_write_function.py",
+      "from_folder": "",
+      "counts": {
+        "CATCHES_CHANGE": 1,
+        "TEST_WRONG_ON_BEFORE": 0,
+        "NO_SIGNAL": 3,
+        "ODD": 0
+      },
+      "judgements": [
+        {
+          "test": "test_get_write_function::test_path_output_writes_to_file",
+          "label": "CATCHES_CHANGE",
+          "verdict": "REAL_BUG",
+          "reason": "It passed on the old code and fails on the new one (failed), so the change is what broke it.",
+          "before": "passed",
+          "after": "failed",
+          "rerun": {
+            "passes": 0,
+            "fails": 5,
+            "verdict": "ALWAYS_FAILS"
+          },
+          "ai_verdict": "",
+          "ai_confidence": "",
+          "ai_reason": "",
+          "ai_agrees": null
+        }
+      ],
+      "needs_a_look": []
+    }
+  ],
+  "generation_failed": [],
+  "skipped": [],
+  "repairs": [],
+  "repair": false,
+  "fallback": false,
+  "gemini_answers": 0,
+  "mutation": [
+    {
+      "function": "get_write_function",
+      "version": "before.py",
+      "found": 2,
+      "cap": 30,
+      "capped": false,
+      "defined": true,
+      "reason": "",
+      "killed": 2,
+      "survived": 0,
+      "equivalent": 0,
+      "timed_out": 0,
+      "could_not_run": 0,
+      "score": 1.0,
+      "operators": [
+        {
+          "operator": "return expr to return None",
+          "outcome": "killed",
+          "killed_by": [
+            "test_get_write_function::test_none_output_writes_to_stderr",
+            "test_get_write_function::test_writable_stream_behaviour",
+            "test_get_write_function::test_path_output_writes_to_file"
+          ]
+        },
+        {
+          "operator": "is None to is not None",
+          "outcome": "killed",
+          "killed_by": [
+            "test_get_write_function::test_none_output_writes_to_stderr",
+            "test_get_write_function::test_writable_stream_behaviour",
+            "test_get_write_function::test_path_output_writes_to_file",
+            "test_get_write_function::test_invalid_output_raises_assertion"
+          ]
+        }
+      ],
+      "operator_totals": [
+        {
+          "operator": "is None to is not None",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        },
+        {
+          "operator": "return expr to return None",
+          "killed": 1,
+          "survived": 0,
+          "equivalent": 0,
+          "timed_out": 0,
+          "could_not_run": 0
+        }
+      ],
+      "tests": [
+        {
+          "test": "test_get_write_function::test_none_output_writes_to_stderr",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_get_write_function::test_writable_stream_behaviour",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_get_write_function::test_path_output_writes_to_file",
+          "kills": 2,
+          "dud": false
+        },
+        {
+          "test": "test_get_write_function::test_invalid_output_raises_assertion",
+          "kills": 1,
+          "dud": false
+        }
+      ],
+      "change_type": "modified"
+    }
+  ],
+  "summary": "1 test points to a real bug in get_write_function."
+}
