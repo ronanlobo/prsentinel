@@ -95,3 +95,26 @@ def summarize(runs: List[Dict[str, Any]]) -> Dict[str, Any]:
         "mean_fraction_catching": mean_fraction_catching,
         "distinct_test_files": len(hashes),
     }
+
+def main():
+    runs = load_all_runs()
+    groups = {}
+    for r in runs:
+        groups.setdefault((r["case"], r["arm"]), []).append(r)
+    print(f"{'case':24} {'arm':11} {'valid':>5} {'caught':>6} {'rate':>5} "
+          f"{'95% Wilson':>13} {'mean frac':>9} {'distinct':>8} {'excl':>4}")
+    for (case, arm), g in sorted(groups.items()):
+        s = summarize(g)
+        if s["valid"] == 0:
+            print(f"{case:24} {arm:11} no valid runs ({s['excluded']} excluded)")
+            continue
+        print(f"{case:24} {arm:11} {s['valid']:>5} {s['caught']:>6} "
+              f"{s['catch_rate']:>5.2f} {s['wilson_lo']:>6.2f}-{s['wilson_hi']:<6.2f} "
+              f"{s['mean_fraction_catching']:>9.2f} {s['distinct_test_files']:>8} "
+              f"{s['excluded']:>4}")
+    print("\nIf distinct = 1 for a group, all valid runs produced the same tests, "
+          "so they are not independent samples.")
+
+
+if __name__ == "__main__":
+    main()
