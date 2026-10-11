@@ -24,3 +24,74 @@ def wilson_interval(k: int, n: int, z: float = 1.96) -> Tuple[float, float]:
     if hi > 1.0:
         hi = 1.0
     return lo, hi
+
+
+def normalize_content(s: str) -> str:
+    # normalize line endings and trailing spaces
+    lines = []
+    for line in s.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        lines.append(line.rstrip())
+    joined = "\n".join(lines)
+    # collapse multiple blank lines
+    while "\n\n\n" in joined:
+        joined = joined.replace("\n\n\n", "\n\n")
+    # remove trailing blank lines
+    joined = joined.rstrip("\n")
+    return joined
+
+
+def content_hash(s: str) -> str:
+    return hashlib.sha256(normalize_content(s).encode("utf-8")).hexdigest()
+
+
+def load_all_runs(base: Path = RESULTS_BASE) -> List[Dict[str, Any]]:
+    runs = []
+    if not base.exists():
+        return runs
+    for json_path in base.rglob("run_*.json"):
+        try:
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+            runs.append(data)
+        except Exception:
+            continue
+    return runs
+
+
+def summarize(runs: List[Dict[str, Any]]) -> Dict[str, Any]:
+    valid = [r for r in runs if not r.get("invalid", False)]
+    excluded = len(runs) - len(valid)
+
+    caught = 0
+    fractions = []
+    hashes = set()
+
+    for r in valid:
+        if r.get("caught_yes_no") is True:
+            caught += 1
+        tg = r.get("tests_generated")
+        tc = r.get("tests_catching")
+        if tg and tg > 0:
+            try:
+                fractions.append(tc / tg if tg > 0 else 0.0)
+            except Exception:
+                pass
+        th = r.get("test_content_hash")
+        if th:
+            hashes.add(th)
+
+    total_valid = len(valid)
+    catch_rate = caught / total_valid if total_valid > 0 else 0.0
+    mean_fraction_catching = sum(fractions) / len(fractions) if fractions else 0.0
+    w_lo, w_hi = wilson_interval(caught, total_valid) if total_valid >= 0 else (0.0, 1.0)
+
+    return {
+        "runs": len(runs),
+        "valid": total_valid,
+        "excluded": excluded,
+        "caught": caught,
+        "catch_rate": catch_rate,
+        "wilson_lo": w_lo,
+        "wilson_hi": w_hi,
+        "mean_fraction_catching": mean_fraction_catching,
+        "distinct_test_files": len(hashes),
+    }
