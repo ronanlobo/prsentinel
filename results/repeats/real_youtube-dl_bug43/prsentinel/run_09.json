@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "prsentinel",
+  "run_index": 9,
+  "timestamp": "2026-10-11T16:44:14.340258+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 21,
+  "tests_catching": 7,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "da264b9b2ea05cffa5113a4a2728031cd06e98538a64147a6a728c18a9e6bcaf",
+  "test_content": "import pytest\nfrom target import url_basename\n\n@pytest.mark.parametrize(\n    \"url,expected\",\n    [\n        # simple cases\n        (\"http://example.com/foo\", \"foo\"),\n        (\"https://example.com/foo\", \"foo\"),\n        (\"http://example.com/foo/\", \"foo\"),\n        (\"http://example.com/foo?bar=1\", \"foo\"),\n        (\"http://example.com/foo#section\", \"foo\"),\n        (\"http://example.com/foo?bar=1#section\", \"foo\"),\n        # multiple path segments \u2013 should return the last segment\n        (\"http://example.com/a/b/c\", \"c\"),\n        (\"http://example.com/a/b/c/\", \"c\"),\n        (\"http://example.com/a/b/c?x=1\", \"c\"),\n        (\"http://example.com/a/b/c#frag\", \"c\"),\n        (\"http://example.com/a/b/c?x=1#frag\", \"c\"),\n        # protocol\u2011relative URLs\n        (\"//example.com/foo\", \"foo\"),\n        (\"//example.com/a/b/c\", \"c\"),\n        # edge cases: empty input, no path, only slash\n        (\"\", \"\"),\n        (\"http://example.com\", \"\"),\n        (\"http://example.com/\", \"\"),\n        # unsupported scheme \u2013 should not match\n        (\"ftp://example.com/foo\", \"\"),\n        # very long path\n        (\n            \"http://example.com/\" + \"/\".join([f\"segment{i}\" for i in range(100)]) + \"/last\",\n            \"last\",\n        ),\n    ],\n)\ndef test_url_basename_expected_output(url, expected):\n    \"\"\"The function should return the basename of the URL path as defined by the old implementation.\"\"\"\n    result = url_basename(url)\n    assert isinstance(result, str)\n    assert result == expected\n\n\ndef test_url_basename_unicode_empty():\n    \"\"\"Empty string input should return an empty Unicode string.\"\"\"\n    assert url_basename(\"\") == u\"\"\n\n\ndef test_url_basename_no_match_returns_empty():\n    \"\"\"Inputs that do not match the pattern should return an empty string.\"\"\"\n    # Missing leading slashes after scheme\n    assert url_basename(\"http:/example.com/foo\") == u\"\"\n    # Missing scheme and slashes\n    assert url_basename(\"example.com/foo\") == u\"\"\n    # Only scheme without host\n    assert url_basename(\"http://\") == u\"\"\n\n\ndef test_url_basename_trailing_characters():\n    \"\"\"Characters after the basename that are not query/fragment should cause no match.\"\"\"\n    # Path followed by extra characters without ? or #\n    assert url_basename(\"http://example.com/foo/bar\") == \"bar\"\n    # Path with extra characters after a slash but before query \u2013 should still capture last segment\n    assert url_basename(\"http://example.com/foo/bar?x=1\") == \"bar\"\n"
+}

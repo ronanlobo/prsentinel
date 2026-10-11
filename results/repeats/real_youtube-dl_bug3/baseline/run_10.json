@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 10,
+  "timestamp": "2026-10-11T16:42:21.442545+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 12,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "0bd4173881e7f3b0e5f104e3853eff24bc992ebd0ba4d156dfc8afb9e3c42ddc",
+  "test_content": "import re\nimport pytest\nfrom target import unescapeHTML, _htmlentity_transform, compat_str\n\n\ndef expected_unescapeHTML(s):\n    \"\"\"Reference implementation using the old regex pattern.\"\"\"\n    if s is None:\n        return None\n    assert type(s) == compat_str\n    return re.sub(r'&([^&;]+;)', lambda m: _htmlentity_transform(m.group(1)), s)\n\n\n@pytest.mark.parametrize(\n    \"input_str\",\n    [\n        None,\n        \"\",\n        \"plain text\",\n        \"Hello &amp; world\",\n        \"&lt;tag&gt;\",\n        \"Mix &amp; &lt; &unknown; &foo&bar; end\",\n        \"Multiple &amp;&lt;&gt; entities\",\n        \"Edge &; case\",\n        \"Invalid &foo&bar; entity\",\n        \"Valid &amp; then invalid &foo&bar; then &lt;\",\n    ],\n)\ndef test_unescapeHTML_behaviour_matches_old(input_str):\n    \"\"\"Ensure the new implementation behaves like the old one for various cases.\"\"\"\n    assert unescapeHTML(input_str) == expected_unescapeHTML(input_str)\n\n\ndef test_invalid_entity_with_amp_inside_is_unchanged():\n    \"\"\"Specific regression test: strings containing '&' inside an entity should remain unchanged.\"\"\"\n    s = \"A &foo&bar; B\"\n    assert unescapeHTML(s) == expected_unescapeHTML(s)\n    # Both should return the original string because the entity is malformed\n    assert unescapeHTML(s) == s\n    assert expected_unescapeHTML(s) == s\n\n\ndef test_valid_and_invalid_entities_mixed():\n    \"\"\"Mixed valid and malformed entities should only transform the valid ones.\"\"\"\n    s = \"Start &amp; middle &foo&bar; end &lt;.\"\n    expected = expected_unescapeHTML(s)\n    result = unescapeHTML(s)\n    assert result == expected\n    # Ensure the malformed part is untouched\n    assert \"&foo&bar;\" in result\n    # Ensure the valid parts are transformed\n    assert \"&amp;\" not in result\n    assert \"&lt;\" not in result\n"
+}

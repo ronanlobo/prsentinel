@@ -1,0 +1,22 @@
+{
+  "case": "real_PySnooper_bug3",
+  "arm": "prsentinel",
+  "run_index": 8,
+  "timestamp": "2026-10-11T16:47:51.053162+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 9,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 4,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "11e59cd4673825445967d6446b2c9f471162593f3ec343e58403c5eaa76e6f04",
+  "test_content": "import sys\nimport io\nimport pathlib\nimport pytest\n\nfrom target import get_write_function, utils\n\n\ndef test_write_none_writes_to_stderr(capsys):\n    write = get_write_function(None)\n    write(\"hello stderr\")\n    captured = capsys.readouterr()\n    assert captured.err == \"hello stderr\"\n\n\ndef test_write_none_empty_string(capsys):\n    write = get_write_function(None)\n    write(\"\")\n    captured = capsys.readouterr()\n    assert captured.err == \"\"\n\n\ndef test_write_writable_stream(monkeypatch):\n    # Make utils.WritableStream accept StringIO for the purpose of the test\n    monkeypatch.setattr(utils, \"WritableStream\", (io.StringIO,))\n    stream = io.StringIO()\n    write = get_write_function(stream)\n    write(\"first\")\n    write(\" second\")\n    assert stream.getvalue() == \"first second\"\n\n\ndef test_write_writable_stream_empty(monkeypatch):\n    monkeypatch.setattr(utils, \"WritableStream\", (io.StringIO,))\n    stream = io.StringIO()\n    write = get_write_function(stream)\n    write(\"\")\n    assert stream.getvalue() == \"\"\n\n\ndef test_write_path_string_raises_name_error(tmp_path):\n    # The new implementation uses an undefined variable `output_path`,\n    # which should raise a NameError when the function is called.\n    file_path = tmp_path / \"out.txt\"\n    write = get_write_function(str(file_path))\n    with pytest.raises(NameError):\n        write(\"data\")\n\n\ndef test_write_pathlike_raises_name_error(tmp_path):\n    file_path = tmp_path / \"out.txt\"\n    write = get_write_function(file_path)  # pathlib.Path is PathLike\n    with pytest.raises(NameError):\n        write(\"data\")\n\n\ndef test_write_multiple_appends_to_file(tmp_path):\n    # This test verifies the intended behavior (append mode) but expects failure\n    # due to the regression. It is kept to illustrate the spec.\n    file_path = tmp_path / \"log.txt\"\n    # Using the string path version which currently raises NameError\n    write = get_write_function(str(file_path))\n    with pytest.raises(NameError):\n        write(\"line1\\n\")\n    # If the bug were fixed, the following would be the correct checks:\n    # write = get_write_function(str(file_path))\n    # write(\"line1\\n\")\n    # write(\"line2\\n\")\n    # content = (tmp_path / \"log.txt\").read_text()\n    # assert content == \"line1\\nline2\\n\"\n\n\ndef test_write_large_string_raises_name_error(tmp_path):\n    large_data = \"x\" * 10_000\n    file_path = tmp_path / \"big.txt\"\n    write = get_write_function(str(file_path))\n    with pytest.raises(NameError):\n        write(large_data)\n\n\ndef test_write_non_string_input_raises_type_error():\n    # Passing a non\u2011string, non\u2011PathLike, non\u2011WritableStream should trigger the assert\n    with pytest.raises(AssertionError):\n        get_write_function(123)( \"test\" )\n"
+}

@@ -1,0 +1,22 @@
+{
+  "case": "real_PySnooper_bug3",
+  "arm": "prsentinel",
+  "run_index": 7,
+  "timestamp": "2026-10-11T16:47:40.353777+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 6,
+  "tests_catching": 3,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "7120c61198aa4475328c2650a889a254977719fe11ac1b008a6e402ba66c60bb",
+  "test_content": "import sys\nimport io\nimport os\nimport pytest\n\nfrom target import get_write_function\n\n\ndef test_none_output_writes_to_stderr(monkeypatch):\n    \"\"\"When output is None the returned writer should write to sys.stderr.\"\"\"\n    fake_stderr = io.StringIO()\n    monkeypatch.setattr(sys, \"stderr\", fake_stderr)\n\n    write = get_write_function(None)\n    write(\"hello\")\n    write(\" world\")\n    assert fake_stderr.getvalue() == \"hello world\"\n\n\ndef test_path_output_writes_to_file(tmp_path):\n    \"\"\"When output is a path string the writer should append to that file.\"\"\"\n    file_path = tmp_path / \"out.txt\"\n    # ensure file exists but is empty\n    file_path.write_text(\"\")\n\n    write = get_write_function(str(file_path))\n    write(\"first line\\n\")\n    write(\"second line\")\n    # read back the file content\n    content = file_path.read_text()\n    assert content == \"first line\\nsecond line\"\n\n\ndef test_path_output_empty_string(tmp_path):\n    \"\"\"Writing an empty string should not modify the file.\"\"\"\n    file_path = tmp_path / \"empty.txt\"\n    file_path.write_text(\"initial\")\n    write = get_write_function(str(file_path))\n    write(\"\")\n    assert file_path.read_text() == \"initial\"\n\n\ndef test_path_output_large_string(tmp_path):\n    \"\"\"Writer should handle a large amount of data.\"\"\"\n    file_path = tmp_path / \"large.txt\"\n    large_data = \"x\" * 10_000  # 10KB of data\n    write = get_write_function(str(file_path))\n    write(large_data)\n    assert file_path.read_text() == large_data\n\n\ndef test_writable_stream():\n    \"\"\"When a custom writable stream is passed, its write method should be used.\"\"\"\n    class DummyStream:\n        def __init__(self):\n            self.buffer = \"\"\n\n        def write(self, s):\n            self.buffer += s\n\n    stream = DummyStream()\n    write = get_write_function(stream)\n    write(\"abc\")\n    write(\"def\")\n    assert stream.buffer == \"abcdef\"\n\n\ndef test_invalid_output_type():\n    \"\"\"Passing an unsupported type should raise an AssertionError.\"\"\"\n    with pytest.raises(AssertionError):\n        get_write_function(123)  # int is not a valid output type\n"
+}

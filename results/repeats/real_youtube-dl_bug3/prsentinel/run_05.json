@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 5,
+  "timestamp": "2026-10-11T16:39:32.934914+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 14,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 2,
+  "tests_odd": 2,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "6c59fe1235045bd9550f439ef2339fe3460f5f0a56924c484fd6b856d34004e3",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        (None, None),                         # None input\n        (\"\", \"\"),                             # Empty string\n        (\"plain text\", \"plain text\"),         # No ampersand\n        (\"&amp;\", \"&\"),                       # Single known entity\n        (\"a &amp; b\", \"a & b\"),               # Single entity in context\n        (\"a &amp; b &lt; c &gt; d\", \"a & b < c > d\"),  # Multiple entities\n        (\"&&amp;\", \"&&amp;\"),                 # Double ampersand should stay unchanged\n        (\"&foo;\", \"&foo;\"),                   # Unknown entity stays unchanged\n        (\"&amp\", \"&amp\"),                     # Missing semicolon stays unchanged\n        (\"&amp;foo;\", \"&amp;foo;\"),           # Entity followed by extra text and semicolon\n        (\"&amp;&lt;\", \"&<&\"),                 # Adjacent entities\n    ],\n)\ndef test_unescapeHTML_basic_cases(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_edge_lengths():\n    # Length zero (empty string)\n    assert unescapeHTML(\"\") == \"\"\n\n    # Length one (single character, not an entity)\n    assert unescapeHTML(\"x\") == \"x\"\n\n    # Length two (possible start of an entity but incomplete)\n    assert unescapeHTML(\"&a\") == \"&a\"\n\n    # Length three (still incomplete)\n    assert unescapeHTML(\"&am\") == \"&am\"\n\n    # Length four (still incomplete, no trailing semicolon)\n    assert unescapeHTML(\"&amp\") == \"&amp\"\n\n    # Length five (complete entity)\n    assert unescapeHTML(\"&amp;\") == \"&\"\n\n    # Longer string with many characters but no entities\n    long_str = \"a\" * 1000\n    assert unescapeHTML(long_str) == long_str\n\n    # Long string with many entities interleaved\n    long_entities = (\"&amp;\" * 250) + (\"&lt;\" * 250)\n    expected = (\"&\" * 250) + (\"<\" * 250)\n    assert unescapeHTML(long_entities) == expected\n\n\ndef test_unescapeHTML_no_regression_on_double_ampersand():\n    # Old implementation would not match the second '&' as part of an entity.\n    # Ensure the new implementation still leaves this pattern unchanged.\n    input_str = \"&&amp; &&lt; &unknown; &amp\"\n    expected = \"&&amp; &&lt; &unknown; &amp\"\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_mixed_content():\n    # Mixed content with valid, unknown, and malformed entities\n    input_str = \"Start &amp; middle &unknown; end &lt\"\n    expected = \"Start & middle &unknown; end &lt\"\n    assert unescapeHTML(input_str) == expected\n"
+}

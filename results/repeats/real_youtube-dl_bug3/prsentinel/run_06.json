@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 6,
+  "timestamp": "2026-10-11T16:39:37.616335+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 14,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "444e5fb71da9bcaf6569822644e9c40e8f9e683c93c103eaf74f1421b2caa5e9",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to compare old and new behavior for a given input\ndef expected_output(input_str):\n    # This mirrors the old implementation's expected behavior using known entities.\n    # For simplicity we rely on the actual function (which should match old behavior).\n    # In a real scenario we might hard\u2011code expected results.\n    return unescapeHTML.__wrapped__(input_str) if hasattr(unescapeHTML, \"__wrapped__\") else unescapeHTML(input_str)\n\n@pytest.mark.parametrize(\n    \"inp,expected\",\n    [\n        (None, None),\n        (\"\", \"\"),\n        (\"Hello World\", \"Hello World\"),\n        (\"Fish &amp; Chips\", \"Fish & Chips\"),\n        (\"&lt;div&gt;\", \"<div>\"),\n        (\"A & B\", \"A & B\"),                     # ampersand without semicolon stays unchanged\n        (\"&unknown;\", \"&unknown;\"),             # unknown entity stays unchanged\n        (\"&amp\", \"&amp\"),                       # missing semicolon stays unchanged\n        (\"&amp;&amp;\", \"&&\"),                    # two known entities\n        (\"&amp;foo;\", \"&foo;\"),                  # old regex only replaces &amp; part\n        (\"&amp;foo; &lt;bar&gt;\", \"&foo; <bar>\"), # mixed case\n    ],\n)\ndef test_unescapeHTML_basic_cases(inp, expected):\n    assert unescapeHTML(inp) == expected\n\n\ndef test_unescapeHTML_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a compat_str (i.e., not a str)\n\n\ndef test_unescapeHTML_edge_cases():\n    # Empty string\n    assert unescapeHTML(\"\") == \"\"\n\n    # String with only an ampersand and semicolon but no entity name\n    assert unescapeHTML(\"&;\") == \"&;\"\n\n    # String with consecutive semicolons\n    assert unescapeHTML(\"&&;;\") == \"&&;;\"\n\n    # Very long string with many entities\n    long_input = (\"&amp;\" * 1000) + (\"&lt;\" * 1000) + (\"&gt;\" * 1000)\n    long_expected = (\"&\" * 1000) + (\"<\" * 1000) + (\">\" * 1000)\n    assert unescapeHTML(long_input) == long_expected\n\n    # String where the new regex could over\u2011match (contains an extra '&' inside)\n    # Old behavior: only '&amp;' is replaced, leaving '&foo;'\n    # New behavior should be identical.\n    assert unescapeHTML(\"&amp;foo;\") == \"&foo;\"\n\n    # Ensure that an entity containing an internal '&' is not mistakenly transformed\n    # e.g., '&amp&;': old regex would stop before the second '&', new regex might match whole.\n    # Expected: no transformation because pattern does not match a valid entity.\n    assert unescapeHTML(\"&amp&;\") == \"&amp&;\"\n\n\ndef test_unescapeHTML_multiple_entities_mixed():\n    inp = \"Start &amp; middle &unknown; end &lt;tag&gt;.\"\n    expected = \"Start & middle &unknown; end <tag>.\"\n    assert unescapeHTML(inp) == expected\n"
+}

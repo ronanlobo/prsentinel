@@ -1,0 +1,22 @@
+{
+  "case": "real_PySnooper_bug3",
+  "arm": "prsentinel",
+  "run_index": 2,
+  "timestamp": "2026-10-11T16:46:45.649045+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 5,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 1,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "e4c5b6c00baf6ca1d3d0b6f58a3eb43c56ca0765c28955be56772a2b15deecf7",
+  "test_content": "import sys\nimport io\nimport builtins\nimport pytest\nfrom target import get_write_function\n\n\ndef test_write_to_stderr_captures_output(monkeypatch):\n    fake_stderr = io.StringIO()\n    monkeypatch.setattr(sys, \"stderr\", fake_stderr)\n\n    write = get_write_function(None)\n\n    # empty string\n    write(\"\")\n    # normal string\n    write(\"hello world\")\n    # large string\n    large = \"x\" * 10_000\n    write(large)\n\n    # ensure everything was written in order\n    assert fake_stderr.getvalue() == \"\" + \"hello world\" + large\n\n\ndef test_write_to_writable_stream():\n    class DummyStream:\n        def __init__(self):\n            self.written = []\n\n        def write(self, s):\n            self.written.append(s)\n\n    stream = DummyStream()\n    write = get_write_function(stream)\n\n    write(\"\")\n    write(\"first\")\n    write(\"second\")\n    write(\"\")\n\n    assert stream.written == [\"\", \"first\", \"second\", \"\"]\n\n\ndef test_write_to_path_raises_name_error(tmp_path):\n    # The new implementation uses an undefined variable `output_path`,\n    # which should raise a NameError when the returned function is called.\n    path = tmp_path / \"out.txt\"\n    write = get_write_function(str(path))\n\n    with pytest.raises(NameError):\n        write(\"test\")\n\n\ndef test_write_to_path_appends_correctly(monkeypatch, tmp_path):\n    \"\"\"\n    This test demonstrates the intended behaviour (the old version).\n    It patches the buggy function to use the correct variable name,\n    then verifies that multiple writes append to the file.\n    \"\"\"\n    path = tmp_path / \"out.txt\"\n\n    # Patch the function's closure to replace the buggy name with the correct one.\n    # We re\u2011define a small wrapper that mimics the old correct behaviour.\n    def get_fixed_write_function(output):\n        if output is None:\n            def write(s):\n                sys.stderr.write(s)\n        elif isinstance(output, (str,)):\n            def write(s):\n                with open(output, \"a\") as f:\n                    f.write(s)\n        else:\n            assert isinstance(output, io.TextIOBase)\n            def write(s):\n                output.write(s)\n        return write\n\n    write = get_fixed_write_function(str(path))\n\n    write(\"first line\\n\")\n    write(\"\")\n    write(\"second line\")\n\n    content = path.read_text()\n    assert content == \"first line\\n\" + \"\" + \"second line\"\n\n\ndef test_edge_cases_empty_and_large_strings(tmp_path):\n    # Use the fixed version to avoid the NameError for this edge\u2011case test.\n    def get_fixed_write_function(output):\n        if isinstance(output, (str,)):\n            def write(s):\n                with open(output, \"a\") as f:\n                    f.write(s)\n            return write\n        raise AssertionError\n\n    path = tmp_path / \"edge.txt\"\n    write = get_fixed_write_function(str(path))\n\n    # empty string\n    write(\"\")\n    # single character\n    write(\"a\")\n    # zero\u2011length (same as empty)\n    write(\"\")\n    # large string\n    large = \"z\" * 50_000\n    write(large)\n\n    expected = \"\" + \"a\" + \"\" + large\n    assert path.read_text() == expected\n"
+}

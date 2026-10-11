@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 5,
+  "timestamp": "2026-10-11T16:45:17.932399+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 27,
+  "tests_catching": 5,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "82fe88f698a24835a27f98d4fa8dc38b01ebdf32ec11f9d4fa4d695e91371b8e",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\ndef old_url_basename(url):\n    \"\"\"Reference implementation using the original regex.\"\"\"\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    if not m:\n        return u''\n    return m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        # simple paths\n        \"http://example.com/file\",\n        \"https://example.com/file\",\n        \"http://example.com/file/\",\n        \"https://example.com/file/\",\n        # with query / fragment\n        \"http://example.com/file?query=1\",\n        \"https://example.com/file#section\",\n        \"http://example.com/file/?query=1\",\n        \"https://example.com/file/#section\",\n        # nested paths\n        \"http://example.com/dir/file\",\n        \"https://example.com/dir/subdir/file\",\n        \"http://example.com/a/b/c/d\",\n        # trailing slash without basename\n        \"http://example.com/dir/\",\n        \"https://example.com/dir/subdir/\",\n        # only domain\n        \"http://example.com/\",\n        \"https://example.com/\",\n        \"http://example.com\",\n        \"https://example.com\",\n        # unusual but allowed characters\n        \"http://example.com/dir.with.dots/file-name_123\",\n        # double slash in path (should still capture last segment)\n        \"http://example.com//double//slash/file\",\n        # scheme omitted (protocol-relative URL)\n        \"//example.com/file\",\n        \"//example.com/dir/file\",\n        # non\u2011http scheme (should not match, return empty)\n        \"ftp://example.com/file\",\n        \"mailto:user@example.com\",\n        # path with query but no basename\n        \"http://example.com/?query=1\",\n        \"https://example.com/#fragment\",\n        # path containing characters that were previously allowed in the optional segment\n        \"http://example.com/dir/with/slash/file\",\n        # path where optional segment contains a slash (old regex allowed, new does not)\n        \"http://example.com/first/second/third\",\n    ],\n)\ndef test_url_basename_behaviour(url):\n    assert url_basename(url) == old_url_basename(url)\n"
+}

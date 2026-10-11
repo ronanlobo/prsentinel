@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 1,
+  "timestamp": "2026-10-11T14:59:38.286663+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 22,
+  "tests_catching": 4,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "a0ffb6f934240121e6dcc1b9b422fa6270e8ce10b40936d300d633a38eb8eaa3",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\ndef old_url_basename(url):\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    if not m:\n        return u''\n    return m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        # simple paths\n        \"http://example.com/file\",\n        \"https://example.com/file/\",\n        \"http://example.com/dir/file.html\",\n        \"https://example.com/dir/subdir/file.txt\",\n        # with query\n        \"http://example.com/file?query=1\",\n        \"https://example.com/dir/file.html?foo=bar&baz=qux\",\n        # with fragment\n        \"http://example.com/file#section\",\n        \"https://example.com/dir/file.html#anchor\",\n        # with both query and fragment\n        \"http://example.com/dir/file.html?x=1#y\",\n        # trailing slash after basename\n        \"http://example.com/dir/\",\n        \"https://example.com/dir/subdir/\",\n        # root only (no basename)\n        \"http://example.com/\",\n        \"https://example.com\",\n        # non\u2011http scheme (should not match)\n        \"ftp://example.com/file\",\n        \"mailto:user@example.com\",\n        # multiple path components to test optional segment handling\n        \"http://example.com/a/b/c\",\n        \"https://example.com/one/two/three/four\",\n        # path component containing dots and hyphens\n        \"http://example.com/.hidden/file-name.ext\",\n        # path component with URL\u2011encoded characters\n        \"http://example.com/%E6%BC%A2%E5%AD%97/file\",\n        # double slash after domain\n        \"http://example.com//double/slash\",\n        # path with question mark inside a segment (should stop matching)\n        \"http://example.com/segment?notpartofpath\",\n        # path with hash inside a segment (should stop matching)\n        \"http://example.com/segment#notpartofpath\",\n    ],\n)\ndef test_url_basename_behaviour(url):\n    assert url_basename(url) == old_url_basename(url)\n"
+}

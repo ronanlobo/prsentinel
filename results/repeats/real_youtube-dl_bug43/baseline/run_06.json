@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 6,
+  "timestamp": "2026-10-11T16:45:33.750522+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 15,
+  "tests_catching": 3,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "b7cbc4bded57595282a8a3f2142b43446629222d7ff0fc8734c7f98219fef740",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\n# Reference implementation using the old regex\ndef old_url_basename(url):\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    if not m:\n        return u''\n    return m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        \"http://example.com/foo/bar\",\n        \"https://example.com/foo/\",\n        \"//example.com/foo/bar?query=1\",\n        \"http://example.com/foo/bar#section\",\n        \"http://example.com/foo/bar/\",\n        \"http://example.com/foo\",\n        \"http://example.com/\",\n        \"http://example.com\",\n        \"ftp://example.com/foo\",\n        \"http://example.com/a/b/c\",\n        \"https://sub.domain.co.uk/path/to/resource?arg=val#frag\",\n        \"http://127.0.0.1:8080/dir/file.txt\",\n        \"http://[2001:db8::1]/ipv6/path\",\n        \"http://example.com//double/slash\",\n        \"http://example.com/mixed?query=1#frag\",\n    ],\n)\ndef test_url_basename_matches_old_behavior(url):\n    assert url_basename(url) == old_url_basename(url)\n"
+}

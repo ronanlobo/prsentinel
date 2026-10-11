@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 7,
+  "timestamp": "2026-10-11T16:39:49.640913+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 16,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "6854e1944df4a88b62429c5d1cd5b2579b5f131ea24668a027fdf694d52be8cc",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to assert that the output length matches expectation (no hidden changes)\ndef assert_length_unchanged(input_str, output_str):\n    # For inputs without entities, length should be unchanged\n    if '&' not in input_str or ';' not in input_str:\n        assert len(output_str) == len(input_str)\n\n@pytest.mark.parametrize(\n    \"inp,expected\",\n    [\n        (None, None),\n        (\"\", \"\"),\n        (\"Hello World\", \"Hello World\"),\n        (\"Fish & Chips\", \"Fish & Chips\"),\n        (\"&amp;\", \"&\"),\n        (\"&lt;\", \"<\"),\n        (\"&gt;\", \">\"),\n        (\"a &lt; b &amp; c\", \"a < b & c\"),\n        (\"&quot;Hello&quot;\", '\"Hello\"'),\n        (\"&apos;test&apos;\", \"'test'\"),\n    ],\n)\ndef test_unescape_basic_cases(inp, expected):\n    assert unescapeHTML(inp) == expected\n    if isinstance(inp, str):\n        assert_length_unchanged(inp, unescapeHTML(inp))\n\ndef test_invalid_type_raises():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a compat_str\n\ndef test_entity_like_with_extra_ampersand_is_unchanged():\n    # Old implementation would not match because of the extra '&' inside the entity name\n    # New implementation must preserve this behavior\n    s = \"&foo&bar;\"\n    assert unescapeHTML(s) == s\n\ndef test_multiple_consecutive_entities():\n    s = \"&amp;&lt;&gt;&quot;&apos;\"\n    expected = \"&<>\\\"'\"\n    assert unescapeHTML(s) == expected\n\ndef test_entity_without_semicolon_is_unchanged():\n    s = \"&amp without semicolon\"\n    assert unescapeHTML(s) == s\n\ndef test_entity_with_internal_semicolon_is_handled_correctly():\n    # Only the first semicolon should terminate the entity\n    s = \"&amp;foo;bar;\"\n    # Old regex stops at the first ';' after '&amp;'\n    # So only '&amp;' is transformed, rest stays as is\n    expected = \"&foo;bar;\"\n    assert unescapeHTML(s) == expected\n\ndef test_long_string_performance_and_correctness():\n    # Build a long string with many entities and normal text\n    parts = [\"&amp;\", \"Hello\", \"&lt;\", \"World\", \"&gt;\", \"!\", \"&quot;\", \"Test\", \"&apos;\"]\n    s = \" \".join(parts * 100)  # repeat to increase size\n    # Expected transformation using the same logic as old implementation\n    expected = \" \".join(\n        [\"&\", \"Hello\", \"<\", \"World\", \">\", \"!\", '\"', \"Test\", \"'\"] * 100\n    )\n    assert unescapeHTML(s) == expected\n"
+}

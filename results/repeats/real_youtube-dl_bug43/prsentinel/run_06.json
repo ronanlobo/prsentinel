@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "prsentinel",
+  "run_index": 6,
+  "timestamp": "2026-10-11T16:43:31.923639+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 22,
+  "tests_catching": 6,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "1b6e36803b8c9c4e686ec4760a4efe2ae45b92a7f71be1dc0cf75e5f64d9cf91",
+  "test_content": "import pytest\nfrom target import url_basename\n\n# Expected behavior based on the OLD implementation\n@pytest.mark.parametrize(\n    \"url,expected\",\n    [\n        # Simple cases\n        (\"http://example.com/foo\", \"foo\"),\n        (\"https://example.com/foo\", \"foo\"),\n        (\"http://example.com/foo/\", \"foo\"),\n        (\"http://example.com/foo?bar=baz\", \"foo\"),\n        (\"http://example.com/foo#section\", \"foo\"),\n        (\"http://example.com/foo/?bar=baz\", \"foo\"),\n        (\"http://example.com/foo/#section\", \"foo\"),\n        # Multiple path segments \u2013 should return the last segment\n        (\"http://example.com/a/b/c\", \"c\"),\n        (\"https://example.com/one/two/three/\", \"three\"),\n        (\"http://example.com/one/two/three?x=1\", \"three\"),\n        (\"http://example.com/one/two/three#frag\", \"three\"),\n        # Empty input\n        (\"\", \"\"),\n        # No path after domain\n        (\"http://example.com\", \"\"),\n        (\"https://example.com/\", \"\"),\n        # Path that ends with a slash but has no basename\n        (\"http://example.com//\", \"\"),\n        # Path with only query/fragment after domain\n        (\"http://example.com?query=1\", \"\"),\n        (\"http://example.com#frag\", \"\"),\n        # URL with port number\n        (\"http://example.com:8080/foo\", \"foo\"),\n        # URL with userinfo\n        (\"http://user:pass@example.com/foo\", \"foo\"),\n        # URL with IPv6 host\n        (\"http://[2001:db8::1]/foo\", \"foo\"),\n    ],\n)\ndef test_url_basename_expected_behavior(url, expected):\n    assert url_basename(url) == expected\n\n\ndef test_regression_multiple_segments():\n    \"\"\"\n    The change introduced a stricter regex that may fail on URLs with\n    more than two path segments. This test ensures the function still\n    returns the last segment for such URLs.\n    \"\"\"\n    url = \"http://example.com/segment1/segment2/segment3\"\n    assert url_basename(url) == \"segment3\"\n\n\ndef test_edge_cases():\n    # Zero-length string\n    assert url_basename(\"\") == \"\"\n\n    # Single slash after domain (no basename)\n    assert url_basename(\"http://example.com/\") == \"\"\n\n    # Trailing slash after basename\n    assert url_basename(\"http://example.com/basename/\") == \"basename\"\n\n    # Query string without basename\n    assert url_basename(\"http://example.com/?q=1\") == \"\"\n\n    # Fragment without basename\n    assert url_basename(\"http://example.com/#frag\") == \"\"\n\n    # Path containing characters that were previously allowed in the optional segment\n    # (e.g., additional slashes). The function should still capture the final segment.\n    assert url_basename(\"http://example.com/a/b/c/d\") == \"d\"\n"
+}

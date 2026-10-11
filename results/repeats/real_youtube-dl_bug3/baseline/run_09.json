@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 9,
+  "timestamp": "2026-10-11T16:42:11.882348+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 9,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "f51f95e3ce30eb626c53068962cfabf00a4acb7ada3eaff9cebe64980aa2cca7",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        # Normal entities should be unescaped\n        (\"Fish &amp; Chips\", \"Fish & Chips\"),\n        (\"A &lt; B &gt; C\", \"A < B > C\"),\n        (\"&quot;Hello&quot;\", '\"Hello\"'),\n        # Multiple correct entities\n        (\"&lt;div&gt;Hello &amp; welcome&lt;/div&gt;\", \"<div>Hello & welcome</div>\"),\n        # Entities with an extra '&' inside should remain unchanged (old behavior)\n        (\"Bad &foo&bar; test\", \"Bad &foo&bar; test\"),\n        (\"Mix &amp; &bad&entity; end\", \"Mix & &bad&entity; end\"),\n        # Entity that ends with ';' but contains '&' before it should not be transformed\n        (\"Edge case &abc&def; here\", \"Edge case &abc&def; here\"),\n    ],\n)\ndef test_unescapeHTML_behaviour(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_none():\n    assert unescapeHTML(None) is None\n\n\ndef test_unescapeHTML_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a string\n"
+}

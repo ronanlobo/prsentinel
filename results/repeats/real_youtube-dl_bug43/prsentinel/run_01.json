@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "prsentinel",
+  "run_index": 1,
+  "timestamp": "2026-10-11T14:59:33.040391+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 30,
+  "tests_catching": 4,
+  "tests_wrong_on_before": 1,
+  "tests_odd": 1,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "478491acb26e70574e315b6f908e680e1f9d8b78fa72a310825d19ca9a9fb6b1",
+  "test_content": "import pytest\nfrom target import url_basename\n\n@pytest.mark.parametrize(\n    \"url,expected\",\n    [\n        # simple paths\n        (\"http://example.com/foo\", \"foo\"),\n        (\"https://example.com/foo\", \"foo\"),\n        (\"http://example.com/foo/\", \"foo\"),\n        (\"http://example.com/foo/bar\", \"bar\"),\n        (\"http://example.com/foo/bar/\", \"bar\"),\n        (\"http://example.com/foo/bar?query=1\", \"bar\"),\n        (\"http://example.com/foo/bar#section\", \"bar\"),\n        (\"http://example.com/foo/bar/?query=1\", \"bar\"),\n        (\"http://example.com/foo/bar/#section\", \"bar\"),\n        # multiple segments\n        (\"http://example.com/a/b/c/d\", \"d\"),\n        (\"http://example.com/a/b/c/d/\", \"d\"),\n        (\"http://example.com/a/b/c/d?x=1\", \"d\"),\n        (\"http://example.com/a/b/c/d#frag\", \"d\"),\n        # path with dot\u2011segments\n        (\"http://example.com/../a\", \"a\"),\n        (\"http://example.com/./a\", \"a\"),\n        # encoded characters (slash encoded as %2F should be treated as normal char)\n        (\"http://example.com/foo%2Fbar/baz\", \"baz\"),\n        # uppercase scheme\n        (\"HTTPS://EXAMPLE.COM/UPPER/CASE\", \"CASE\"),\n    ],\n)\ndef test_url_basename_basic(url, expected):\n    assert url_basename(url) == expected\n\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        \"\",                     # empty string\n        \"http://\",              # incomplete URL\n        \"example.com\",          # missing scheme and slashes\n        \"http://example.com\",   # no trailing slash after domain\n        \"http://example.com/\",  # only domain with trailing slash\n        \"http://example.com?x=1\",   # query without path\n        \"http://example.com#frag\",  # fragment without path\n        \"http:///foo\",          # malformed (missing host)\n        \"://example.com/foo\",   # missing scheme\n        \"http://example.com//foo\",  # double slash in path (no segment before)\n    ],\n)\ndef test_url_basename_no_match(url):\n    # The function should return an empty Unicode string when the pattern does not match\n    result = url_basename(url)\n    assert isinstance(result, str)\n    assert result == \"\"\n\n\ndef test_url_basename_type_and_unicode():\n    # Ensure the return type is a Unicode string (str in Python 3) even for empty result\n    assert isinstance(url_basename(\"http://example.com/foo\"), str)\n    assert isinstance(url_basename(\"\"), str)\n    assert url_basename(\"\") == \"\"\n\n\ndef test_url_basename_invalid_input():\n    # Passing a non\u2011string (e.g., None) should raise a TypeError from re.match\n    with pytest.raises(TypeError):\n        url_basename(None)\n\n\ndef test_url_basename_preserves_old_behavior_for_complex_paths():\n    # URLs where the segment before the basename contains characters that could be a slash\n    # (e.g., encoded slash). The old regex allowed any char except ? or #, the new one\n    # disallows literal '/', but encoded '/' (%2F) is still allowed.\n    url = \"http://example.com/part%2Fwith%2Fslashes/last\"\n    assert url_basename(url) == \"last\"\n\n    # Ensure that a literal slash inside the preceding segment (which is not a valid URL)\n    # still results in no match, matching the old behaviour.\n    url_invalid = \"http://example.com/part/with/slash/last\"\n    # Both old and new regex should return empty because the pattern expects only one\n    # optional segment before the captured basename.\n    assert url_basename(url_invalid) == \"\"\n"
+}

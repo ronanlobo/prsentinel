@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 3,
+  "timestamp": "2026-10-11T16:41:06.822922+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 8,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "7ea3d2f5f94799b253010113df5dadd3643e81f3d2e72a52763e737ec2831741",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\ndef test_none_returns_none():\n    assert unescapeHTML(None) is None\n\ndef test_non_string_raises_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)\n\n@pytest.mark.parametrize(\n    \"input_str, expected\",\n    [\n        (\"&amp;\", \"&\"),\n        (\"&lt;div&gt;\", \"<div>\"),\n        (\"Hello &quot;world&quot;!\", 'Hello \"world\"!'),\n        (\"No entities here\", \"No entities here\"),\n    ],\n)\ndef test_simple_entities(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\ndef test_unknown_entity_with_internal_ampersand_is_unchanged():\n    # Old implementation would not match this pattern because of the internal '&'\n    # New implementation must also leave it unchanged.\n    s = \"This is &unknown&entity; test\"\n    assert unescapeHTML(s) == s\n\ndef test_mixed_entities_and_unknown_with_internal_ampersand():\n    # Only the valid entities should be transformed; the unknown one with an internal '&' stays as\u2011is.\n    s = \"Start &amp; middle &unknown&entity; end &lt;tag&gt;.\"\n    expected = \"Start & middle &unknown&entity; end <tag>.\"\n    assert unescapeHTML(s) == expected\n"
+}

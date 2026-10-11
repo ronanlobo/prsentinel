@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "prsentinel",
+  "run_index": 8,
+  "timestamp": "2026-10-11T16:43:54.750899+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 36,
+  "tests_catching": 6,
+  "tests_wrong_on_before": 3,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "00ec4a687c36fa3ea570790977d00268f149fbab37de13da97a8d5e4abdd25c9",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\n@pytest.mark.parametrize(\n    \"url,expected\",\n    [\n        # Empty input\n        (\"\", u\"\"),\n        # Only scheme and domain, no path\n        (\"http://example.com\", u\"\"),\n        (\"https://example.com\", u\"\"),\n        (\"//example.com\", u\"\"),\n        # Domain with trailing slash\n        (\"http://example.com/\", u\"\"),\n        (\"https://example.com/\", u\"\"),\n        (\"//example.com/\", u\"\"),\n        # Single path segment\n        (\"http://example.com/foo\", u\"foo\"),\n        (\"https://example.com/foo\", u\"foo\"),\n        (\"//example.com/foo\", u\"foo\"),\n        # Single path segment with trailing slash\n        (\"http://example.com/foo/\", u\"foo\"),\n        (\"https://example.com/foo/\", u\"foo\"),\n        (\"//example.com/foo/\", u\"foo\"),\n        # Single path segment with query\n        (\"http://example.com/foo?bar=baz\", u\"foo\"),\n        (\"https://example.com/foo?bar=baz\", u\"foo\"),\n        (\"//example.com/foo?bar=baz\", u\"foo\"),\n        # Single path segment with fragment\n        (\"http://example.com/foo#section\", u\"foo\"),\n        (\"https://example.com/foo#section\", u\"foo\"),\n        (\"//example.com/foo#section\", u\"foo\"),\n        # Two path segments\n        (\"http://example.com/a/b\", u\"b\"),\n        (\"https://example.com/a/b\", u\"b\"),\n        (\"//example.com/a/b\", u\"b\"),\n        # Two path segments with trailing slash\n        (\"http://example.com/a/b/\", u\"b\"),\n        # Two path segments with query\n        (\"http://example.com/a/b?x=1\", u\"b\"),\n        # Two path segments with fragment\n        (\"http://example.com/a/b#frag\", u\"b\"),\n        # Three path segments \u2013 old behavior returns the last segment\n        (\"http://example.com/a/b/c\", u\"c\"),\n        (\"https://example.com/a/b/c\", u\"c\"),\n        (\"//example.com/a/b/c\", u\"c\"),\n        # Three path segments with trailing slash\n        (\"http://example.com/a/b/c/\", u\"c\"),\n        # Three path segments with query\n        (\"http://example.com/a/b/c?x=1\", u\"c\"),\n        # Three path segments with fragment\n        (\"http://example.com/a/b/c#frag\", u\"c\"),\n        # Path containing characters that could be confused with delimiters\n        (\"http://example.com/a?b/c\", u\"a?b\"),\n        (\"http://example.com/a#b/c\", u\"a#b\"),\n        # Non\u2011URL strings should return empty\n        (\"justastring\", u\"\"),\n        (\"ftp://example.com/file\", u\"\"),\n    ],\n)\ndef test_url_basename_behaviour(url, expected):\n    \"\"\"Ensure url_basename matches the original specification.\"\"\"\n    assert url_basename(url) == expected\n\n\ndef test_regex_edge_cases():\n    \"\"\"Additional checks for edge\u2011case handling.\"\"\"\n    # Very long path \u2013 should still return the last segment\n    long_path = \"http://example.com/\" + \"/\".join([f\"seg{i}\" for i in range(100)]) + \"/last\"\n    assert url_basename(long_path) == \"last\"\n\n    # Path segment of zero length (double slash) \u2013 should be ignored and return next segment\n    assert url_basename(\"http://example.com//foo\") == \"foo\"\n\n    # URL with only scheme and double slash but no domain \u2013 should return empty\n    assert url_basename(\"http:////\") == u\"\"\n\n    # URL with unusual but valid characters in the basename\n    assert url_basename(\"http://example.com/!$&'()*+,;=:@\") == \"!$&'()*+,;=:@\"\n"
+}

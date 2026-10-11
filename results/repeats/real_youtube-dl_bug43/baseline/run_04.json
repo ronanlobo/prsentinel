@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 4,
+  "timestamp": "2026-10-11T16:45:03.620323+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 27,
+  "tests_catching": 6,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "268567e763ade2448d89c5a9569597673f19c702572529706ce2bf82159b507d",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\n# Old implementation regex (the reference behavior)\n_OLD_REGEX = re.compile(\n    r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)'\n)\n\ndef _old_url_basename(url: str) -> str:\n    m = _OLD_REGEX.match(url)\n    return '' if not m else m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        # Simple paths\n        \"http://example.com/foo\",\n        \"http://example.com/foo/\",\n        \"http://example.com/foo?x=1\",\n        \"http://example.com/foo#frag\",\n        \"https://example.com/foo/bar\",\n        \"https://example.com/foo/bar/\",\n        \"https://example.com/foo/bar?x=1\",\n        \"https://example.com/foo/bar#frag\",\n        \"http://example.com/a/b/c\",\n        \"http://example.com/a/b/c?x=1\",\n        \"http://example.com/a/b/c#section\",\n        # Multiple segments before the basename\n        \"http://example.com/one/two/three/four\",\n        \"http://example.com/one/two/three/four?query=val\",\n        \"http://example.com/one/two/three/four#hash\",\n        # Trailing slash after basename\n        \"http://example.com/foo/bar/\",\n        \"http://example.com/foo/bar/?x=1\",\n        # No path (should return empty string)\n        \"http://example.com\",\n        \"http://example.com/\",\n        \"http://example.com?x=1\",\n        \"http://example.com#frag\",\n        # Scheme\u2011less URLs\n        \"//example.com/foo/bar\",\n        \"//example.com/foo/bar?x=1\",\n        \"//example.com/foo/bar#frag\",\n        # Non\u2011http scheme (should not match, return empty)\n        \"ftp://example.com/foo/bar\",\n        \"mailto:user@example.com\",\n        # Edge cases with unusual characters\n        \"http://example.com/!$&'()*+,;=:@/basename\",\n        \"http://example.com/space%20in%20path/basename\",\n    ],\n)\ndef test_url_basename_behaviour_matches_old_implementation(url):\n    assert url_basename(url) == _old_url_basename(url)\n"
+}

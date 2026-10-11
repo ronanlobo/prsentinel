@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 1,
+  "timestamp": "2026-10-11T16:39:10.057740+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 10,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "7da4fde77436649dea9cc002234d0fc69ec388e210199b262c3d999bd5a33cc2",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to compare expected old behavior for complex cases\ndef old_unescape_html(s):\n    \"\"\"Replicates the old regex behavior for comparison.\"\"\"\n    import re\n    from target import _htmlentity_transform  # assume internal helper is importable\n    if s is None:\n        return None\n    return re.sub(r'&([^&;]+;)', lambda m: _htmlentity_transform(m.group(1)), s)\n\n\ndef test_none_input():\n    assert unescapeHTML(None) is None\n\n\ndef test_empty_string():\n    assert unescapeHTML(\"\") == \"\"\n\n\ndef test_basic_entities():\n    # common HTML entities\n    assert unescapeHTML(\"&amp;\") == \"&\"\n    assert unescapeHTML(\"&lt;\") == \"<\"\n    assert unescapeHTML(\"&gt;\") == \">\"\n    assert unescapeHTML(\"&quot;\") == '\"'\n    assert unescapeHTML(\"A &amp; B &lt; C\") == \"A & B < C\"\n\n\ndef test_multiple_entities():\n    assert unescapeHTML(\"&amp;&lt;&gt;\") == \"&<>\"\n    assert unescapeHTML(\"Start &amp; middle &lt; end &gt;\") == \"Start & middle < end >\"\n\n\ndef test_no_entity_ampersand():\n    # Ampersand not part of an entity should stay unchanged\n    assert unescapeHTML(\"Fish & Chips\") == \"Fish & Chips\"\n    assert unescapeHTML(\"&&&&\") == \"&&&&\"\n\n\ndef test_malformed_entity_missing_semicolon():\n    # Missing terminating ';' should not be transformed\n    assert unescapeHTML(\"&amp\") == \"&amp\"\n    assert unescapeHTML(\"Hello &world\") == \"Hello &world\"\n\n\ndef test_entity_followed_by_extra_text():\n    # Old behavior only transforms the entity, not the trailing text\n    # Example that could be affected by the regex change\n    input_str = \"&amp;foo;\"\n    expected = \"&foo;\"  # old regex transforms only '&amp;'\n    assert unescapeHTML(input_str) == expected\n    # Ensure the new implementation still matches the old behavior\n    assert unescapeHTML(input_str) == old_unescape_html(input_str)\n\n\ndef test_entity_with_internal_ampersand():\n    # String where an ampersand appears inside what looks like an entity\n    # Old regex would stop before the internal '&', new regex might over\u2011match\n    input_str = \"&amp;&unknown;test\"\n    # Expected: only '&amp;' is transformed, '&unknown;' stays as is (assuming unknown stays unchanged)\n    expected = \"&&unknown;test\"\n    assert unescapeHTML(input_str) == expected\n    assert unescapeHTML(input_str) == old_unescape_html(input_str)\n\n\ndef test_non_string_input():\n    # The function asserts the type is compat_str (i.e., str); other types should raise AssertionError\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)\n    with pytest.raises(AssertionError):\n        unescapeHTML(b\"bytes\")\n\n\ndef test_large_input():\n    # Stress test with a long string containing many entities\n    base = \"&amp; &lt; &gt; &quot; \" * 1000\n    expected = (\"& < > \\\" \" * 1000).strip()\n    assert unescapeHTML(base).strip() == expected\n"
+}

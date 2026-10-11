@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "prsentinel",
+  "run_index": 4,
+  "timestamp": "2026-10-11T16:43:04.244395+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 25,
+  "tests_catching": 5,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "af263fc6477b09c7a0a6f96c95e5d2f8a62a9e77a50d88930802254bbef44351",
+  "test_content": "import pytest\nfrom target import url_basename\n\n@pytest.mark.parametrize(\n    \"url,expected\",\n    [\n        # Empty input\n        (\"\", \"\"),\n        # No scheme, just domain\n        (\"example.com\", \"\"),\n        # Scheme without path\n        (\"http://example.com\", \"\"),\n        (\"https://example.com\", \"\"),\n        # Scheme-less URL with domain and path\n        (\"//example.com/foo\", \"foo\"),\n        # Single path segment\n        (\"http://example.com/foo\", \"foo\"),\n        (\"https://example.com/foo\", \"foo\"),\n        # Single path segment with trailing slash\n        (\"http://example.com/foo/\", \"foo\"),\n        # Single path segment with query\n        (\"http://example.com/foo?bar=baz\", \"foo\"),\n        # Single path segment with fragment\n        (\"http://example.com/foo#section\", \"foo\"),\n        # Two path segments\n        (\"http://example.com/a/b\", \"b\"),\n        (\"http://example.com/a/b/\", \"b\"),\n        (\"http://example.com/a/b?x=1\", \"b\"),\n        (\"http://example.com/a/b#frag\", \"b\"),\n        # Multiple path segments (old regex should capture the last one)\n        (\"http://example.com/a/b/c\", \"c\"),\n        (\"http://example.com/a/b/c/\", \"c\"),\n        (\"http://example.com/a/b/c?x=1\", \"c\"),\n        (\"http://example.com/a/b/c#frag\", \"c\"),\n        # Path segments containing dots and hyphens\n        (\"http://example.com/v1.2-beta/alpha-3\", \"alpha-3\"),\n        # URL with port number\n        (\"http://example.com:8080/path\", \"path\"),\n        # URL with userinfo\n        (\"http://user:pass@example.com/path\", \"path\"),\n        # URL with unusual but valid characters in path\n        (\"http://example.com/%E2%9C%93/\u2713\", \"\u2713\"),\n        # URL with encoded query characters in path\n        (\"http://example.com/a%2Fb/c\", \"c\"),\n    ],\n)\ndef test_url_basename_expected_behavior(url, expected):\n    \"\"\"Ensure url_basename returns the expected basename for a variety of URLs.\"\"\"\n    assert url_basename(url) == expected\n\n\ndef test_url_basename_non_string_input():\n    \"\"\"Non\u2011string inputs should raise a TypeError (the original implementation expects a string).\"\"\"\n    with pytest.raises(TypeError):\n        url_basename(None)  # type: ignore[arg-type]\n    with pytest.raises(TypeError):\n        url_basename(123)   # type: ignore[arg-type]\n\n\ndef test_url_basename_preserves_original_regex_logic():\n    \"\"\"\n    Specifically test that URLs with more than two path segments still return the\n    last segment, as the original regex allowed the optional part to consume\n    slashes. This guards against the regression introduced by the pattern change.\n    \"\"\"\n    url = \"http://example.com/first/second/third/fourth\"\n    # Expected according to the original behaviour: the last segment 'fourth'\n    assert url_basename(url) == \"fourth\"\n"
+}

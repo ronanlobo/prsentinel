@@ -1,0 +1,22 @@
+{
+  "case": "real_PySnooper_bug3",
+  "arm": "baseline",
+  "run_index": 2,
+  "timestamp": "2026-10-11T16:48:30.147775+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 4,
+  "tests_catching": 2,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "8075406448873c67dd96cbd7d473b61a5c5277092328026a78aeee64cc24ad4b",
+  "test_content": "import sys\nimport io\nimport pathlib\n\nimport pytest\nfrom target import get_write_function\n\n\ndef test_none_output_writes_to_stderr(capsys):\n    write = get_write_function(None)\n    write(\"stderr message\")\n    captured = capsys.readouterr()\n    assert captured.err == \"stderr message\"\n\n\ndef test_path_string_output_writes_to_file(tmp_path):\n    file_path = tmp_path / \"output.txt\"\n    write = get_write_function(str(file_path))\n    write(\"file content\")\n    assert file_path.read_text() == \"file content\"\n\n\ndef test_pathlib_path_output_writes_to_file(tmp_path):\n    file_path = tmp_path / \"output2.txt\"\n    write = get_write_function(file_path)  # pathlib.Path instance\n    write(\"another content\")\n    assert file_path.read_text() == \"another content\"\n\n\ndef test_writable_stream_output():\n    stream = io.StringIO()\n    write = get_write_function(stream)\n    write(\"stream data\")\n    assert stream.getvalue() == \"stream data\"\n"
+}

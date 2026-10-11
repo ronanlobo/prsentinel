@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 4,
+  "timestamp": "2026-10-11T16:41:16.002622+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 11,
+  "tests_catching": 1,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "d147c526a4fd842300e2e24ec7b5e10d3cd6fc2de21cf66d219e44c43347f90c",
+  "test_content": "import re\nimport pytest\nfrom target import unescapeHTML\n\n# Helper that mimics the old implementation\ndef expected_unescapeHTML(s):\n    if s is None:\n        return None\n    assert type(s) == str  # compat_str is str in Python 3\n    return re.sub(r'&([^&;]+;)', lambda m: _htmlentity_transform(m.group(1)), s)\n\n# Dummy placeholder for the internal transform used by the original code.\n# In real tests this should be imported from the same module as unescapeHTML.\n# Here we re\u2011define a minimal version that handles a few common entities.\ndef _htmlentity_transform(entity):\n    mapping = {\n        \"amp;\": \"&\",\n        \"lt;\": \"<\",\n        \"gt;\": \">\",\n        \"quot;\": '\"',\n        \"apos;\": \"'\",\n    }\n    return mapping.get(entity, f\"&{entity}\")\n\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        (None, None),\n        (\"\", \"\"),\n        (\"plain text\", \"plain text\"),\n        (\"&amp;\", \"&\"),\n        (\"a &amp; b &lt; c\", \"a & b < c\"),\n        (\"&unknown;\", \"&unknown;\"),  # unknown entity stays unchanged\n        (\"&foo&bar;\", \"&foo&bar;\"),   # invalid entity should not be transformed\n        (\"&&amp;;\", \"&&;\"),           # edge case with leading &\n        (\"&amp;&lt;\", \"&<\"),          # consecutive entities\n    ],\n)\ndef test_unescapeHTML_behaviour(input_str, expected):\n    # Compare the actual function to the expected old behaviour\n    assert unescapeHTML(input_str) == expected\n\ndef test_invalid_type_raises():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)\n\ndef test_consistency_with_old_implementation():\n    # Randomly generated strings to compare both implementations\n    samples = [\n        \"Hello &amp; world\",\n        \"Mix &lt; &unknown; &amp; &foo&bar;\",\n        \"&&&&\",\n        \"&amp; &amp; &amp;\",\n        \"No entities here\",\n        \"&foo; &bar; &baz;\",\n        \"Edge &; case\",\n    ]\n    for s in samples:\n        assert unescapeHTML(s) == expected_unescapeHTML(s)\n"
+}

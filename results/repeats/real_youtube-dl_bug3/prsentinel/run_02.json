@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 2,
+  "timestamp": "2026-10-11T16:39:15.216210+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 16,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 3,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "c6a4347ca219976fbd7107176ae1ae105c94006d1c222f35a701102a614f76b1",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to compare expected output for known HTML entities\nKNOWN_ENTITIES = {\n    \"&amp;\": \"&\",\n    \"&lt;\": \"<\",\n    \"&gt;\": \">\",\n    \"&quot;\": '\"',\n    \"&#39;\": \"'\",\n    \"&nbsp;\": \"\\xa0\",\n}\n\n@pytest.mark.parametrize(\n    \"inp,expected\",\n    [\n        # None handling\n        (None, None),\n        # Empty string\n        (\"\", \"\"),\n        # No entities\n        (\"plain text\", \"plain text\"),\n        # Single known entity\n        (\"&amp;\", \"&\"),\n        (\"Hello &lt;world&gt;!\", \"Hello <world>!\"),\n        # Multiple known entities\n        (\"&amp;&lt;&gt;\", \"&<>\"),\n        # Mixed known and unknown entities (unknown should stay unchanged)\n        (\"&amp; &unknown; &lt;\", \"& &unknown; <\"),\n        # Entity with numeric code\n        (\"&#39;\", \"'\"),\n        # Entity with surrounding text\n        (\"Start&nbsp;Middle&copy;End\", \"Start\\xa0Middle&copy;End\"),\n        # Malformed entity (no terminating ';')\n        (\"&amp\", \"&amp\"),\n        # Entity with extra ampersand inside (should remain unchanged)\n        (\"&a&b;\", \"&a&b;\"),\n        # Ampersand not part of entity\n        (\"Fish & Chips\", \"Fish & Chips\"),\n        # Consecutive ampersands\n        (\"&&amp;;\", \"&&&;\"),\n    ],\n)\ndef test_unescapeHTML_behaviour(inp, expected):\n    assert unescapeHTML(inp) == expected\n\n\ndef test_unescapeHTML_type_assertion():\n    # Should raise AssertionError for non\u2011string types (excluding None)\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # int is not compat_str\n    with pytest.raises(AssertionError):\n        unescapeHTML(b\"bytes\")  # bytes is not compat_str\n\n\ndef test_unescapeHTML_large_input():\n    # Build a large string with many entities to ensure performance and correctness\n    repeated = (\"&amp;\" * 1000) + (\"&unknown;\" * 1000) + (\"text\" * 1000)\n    expected = (\"&\" * 1000) + (\"&unknown;\" * 1000) + (\"text\" * 1000)\n    assert unescapeHTML(repeated) == expected\n\n\ndef test_unescapeHTML_edge_cases():\n    # Entity at the very start\n    assert unescapeHTML(\"&lt;start\") == \"<start\"\n    # Entity at the very end\n    assert unescapeHTML(\"end&gt;\") == \"end>\"\n    # Entity surrounded by spaces\n    assert unescapeHTML(\"  &amp;  \") == \"  &  \"\n    # Multiple semicolons in a row (should treat each separately)\n    assert unescapeHTML(\"&amp;;;&lt;;\") == \"&;;<;;\"\n"
+}

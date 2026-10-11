@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 6,
+  "timestamp": "2026-10-11T16:41:40.062960+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 12,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "fc03d199896288bcb211985d47e7871f08c39db91f5bf5bd0875939fcd9962ff",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to compare expected output with actual for various inputs\n@pytest.mark.parametrize(\n    \"input_str, expected\",\n    [\n        # Basic known entities\n        (\"&amp;\", \"&\"),\n        (\"&lt;div&gt;\", \"<div>\"),\n        (\"Hello &quot;World&quot;!\", 'Hello \"World\"!'),\n        # Multiple entities in one string\n        (\"a &lt; b &amp; c &gt; d\", \"a < b & c > d\"),\n        # Unknown entity should remain unchanged\n        (\"&unknown;\", \"&unknown;\"),\n        # Entity with an internal '&' should not be transformed (old regex would skip it)\n        (\"&foo&bar;\", \"&foo&bar;\"),\n        # Mixed known and unknown/internal '&' entities\n        (\"Start &amp; middle &foo&bar; end\", \"Start & middle &foo&bar; end\"),\n        # Entity at the end of string\n        (\"End &gt;\", \"End >\"),\n        # Entity at the beginning of string\n        (\"&lt;Start\", \"<Start\"),\n        # No entities\n        (\"plain text\", \"plain text\"),\n    ],\n)\ndef test_unescapeHTML_behaviour(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_none():\n    assert unescapeHTML(None) is None\n\n\ndef test_unescapeHTML_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a compat_str (i.e., not a string)\n"
+}

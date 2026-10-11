@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 10,
+  "timestamp": "2026-10-11T16:40:31.889030+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 14,
+  "tests_catching": 1,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "b84483baeeb64b6fa8b373095d2a89f6124e0f272b85a525c29ecd0c7e6ca824",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n@pytest.mark.parametrize(\n    \"input_val,expected\",\n    [\n        (None, None),\n        (\"\", \"\"),\n        (\"Hello, world!\", \"Hello, world!\"),\n        (\"&amp;\", \"&\"),\n        (\"&lt;div&gt;\", \"<div>\"),\n        (\"Fish &amp; Chips\", \"Fish & Chips\"),\n        (\"&amp;foo;\", \"&foo;\"),          # ensure only the first entity is unescaped\n        (\"&amp;&lt;\", \"&<\"),             # multiple entities back\u2011to\u2011back\n        (\"&unknown;\", \"&unknown;\"),     # unknown entity should remain unchanged\n        (\"&amp;foo;bar\", \"&foo;bar\"),    # entity followed by extra text\n        (\"&&amp;;\", \"&&;\"),              # stray ampersands should not cause errors\n    ],\n)\ndef test_unescapeHTML_basic_cases(input_val, expected):\n    assert unescapeHTML(input_val) == expected\n\n\ndef test_unescapeHTML_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a string\n\n\ndef test_unescapeHTML_edge_lengths():\n    # size zero (empty string) already covered, but test explicitly\n    assert unescapeHTML(\"\") == \"\"\n\n    # size one (single character, not an entity)\n    assert unescapeHTML(\"a\") == \"a\"\n\n    # size one that is an ampersand without a semicolon\n    assert unescapeHTML(\"&\") == \"&\"\n\n    # size two that could form a malformed entity\n    assert unescapeHTML(\"&a\") == \"&a\"\n\n    # longer string with many characters but no entities\n    long_str = \"x\" * 1000\n    assert unescapeHTML(long_str) == long_str\n\n    # longer string with many entities\n    many_entities = (\"&amp;\" * 250) + (\"&lt;\" * 250)\n    expected = (\"&\" * 250) + (\"<\" * 250)\n    assert unescapeHTML(many_entities) == expected\n\n\ndef test_unescapeHTML_no_overmatching():\n    # The new regex could over\u2011match '&amp;foo;' as a single entity.\n    # Verify that only the first valid entity is processed.\n    input_str = \"&amp;foo; &lt;bar&gt;\"\n    # Expected: '&' from &amp;, then 'foo;' unchanged, space, '<' from &lt;, 'bar>' unchanged\n    expected = \"&foo; <bar>\"\n    assert unescapeHTML(input_str) == expected\n"
+}

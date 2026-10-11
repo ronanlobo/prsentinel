@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 5,
+  "timestamp": "2026-10-11T16:41:27.150164+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 10,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 1,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "596571e0f4b4de283c564b9c6fbbdc55d97e1a3683afa49b607f00da96f59088",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to compare expected output for typical HTML entities\n@pytest.mark.parametrize(\n    \"input_str, expected\",\n    [\n        (None, None),\n        (\"\", \"\"),\n        (\"plain text\", \"plain text\"),\n        (\"&amp;\", \"&\"),\n        (\"&lt;div&gt;\", \"<div>\"),\n        (\"a &amp; b &lt; c\", \"a & b < c\"),\n        (\"&amp;foo&lt;\", \"&foo<\"),  # problematic case: internal '&' should not be swallowed\n    ],\n)\ndef test_unescapeHTML_behaviour(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\ndef test_unescapeHTML_assertion_error():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a compat_str\n\ndef test_unescapeHTML_multiple_entities():\n    s = \"&amp;Hello &amp;World&lt;test&gt;&quot;Sample&quot;\"\n    expected = \"&Hello &World<test>\\\"Sample\\\"\"\n    assert unescapeHTML(s) == expected\n\ndef test_unescapeHTML_entity_with_extra_ampersand_inside():\n    # This string contains an extra '&' between two valid entities.\n    # Old implementation would decode both entities separately.\n    # New implementation must not treat the whole string as a single unknown entity.\n    s = \"&amp;foo&amp;lt;\"\n    expected = \"&foo<\"\n    assert unescapeHTML(s) == expected\n"
+}

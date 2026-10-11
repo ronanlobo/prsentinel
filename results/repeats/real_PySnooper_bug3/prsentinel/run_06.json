@@ -1,0 +1,22 @@
+{
+  "case": "real_PySnooper_bug3",
+  "arm": "prsentinel",
+  "run_index": 6,
+  "timestamp": "2026-10-11T16:47:32.564287+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 8,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 3,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "009375fec978fff118aa85346679aad997e6bc87b36aa0f52a3305ebb306bee2",
+  "test_content": "import sys\nimport os\nimport pathlib\nimport tempfile\n\nimport pytest\n\nfrom target import get_write_function\n\n\nclass DummyWritable:\n    \"\"\"Simple writable stream that records written data.\"\"\"\n    def __init__(self):\n        self.written = []\n\n    def write(self, s):\n        self.written.append(s)\n\n\ndef test_write_to_stderr(capsys):\n    \"\"\"When output is None the function should write to sys.stderr.\"\"\"\n    write = get_write_function(None)\n    assert callable(write)\n\n    # write empty string\n    write(\"\")\n    # write a normal string\n    write(\"hello world\")\n    # write a large string\n    write(\"x\" * 10_000)\n\n    captured = capsys.readouterr()\n    # sys.stderr should contain exactly what we wrote\n    assert captured.out == \"\"  # nothing to stdout\n    assert captured.err == \"hello world\" + (\"x\" * 10_000)\n\n\ndef test_write_to_path(tmp_path):\n    \"\"\"When output is a path string the function should append to the file.\"\"\"\n    file_path = tmp_path / \"out.txt\"\n    # ensure file exists and is empty\n    file_path.write_text(\"\")\n\n    # The new implementation has a bug (uses undefined `output_path`);\n    # we expect a NameError.\n    with pytest.raises(NameError):\n        write = get_write_function(str(file_path))\n        write(\"first line\\n\")\n\n    # Verify that the file was not modified by the failed call\n    assert file_path.read_text() == \"\"\n\n\ndef test_write_to_pathlib(tmp_path):\n    \"\"\"When output is a pathlib.Path the function should behave like a string path.\"\"\"\n    file_path = tmp_path / \"out2.txt\"\n    file_path.write_text(\"\")\n\n    with pytest.raises(NameError):\n        write = get_write_function(file_path)\n        write(\"data\")\n\n    assert file_path.read_text() == \"\"\n\n\n@pytest.mark.parametrize(\"content\", [\"\", \"single line\", \"multi\\nline\\ncontent\"])\ndef test_write_to_custom_writable(content):\n    \"\"\"When output is a utils.WritableStream (or compatible) the function should call its write.\"\"\"\n    dummy = DummyWritable()\n    write = get_write_function(dummy)\n    assert callable(write)\n\n    write(content)\n    # The dummy should have recorded exactly one call with the given content\n    assert dummy.written == [content]\n\n\ndef test_multiple_writes_to_file(tmp_path):\n    \"\"\"Appending multiple times should accumulate content.\"\"\"\n    file_path = tmp_path / \"multi.txt\"\n    file_path.write_text(\"\")\n\n    # The bug still raises NameError on first call, so we cannot test accumulation\n    # with the current broken implementation. This test documents the intended\n    # behaviour for future fixes.\n    with pytest.raises(NameError):\n        write = get_write_function(str(file_path))\n        write(\"first\\n\")\n        write(\"second\\n\")\n\n    # Ensure file remains unchanged\n    assert file_path.read_text() == \"\"\n\n\ndef test_invalid_output_type():\n    \"\"\"Passing an unsupported type should trigger the assertion.\"\"\"\n    class NotWritable:\n        pass\n\n    with pytest.raises(AssertionError):\n        get_write_function(NotWritable())\n"
+}

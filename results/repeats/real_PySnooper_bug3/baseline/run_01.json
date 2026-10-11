@@ -1,0 +1,22 @@
+{
+  "case": "real_PySnooper_bug3",
+  "arm": "baseline",
+  "run_index": 1,
+  "timestamp": "2026-10-11T16:48:22.226246+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 3,
+  "tests_catching": 1,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "718a31d9077dff8e1a21414a7bae43e5df2269a5f85dbe0af6e1e80a8d1478fa",
+  "test_content": "import sys\nimport io\nimport pytest\nfrom target import get_write_function, utils\n\n\ndef test_write_to_stderr(monkeypatch):\n    captured = io.StringIO()\n    monkeypatch.setattr(sys, \"stderr\", captured)\n\n    write = get_write_function(None)\n    write(\"error message\\n\")\n\n    assert captured.getvalue() == \"error message\\n\"\n\n\ndef test_write_to_path(tmp_path):\n    file_path = tmp_path / \"out.txt\"\n\n    write = get_write_function(str(file_path))\n    write(\"first line\\n\")\n    write(\"second line\")\n\n    assert file_path.read_text() == \"first line\\nsecond line\"\n\n\ndef test_write_to_writable_stream():\n    class DummyStream(utils.WritableStream):\n        def __init__(self):\n            self.contents = \"\"\n\n        def write(self, s):\n            self.contents += s\n\n    stream = DummyStream()\n    write = get_write_function(stream)\n\n    write(\"hello \")\n    write(\"world\")\n\n    assert stream.contents == \"hello world\"\n"
+}

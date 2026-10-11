@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 9,
+  "timestamp": "2026-10-11T16:46:09.092452+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 20,
+  "tests_catching": 6,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "49b7e2a3ad07e7476a30553db20c5cf84ce212139a075a8ac2a59e887c30f019",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\ndef old_url_basename(url):\n    \"\"\"Reference implementation using the original regex.\"\"\"\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    if not m:\n        return u''\n    return m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        \"http://example.com/foo\",\n        \"https://example.com/foo/\",\n        \"//example.com/bar/baz\",\n        \"http://example.com/a/b/c?x=1\",\n        \"http://example.com/foo?bar\",\n        \"http://example.com/foo#section\",\n        \"http://example.com/foo/?bar\",\n        \"http://example.com\",\n        \"not a url\",\n        \"http://example.com/.hidden\",\n        \"https://sub.domain.co.uk/path/to/resource/\",\n        \"https://sub.domain.co.uk/path/to/resource?query=param\",\n        \"https://sub.domain.co.uk/path/to/resource#frag\",\n        \"https://sub.domain.co.uk/path/to/resource/?query=param\",\n        \"ftp://example.com/unsupported\",  # scheme not http/https but pattern still matches after //\n        \"http://example.com/mixed?query#frag\",\n        \"http://example.com/mixed/#frag\",\n        \"http://example.com/mixed//double\",  # double slash in path\n        \"http://example.com/endslash/\",\n        \"http://example.com/endslash\",\n    ],\n)\ndef test_url_basename_behaviour_matches_old(url):\n    assert url_basename(url) == old_url_basename(url)\n"
+}

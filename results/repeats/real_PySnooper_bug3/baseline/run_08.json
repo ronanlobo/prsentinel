@@ -1,0 +1,22 @@
+{
+  "case": "real_PySnooper_bug3",
+  "arm": "baseline",
+  "run_index": 8,
+  "timestamp": "2026-10-11T16:49:06.813061+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 3,
+  "tests_catching": 1,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "45e5ac77c74f0c0729f160481ce60f0b33b97faf097cd570b129041403178850",
+  "test_content": "import sys\nimport io\nimport os\nimport tempfile\n\nimport pytest\nfrom target import get_write_function\n\n\ndef test_write_to_stderr(capsys):\n    write = get_write_function(None)\n    assert callable(write)\n    write(\"error message\\n\")\n    captured = capsys.readouterr()\n    assert captured.err == \"error message\\n\"\n\n\ndef test_write_to_path():\n    with tempfile.NamedTemporaryFile(delete=False, mode=\"r+\") as tf:\n        path = tf.name\n    try:\n        # Ensure file is empty initially\n        with open(path, \"r\") as f:\n            assert f.read() == \"\"\n\n        write = get_write_function(path)\n        assert callable(write)\n        write(\"first line\\n\")\n        write(\"second line\")\n        with open(path, \"r\") as f:\n            content = f.read()\n        assert content == \"first line\\nsecond line\"\n    finally:\n        os.remove(path)\n\n\ndef test_write_to_custom_stream():\n    class DummyStream:\n        def __init__(self):\n            self.buffer = io.StringIO()\n\n        def write(self, s):\n            self.buffer.write(s)\n\n        def getvalue(self):\n            return self.buffer.getvalue()\n\n    dummy = DummyStream()\n    write = get_write_function(dummy)\n    assert callable(write)\n    write(\"hello\")\n    write(\" world\")\n    assert dummy.getvalue() == \"hello world\"\n"
+}

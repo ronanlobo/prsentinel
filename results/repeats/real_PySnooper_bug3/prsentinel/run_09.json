@@ -1,0 +1,22 @@
+{
+  "case": "real_PySnooper_bug3",
+  "arm": "prsentinel",
+  "run_index": 9,
+  "timestamp": "2026-10-11T16:48:04.786276+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 6,
+  "tests_catching": 3,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "5cea23078a818cff3311721db2e1ebf72ea100a8710d79f72a49060cf9c4eec2",
+  "test_content": "import sys\nimport io\nimport os\nfrom pathlib import Path\n\nimport pytest\n\nfrom target import get_write_function\n\n\nclass DummyWritable:\n    \"\"\"Simple writable stream that records written strings.\"\"\"\n    def __init__(self):\n        self.written = []\n\n    def write(self, s):\n        self.written.append(s)\n\n\ndef test_write_to_stderr_none_output(capsys):\n    \"\"\"When output is None the writer should write to sys.stderr.\"\"\"\n    write = get_write_function(None)\n\n    # write a normal string\n    write(\"hello world\")\n    # write an empty string (edge case)\n    write(\"\")\n    captured = capsys.readouterr()\n    assert captured.out == \"\"  # nothing goes to stdout\n    assert captured.err == \"hello world\"  # empty string adds nothing\n\n\ndef test_write_to_path_string(tmp_path):\n    \"\"\"When output is a string path the writer should append to that file.\"\"\"\n    file_path = tmp_path / \"out.txt\"\n    write = get_write_function(str(file_path))\n\n    # first write\n    write(\"first line\\n\")\n    # second write (edge case: empty string)\n    write(\"\")\n    # third write (large content)\n    large_content = \"x\" * 10_000\n    write(large_content)\n\n    # verify file content\n    with open(file_path, \"r\") as f:\n        content = f.read()\n    assert content == \"first line\\n\" + large_content\n\n\ndef test_write_to_pathlib_path(tmp_path):\n    \"\"\"When output is a pathlib.Path the writer should behave like a string path.\"\"\"\n    file_path = tmp_path / \"out2.txt\"\n    write = get_write_function(file_path)  # pathlib.Path instance\n\n    write(\"a\")\n    write(\"b\")\n    write(\"c\")\n\n    with open(file_path, \"r\") as f:\n        assert f.read() == \"abc\"\n\n\ndef test_write_to_custom_writable():\n    \"\"\"When output is a utils.WritableStream (or compatible) the writer should call its write.\"\"\"\n    dummy = DummyWritable()\n    write = get_write_function(dummy)\n\n    # edge cases: empty, single char, larger string\n    write(\"\")\n    write(\"Z\")\n    write(\"longer string with multiple characters\")\n\n    assert dummy.written == [\"\", \"Z\", \"longer string with multiple characters\"]\n\n\ndef test_multiple_calls_preserve_order(tmp_path):\n    \"\"\"Multiple calls to the returned write function should append in order.\"\"\"\n    file_path = tmp_path / \"seq.txt\"\n    write = get_write_function(str(file_path))\n\n    for i in range(5):\n        write(f\"{i}\\n\")\n\n    with open(file_path, \"r\") as f:\n        lines = f.readlines()\n    assert lines == [f\"{i}\\n\" for i in range(5)]\n\n\ndef test_invalid_output_type_raises_assertion():\n    \"\"\"Non\u2011path, non\u2011None, non\u2011WritableStream should trigger the assertion.\"\"\"\n    with pytest.raises(AssertionError):\n        get_write_function(12345)  # int is not a valid type\n"
+}

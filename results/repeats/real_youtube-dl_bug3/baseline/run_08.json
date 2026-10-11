@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 8,
+  "timestamp": "2026-10-11T16:42:01.833291+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 13,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "8152536d68deb1ea51f023d29b201b908ee45e8cb8d07019ae6f93d6944a14cb",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n@pytest.mark.parametrize(\n    \"input_str, expected\",\n    [\n        (None, None),\n        (\"\", \"\"),\n        (\"plain text\", \"plain text\"),\n        (\"&amp;\", \"&\"),\n        (\"a &amp; b\", \"a & b\"),\n        (\"&lt;div&gt;\", \"<div>\"),\n        (\"&quot;Hello&quot;\", '\"Hello\"'),\n        (\"Multiple &amp; entities &lt;here&gt;.\", \"Multiple & entities <here>.\"),\n        # malformed entities that contain an extra '&' before the terminating ';'\n        (\"&abc&def;\", \"&abc&def;\"),\n        (\"Start &abc&def; end\", \"Start &abc&def; end\"),\n        (\"&amp; &abc&def; &lt;\", \"& &abc&def; <\"),\n        # entity-like strings without a terminating semicolon should remain unchanged\n        (\"&incomplete\", \"&incomplete\"),\n        (\"&amp without semicolon\", \"&amp without semicolon\"),\n    ],\n)\ndef test_unescapeHTML_behaviour(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n"
+}

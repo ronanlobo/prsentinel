@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 7,
+  "timestamp": "2026-10-11T16:45:46.319445+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 16,
+  "tests_catching": 7,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "00f0e2c9abf3858acc560d9bddebc12ac314a96a31f39537e2a879019a481d66",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\ndef old_url_basename(url):\n    \"\"\"Reference implementation using the original regex.\"\"\"\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    if not m:\n        return u''\n    return m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        # simple paths\n        \"http://example.com/path/to/resource\",\n        \"https://example.com/path/to/resource/\",\n        \"https://example.com/path/to/resource?foo=bar\",\n        \"https://example.com/path/to/resource#section\",\n        \"https://example.com/path/to/resource?foo=bar#section\",\n        # root and empty paths\n        \"https://example.com/\",\n        \"http://example.com\",\n        # protocol\u2011relative URLs\n        \"//example.com/path/resource\",\n        # ports and userinfo\n        \"http://example.com:8080/path/resource\",\n        \"http://user:pass@example.com/path/resource\",\n        # multiple intermediate segments\n        \"http://example.com/a/b/c/d\",\n        # segment that contains a slash (old regex allowed this)\n        \"http://example.com/foo/bar/baz\",\n        # query/fragment without trailing slash\n        \"http://example.com/foo?x=1\",\n        \"http://example.com/foo#anchor\",\n        # trailing slash with query\n        \"http://example.com/foo/?x=1\",\n        # double slash in path (should be treated as empty segment)\n        \"http://example.com//foo\",\n    ],\n)\ndef test_url_basename_behaviour_matches_old(url):\n    assert url_basename(url) == old_url_basename(url)\n"
+}

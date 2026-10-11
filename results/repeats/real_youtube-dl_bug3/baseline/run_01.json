@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 1,
+  "timestamp": "2026-10-11T16:40:44.977691+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 11,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 1,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "0ca34ab5218e91cd1c5909b3b6a5de988bd9db6f3df2472ac98304212c2b4690",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        # Normal entities should be unescaped\n        (\"Fish &amp; Chips\", \"Fish & Chips\"),\n        (\"A &lt; B &gt; C\", \"A < B > C\"),\n        (\"&quot;Hello&quot;\", '\"Hello\"'),\n        # Multiple entities in one string\n        (\"&lt;div&gt;Hello &amp; welcome&lt;/div&gt;\", \"<div>Hello & welcome</div>\"),\n        # Entities with surrounding text\n        (\"Start&copy;End\", \"Start\u00a9End\"),\n    ],\n)\ndef test_normal_entities_unescaped(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\n@pytest.mark.parametrize(\n    \"input_str\",\n    [\n        # Entity containing an extra '&' should NOT be transformed\n        \"Bad &foo&bar; test\",\n        \"Mixed &amp; and &foo&bar; together\",\n        \"Edge case: &abc&def; remains\",\n        \"Multiple &foo&bar; &baz; entities\",\n    ],\n)\ndef test_malformed_entities_unchanged(input_str):\n    # The function should leave the string unchanged because the old regex\n    # would not match entities that contain an extra '&' before the terminating ';'.\n    assert unescapeHTML(input_str) == input_str\n\n\ndef test_none_input():\n    assert unescapeHTML(None) is None\n\n\ndef test_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a string\n"
+}

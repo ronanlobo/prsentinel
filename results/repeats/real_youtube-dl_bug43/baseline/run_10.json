@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 10,
+  "timestamp": "2026-10-11T16:46:19.939067+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 23,
+  "tests_catching": 3,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "c6cb68fad9a838ca726c6837fe9f18cdd842e45144fbb7f8ea7031a5d8cf1ac7",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\ndef old_url_basename(url):\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    if not m:\n        return u''\n    return m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        # simple paths\n        \"http://example.com/file\",\n        \"https://example.com/file/\",\n        \"http://example.com/file?query=1\",\n        \"http://example.com/file#fragment\",\n        \"http://example.com/path/file.html\",\n        \"https://example.com/path/to/file/\",\n        \"http://example.com/path/file.html?query=1#frag\",\n        # root and missing path\n        \"http://example.com/\",\n        \"http://example.com\",\n        # scheme-less URL\n        \"//example.com/file\",\n        # with port\n        \"http://example.com:8080/file\",\n        # with userinfo\n        \"http://user:pass@example.com/file\",\n        # multiple segments where old regex allowed slash in the optional part\n        \"http://example.com/a/b/c\",\n        \"https://example.com/first/second/third\",\n        # segment containing dot or hidden file\n        \"http://example.com/.hidden\",\n        \"http://example.com/..\",\n        # trailing slash after captured segment\n        \"http://example.com/file/\",\n        \"http://example.com/file/?q=1\",\n        # query and fragment after captured segment\n        \"http://example.com/file?x=1\",\n        \"http://example.com/file#section\",\n        # URLs that should not match (different scheme)\n        \"ftp://example.com/file\",\n        \"mailto:user@example.com\",\n        # URL with no double slash after scheme (invalid for pattern)\n        \"http:/example.com/file\",\n    ],\n)\ndef test_url_basename_behaviour(url):\n    assert url_basename(url) == old_url_basename(url)\n"
+}

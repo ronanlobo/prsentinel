@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 3,
+  "timestamp": "2026-10-11T16:39:21.279944+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 18,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "cecc0f9836d38c07d0c43edc23681877ac11785f3b6017d4ea467124eae681a3",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to compare expected old behavior with current implementation\ndef _old_unescape(s):\n    \"\"\"Replicate the old regex behavior for comparison.\"\"\"\n    import re\n    # old pattern: r'&([^&;]+;)'\n    pattern = re.compile(r'&([^&;]+;)')\n    # dummy transform that mimics typical HTML entity conversion for known entities\n    # For the purpose of these tests we only need to handle a few common ones.\n    entity_map = {\n        'amp;': '&',\n        'lt;': '<',\n        'gt;': '>',\n        'quot;': '\"',\n        'apos;': \"'\",\n    }\n\n    def repl(m):\n        ent = m.group(1)\n        return entity_map.get(ent, '&' + ent)  # fallback leaves it unchanged\n\n    return pattern.sub(repl, s)\n\n\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        (None, None),\n        (\"\", \"\"),\n        (\"Hello World\", \"Hello World\"),\n        (\"Fish & Chips\", \"Fish & Chips\"),\n        (\"&amp;\", \"&\"),\n        (\"&lt;&gt;&amp;\", \"<>&\"),\n        (\"a &lt; b &gt; c\", \"a < b > c\"),\n        (\"&unknown;\", \"&unknown;\"),  # unknown entity stays unchanged\n        (\"&amp;foo;\", \"&foo;\"),  # only the valid entity should be unescaped\n        (\"&amp&;\", \"&amp&;\"),  # malformed entity should stay unchanged\n        (\"&&;\", \"&&;\"),  # double ampersand with semicolon stays unchanged\n    ],\n)\ndef test_unescapeHTML_basic_cases(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_none_input():\n    assert unescapeHTML(None) is None\n\n\ndef test_unescapeHTML_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a string\n\n\ndef test_unescapeHTML_complex_entity_regression():\n    \"\"\"\n    Ensure that strings like '&amp;foo;' are handled like the old implementation:\n    only the '&amp;' part is transformed.\n    \"\"\"\n    inp = \"x &amp;foo; y\"\n    # Expected according to old behavior: '&amp;' -> '&', rest unchanged\n    expected = \"x &foo; y\"\n    assert unescapeHTML(inp) == expected\n\n\ndef test_unescapeHTML_entity_with_internal_ampersand():\n    \"\"\"\n    Strings containing an ampersand inside what looks like an entity should not be transformed.\n    Old regex would not match '&amp&;'; new regex might, so we verify it stays unchanged.\n    \"\"\"\n    inp = \"test &amp&; end\"\n    expected = \"test &amp&; end\"\n    assert unescapeHTML(inp) == expected\n\n\ndef test_unescapeHTML_multiple_entities_and_text():\n    inp = \"Start &lt;middle&gt; &amp; end\"\n    expected = \"Start <middle> & end\"\n    assert unescapeHTML(inp) == expected\n\n\ndef test_unescapeHTML_no_semicolon_entities():\n    \"\"\"\n    Entities without a trailing semicolon should remain unchanged.\n    \"\"\"\n    inp = \"Missing semicolon &amp and &lt\"\n    expected = \"Missing semicolon &amp and &lt\"\n    assert unescapeHTML(inp) == expected\n\n\ndef test_unescapeHTML_large_input():\n    \"\"\"\n    Stress test with a large string containing many entities.\n    \"\"\"\n    base = \"&amp; &lt; &gt; \" * 1000  # 3000 entities\n    expected = (\"& < > \" * 1000).strip()\n    assert unescapeHTML(base).strip() == expected\n"
+}

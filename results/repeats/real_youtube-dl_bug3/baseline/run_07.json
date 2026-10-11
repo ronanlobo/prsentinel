@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "baseline",
+  "run_index": 7,
+  "timestamp": "2026-10-11T16:41:49.208038+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 10,
+  "tests_catching": 1,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "cab7b88c3211217f06668fb943bc5b349e066461870ce26bc6f21ecb32ed87ef",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to assert that the function returns the same result as the old implementation\n# for the given inputs. Since we only have the new implementation, we encode the\n# expected behaviour based on the original regex semantics.\n\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        # Basic known entities\n        (\"&amp;\", \"&\"),\n        (\"&lt;div&gt;\", \"<div>\"),\n        (\"Hello &quot;World&quot;!\", 'Hello \"World\"!'),\n\n        # Multiple known entities\n        (\"a &lt; b &amp; c &gt; d\", \"a < b & c > d\"),\n\n        # Unknown entity should remain unchanged\n        (\"&unknown;\", \"&unknown;\"),\n\n        # Entity containing an internal '&' should NOT be transformed (old regex would not match)\n        (\"&foo&bar;\", \"&foo&bar;\"),\n\n        # Mixed known and unknown/internal\u2011ampersand entities\n        (\"Start &amp; middle &foo&bar; end\", \"Start & middle &foo&bar; end\"),\n\n        # Leading and trailing ampersands that are not part of an entity\n        (\"&&amp;&&\", \"&&&&\"),\n    ],\n)\ndef test_unescapeHTML_behaviour(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_none():\n    assert unescapeHTML(None) is None\n\n\ndef test_unescapeHTML_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)          # not a compat_str (i.e., not a str)\n    with pytest.raises(AssertionError):\n        unescapeHTML(b\"bytes\")     # bytes also should raise\n"
+}

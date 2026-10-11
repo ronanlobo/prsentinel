@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 2,
+  "timestamp": "2026-10-11T16:44:37.611550+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 18,
+  "tests_catching": 3,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "14742f92f02abf910cb675a9e30ffc80fca3ecfd5ac3508cc295ae271a78da51",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\ndef old_url_basename(url):\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    if not m:\n        return u''\n    return m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        # simple paths\n        \"http://example.com/file.html\",\n        \"https://example.com/path/to/file/\",\n        \"http://example.com/file?query=1\",\n        \"http://example.com/file#fragment\",\n        \"http://example.com/path/file.html?query=1#frag\",\n        # root and missing path\n        \"http://example.com/\",\n        \"http://example.com\",\n        \"http://example.com?query=1\",\n        \"http://example.com#frag\",\n        # non\u2011http scheme (should not match)\n        \"ftp://example.com/file\",\n        # double slash after domain\n        \"http://example.com//double/slash\",\n        # path with multiple segments \u2013 this is where the regex difference appears\n        \"http://example.com/a/b/c\",\n        \"http://example.com/segment1/segment2/\",\n        # path containing characters that could be confused with delimiters\n        \"http://example.com/abc?def=ghi\",\n        \"http://example.com/abc#def\",\n        \"http://example.com/abc/def?ghi=jkl\",\n        # URL with port number\n        \"http://example.com:8080/path/file\",\n        # URL with user info (should still match the path part)\n        \"http://user:pass@example.com/path/file\",\n    ],\n)\ndef test_url_basename_behaviour(url):\n    assert url_basename(url) == old_url_basename(url)\n"
+}

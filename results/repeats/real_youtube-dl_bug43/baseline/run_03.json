@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 3,
+  "timestamp": "2026-10-11T16:44:51.498462+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 16,
+  "tests_catching": 3,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "8e3a0ff6155c88ca04765548ec58a5941c07e0b1fdab52bf82630f7adf2c81da",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\ndef old_url_basename(url):\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    if not m:\n        return u''\n    return m.group(1)\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        # simple paths\n        \"http://example.com/file.html\",\n        \"https://example.com/path/to/file/\",\n        \"http://example.com/file?query=1\",\n        \"http://example.com/file#fragment\",\n        \"http://example.com/path/file.html?query=1#frag\",\n        # root and missing path\n        \"http://example.com/\",\n        \"http://example.com\",\n        \"http://example.com?query=1\",\n        # non\u2011http scheme (should not match)\n        \"ftp://example.com/file\",\n        # double slash after domain\n        \"http://example.com//double/slash\",\n        # path segment containing a slash (the critical case)\n        \"http://example.com/a/b/c\",\n        # path segment containing query characters but no slash\n        \"http://example.com/a?b=c/d\",\n        # path with trailing slash and fragment\n        \"https://example.com/dir/subdir/#section\",\n        # path with multiple dots\n        \"https://example.com/dir.name/file.name.ext\",\n        # URL with port number\n        \"http://example.com:8080/path/file\",\n        # URL with user info\n        \"http://user:pass@example.com/path/file\",\n    ],\n)\ndef test_url_basename_behaviour(url):\n    assert url_basename(url) == old_url_basename(url)\n"
+}

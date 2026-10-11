@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "baseline",
+  "run_index": 8,
+  "timestamp": "2026-10-11T16:45:56.309270+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 24,
+  "tests_catching": 4,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "db9001954112c417b17e314df09349431a586c346cde73dea4d1a367a46f53de",
+  "test_content": "import re\nimport pytest\nfrom target import url_basename\n\n# Reference implementation using the old regex\ndef _old_url_basename(url: str) -> str:\n    m = re.match(r'(?:https?:|)//[^/]+/(?:[^?#]+/)?([^/?#]+)/?(?:[?#]|$)', url)\n    return m.group(1) if m else u''\n\n@pytest.mark.parametrize(\n    \"url\",\n    [\n        # Simple cases\n        \"http://example.com/foo\",\n        \"https://example.com/foo/\",\n        \"http://example.com/foo?bar=baz\",\n        \"https://example.com/foo#section\",\n        \"http://example.com/foo/?query=1\",\n        \"https://example.com/foo/#frag\",\n        # Trailing slash without basename\n        \"http://example.com/\",\n        \"https://example.com\",\n        # Multiple path components (old regex should capture the last one)\n        \"http://example.com/a/b/c\",\n        \"https://example.com/one/two/three/\",\n        \"http://example.com/x/y/z?param=val\",\n        \"https://example.com/p/q/r#anchor\",\n        # URLs with port numbers\n        \"http://example.com:8080/foo\",\n        \"https://example.com:443/bar/baz\",\n        # URLs with user info\n        \"http://user:pass@example.com/foo\",\n        \"https://user@example.com/a/b\",\n        # IPv4 and IPv6 hosts\n        \"http://127.0.0.1/foo\",\n        \"https://[2001:db8::1]/bar\",\n        # Encoded characters\n        \"http://example.com/%E6%BC%A2%E5%AD%97\",\n        \"https://example.com/%20space%20/\",\n        # Query/fragment only (no basename)\n        \"http://example.com/?q=1\",\n        \"https://example.com/#top\",\n        # Edge cases with unusual but valid characters\n        \"http://example.com/!$&'()*+,;=:@\",\n        \"https://example.com/\u00e4\u00f6\u00fc\u00df\",\n    ],\n)\ndef test_url_basename_matches_old_behavior(url):\n    assert url_basename(url) == _old_url_basename(url)\n"
+}

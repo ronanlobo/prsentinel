@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 9,
+  "timestamp": "2026-10-11T16:40:15.661190+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 19,
+  "tests_catching": 1,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "f8b261b381f566f3e8a7feff12e7a133743ff08a7b4a171ed0e4dcb12fa6d534",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to compare expected output with actual for a variety of inputs\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        # Basic known entities\n        (\"&amp;\", \"&\"),\n        (\"&lt;\", \"<\"),\n        (\"&gt;\", \">\"),\n        (\"&quot;\", '\"'),\n        (\"&apos;\", \"'\"),\n        # Multiple entities in one string\n        (\"A &amp; B &lt; C &gt; D\", \"A & B < C > D\"),\n        # Entities adjacent to other text\n        (\"Start&amp;Middle&lt;End\", \"Start&Middle<End\"),\n        # No entity (no semicolon) \u2013 should remain unchanged\n        (\"Fish & Chips\", \"Fish & Chips\"),\n        (\"&amp\", \"&amp\"),\n        # Entity with extra characters after semicolon \u2013 only the entity part should be transformed\n        (\"&amp;foo\", \"&foo\"),\n        (\"&amp;foo;\", \"&foo;\"),\n        # Edge case where a stray '&' appears before a valid entity\n        (\"&&amp;\", \"&&\"),\n        # Empty string\n        (\"\", \"\"),\n        # String with only an ampersand and semicolon (invalid entity) \u2013 unchanged\n        (\"&;\", \"&;\"),\n    ],\n)\ndef test_unescapeHTML_basic_cases(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_none_input():\n    assert unescapeHTML(None) is None\n\n\ndef test_unescapeHTML_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a compat_str (i.e., not a str)\n\n\ndef test_unescapeHTML_overlapping_entities():\n    \"\"\"\n    This tests the scenario that could be affected by the regex change:\n    The old regex stops at the first ';' after an '&', while the new regex\n    could greedily consume up to the last ';' in the string.\n    The expected behavior (old spec) is to only replace the first valid entity.\n    \"\"\"\n    # Input with two semicolons; only the first entity should be transformed.\n    input_str = \"&amp;foo;\"\n    # Old behavior: '&amp;' -> '&', leaving 'foo;'\n    expected = \"&foo;\"\n    assert unescapeHTML(input_str) == expected\n\n    # More complex case with multiple entities and extra semicolons\n    input_str = \"X &amp;Y;Z &lt;W;\"\n    # Expected: only '&amp;' and '&lt;' are transformed, others remain\n    expected = \"X &Y;Z <W;\"\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_no_entities():\n    # Strings without any '&...;' pattern should be returned unchanged\n    inputs = [\n        \"plain text\",\n        \"&&&&\",\n        \"&&;&&;\",\n        \"abc & def ; ghi\",\n    ]\n    for s in inputs:\n        assert unescapeHTML(s) == s\n\n\ndef test_unescapeHTML_entity_with_internal_ampersand():\n    \"\"\"\n    The new regex allows '&' inside the entity name, which could cause\n    incorrect matches. Ensure such inputs are not transformed.\n    \"\"\"\n    # Simulate a malformed entity containing an extra '&'\n    input_str = \"&amp&foo;\"\n    # Old regex would stop at the first ';' after '&amp', but there is none,\n    # so no match; the string should remain unchanged.\n    expected = \"&amp&foo;\"\n    assert unescapeHTML(input_str) == expected\n"
+}

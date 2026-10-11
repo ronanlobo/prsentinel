@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "prsentinel",
+  "run_index": 10,
+  "timestamp": "2026-10-11T16:44:28.005743+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 18,
+  "tests_catching": 4,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 1,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "94f146061d49f69659e0aaad12694da2d20bf0cf50a679ebe847934a224ae254",
+  "test_content": "import pytest\nfrom target import url_basename\n\n@pytest.mark.parametrize(\n    \"url,expected\",\n    [\n        # Empty input\n        (\"\", \"\"),\n        # No scheme, just domain with no path\n        (\"//example.com\", \"\"),\n        # Domain with trailing slash only\n        (\"http://example.com/\", \"\"),\n        # Single path segment\n        (\"http://example.com/foo\", \"foo\"),\n        (\"https://example.com/bar/\", \"bar\"),\n        (\"//example.com/baz\", \"baz\"),\n        # Path with query\n        (\"http://example.com/foo?x=1\", \"foo\"),\n        (\"https://example.com/a/b?x=1\", \"b\"),\n        # Path with fragment\n        (\"http://example.com/foo#section\", \"foo\"),\n        (\"https://example.com/a/b#section\", \"b\"),\n        # Multiple path segments \u2013 old regex captures the last segment\n        (\"http://example.com/a/b/c\", \"c\"),\n        (\"https://example.com/one/two/three/four\", \"four\"),\n        # Mixed query/fragment after last segment\n        (\"http://example.com/a/b/c?x=1#frag\", \"c\"),\n        (\"https://example.com/x/y/z#frag\", \"z\"),\n        # Path segment containing characters that are not allowed in capture\n        (\"http://example.com/a/b?c/d\", \"b\"),\n        # Path segment with encoded characters\n        (\"http://example.com/a%20b/c%20d\", \"c%20d\"),\n        # URL without leading double slash (should fail to match)\n        (\"example.com/foo\", \"\"),\n        # URL with extra slashes\n        (\"http://example.com//double//slash/\", \"\"),\n    ],\n)\ndef test_url_basename_expected_behavior(url, expected):\n    assert url_basename(url) == expected\n"
+}

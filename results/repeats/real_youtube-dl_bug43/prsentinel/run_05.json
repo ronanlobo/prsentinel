@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "prsentinel",
+  "run_index": 5,
+  "timestamp": "2026-10-11T16:43:17.138903+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 30,
+  "tests_catching": 12,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "35dca63a42cf4aa00ff4d4bfce18f778b33db62c13b4ce4cb8f80649ff991266",
+  "test_content": "import pytest\nfrom target import url_basename\n\n@pytest.mark.parametrize(\n    \"url,expected\",\n    [\n        # Empty input\n        (\"\", \"\"),\n        # No path after domain (should not match)\n        (\"http://example.com\", \"\"),\n        (\"https://example.com\", \"\"),\n        (\"//example.com\", \"\"),\n        # Single path segment\n        (\"http://example.com/foo\", \"foo\"),\n        (\"https://example.com/foo\", \"foo\"),\n        (\"//example.com/foo\", \"foo\"),\n        # Single path segment with trailing slash\n        (\"http://example.com/foo/\", \"foo\"),\n        (\"https://example.com/foo/\", \"foo\"),\n        (\"//example.com/foo/\", \"foo\"),\n        # Single path segment with query\n        (\"http://example.com/foo?bar=1\", \"foo\"),\n        (\"https://example.com/foo?bar=1\", \"foo\"),\n        (\"//example.com/foo?bar=1\", \"foo\"),\n        # Single path segment with fragment\n        (\"http://example.com/foo#section\", \"foo\"),\n        (\"https://example.com/foo#section\", \"foo\"),\n        (\"//example.com/foo#section\", \"foo\"),\n        # Multiple path segments \u2013 should return the last segment\n        (\"http://example.com/a/b/c\", \"c\"),\n        (\"https://example.com/a/b/c\", \"c\"),\n        (\"//example.com/a/b/c\", \"c\"),\n        # Multiple path segments with trailing slash \u2013 last non\u2011empty segment\n        (\"http://example.com/a/b/c/\", \"c\"),\n        (\"https://example.com/a/b/c/\", \"c\"),\n        (\"//example.com/a/b/c/\", \"c\"),\n        # Multiple path segments with query after last segment\n        (\"http://example.com/a/b/c?x=1\", \"c\"),\n        (\"https://example.com/a/b/c?x=1\", \"c\"),\n        (\"//example.com/a/b/c?x=1\", \"c\"),\n        # Multiple path segments with fragment after last segment\n        (\"http://example.com/a/b/c#frag\", \"c\"),\n        (\"https://example.com/a/b/c#frag\", \"c\"),\n        (\"//example.com/a/b/c#frag\", \"c\"),\n        # Path segment containing characters that were previously allowed in the optional part\n        (\"http://example.com/a/b?c/d\", \"b\"),\n        (\"http://example.com/a/b#c/d\", \"b\"),\n    ],\n)\ndef test_url_basename_behaviour(url, expected):\n    assert url_basename(url) == expected\n"
+}

@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug43",
+  "arm": "prsentinel",
+  "run_index": 7,
+  "timestamp": "2026-10-11T16:43:39.130087+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 30,
+  "tests_catching": 9,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "482afdf3bfdb56cf40511cf63f40bc098b91a22fc13ecb2be39a89d6f3678239",
+  "test_content": "import pytest\nfrom target import url_basename\n\n@pytest.mark.parametrize(\n    \"url,expected\",\n    [\n        # Empty and non\u2011matching inputs\n        (\"\", \"\"),\n        (\"not a url\", \"\"),\n        (\"http://\", \"\"),\n        (\"http://example.com\", \"\"),\n        (\"//example.com\", \"\"),\n\n        # Simple single\u2011segment paths\n        (\"http://example.com/foo\", \"foo\"),\n        (\"https://example.com/foo\", \"foo\"),\n        (\"//example.com/foo\", \"foo\"),\n        (\"http://example.com/foo/\", \"foo\"),\n        (\"http://example.com/foo?bar=baz\", \"foo\"),\n        (\"http://example.com/foo#section\", \"foo\"),\n        (\"http://example.com/foo/?q=1\", \"foo\"),\n\n        # Two\u2011segment paths \u2013 both old and new regex give the same result\n        (\"http://example.com/foo/bar\", \"bar\"),\n        (\"http://example.com/foo/bar/\", \"bar\"),\n        (\"http://example.com/foo/bar?x=1\", \"bar\"),\n        (\"http://example.com/foo/bar#frag\", \"bar\"),\n\n        # Three\u2011segment paths \u2013 this is where the change matters.\n        # Old behaviour (spec) should return the last segment.\n        (\"http://example.com/a/b/c\", \"c\"),\n        (\"http://example.com/a/b/c/\", \"c\"),\n        (\"http://example.com/a/b/c?x=1\", \"c\"),\n        (\"http://example.com/a/b/c#frag\", \"c\"),\n\n        # More than three segments\n        (\"http://example.com/one/two/three/four\", \"four\"),\n        (\"http://example.com/one/two/three/four?param=val\", \"four\"),\n        (\"http://example.com/one/two/three/four#anchor\", \"four\"),\n\n        # Paths that contain characters that were previously allowed in the optional part\n        (\"http://example.com/segment-with-dash/last\", \"last\"),\n        (\"http://example.com/segment.with.dot/last\", \"last\"),\n        (\"http://example.com/segment_with_underscore/last\", \"last\"),\n    ],\n)\ndef test_url_basename_returns_expected_basename(url, expected):\n    assert url_basename(url) == expected\n\n\ndef test_url_basename_type_is_str():\n    # Ensure the return type is a (unicode) string, even for empty input\n    result = url_basename(\"\")\n    assert isinstance(result, str)\n\n\ndef test_url_basename_handles_trailing_slash_and_query():\n    # Combination of trailing slash and query string\n    url = \"http://example.com/path/to/resource/?key=value\"\n    assert url_basename(url) == \"resource\"\n\n\ndef test_url_basename_protocol_relative_url():\n    # Protocol\u2011relative URLs should be handled the same as absolute ones\n    url = \"//example.com/dir/file\"\n    assert url_basename(url) == \"file\"\n\n\ndef test_url_basename_multiple_consecutive_slashes():\n    # Multiple slashes in the path should not break the extraction\n    url = \"http://example.com//double//slashes///file\"\n    # Old regex treats everything up to the last segment as optional,\n    # so the expected basename is still the final non\u2011empty segment.\n    assert url_basename(url) == \"file\"\n"
+}

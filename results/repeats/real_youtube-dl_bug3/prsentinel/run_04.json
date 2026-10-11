@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 4,
+  "timestamp": "2026-10-11T16:39:26.764245+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 18,
+  "tests_catching": 2,
+  "tests_wrong_on_before": 0,
+  "tests_odd": 0,
+  "caught_yes_no": true,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "75c8d5b9c8a573ab3ce61b128d84fc42c3e68b79405a2f7f65a2b6c884cc5994",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper to compare with expected old behavior for complex cases\ndef old_behavior(s):\n    \"\"\"Replicate the old regex behavior for testing purposes.\"\"\"\n    import re\n    # old pattern: r'&([^&;]+;)'\n    pattern = re.compile(r'&([^&;]+;)')\n    # dummy _htmlentity_transform that mimics typical HTML entity conversion\n    # For the purpose of these tests we only need to handle a few known entities.\n    def _htmlentity_transform(entity):\n        mapping = {\n            'amp;': '&',\n            'lt;': '<',\n            'gt;': '>',\n            'quot;': '\"',\n            'apos;': \"'\",\n        }\n        return mapping.get(entity, '&' + entity)  # fallback returns unchanged\n    return pattern.sub(lambda m: _htmlentity_transform(m.group(1)), s)\n\n\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        # simple known entities\n        (\"&amp;\", \"&\"),\n        (\"&lt;\", \"<\"),\n        (\"&gt;\", \">\"),\n        (\"&quot;\", '\"'),\n        (\"&apos;\", \"'\"),\n        # multiple entities in one string\n        (\"A &lt; B &amp; C\", \"A < B & C\"),\n        # string without any entities stays the same\n        (\"No entities here!\", \"No entities here!\"),\n        # empty string\n        (\"\", \"\"),\n        # entity followed by extra text that should not be consumed\n        (\"&amp;foo;\", \"&foo;\"),\n        # entity with surrounding text\n        (\"Start &amp; middle &lt; end\", \"Start & middle < end\"),\n        # stray ampersand not forming an entity\n        (\"Fish & Chips\", \"Fish & Chips\"),\n        # ampersand with missing semicolon should stay unchanged\n        (\"&amp\", \"&amp\"),\n        # double ampersand before a valid entity\n        (\"&&amp;\", \"&&\"),\n    ],\n)\ndef test_unescapeHTML_basic_cases(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_none_input():\n    assert unescapeHTML(None) is None\n\n\ndef test_unescapeHTML_type_assertion():\n    with pytest.raises(AssertionError):\n        unescapeHTML(123)  # not a string\n\n\ndef test_unescapeHTML_preserves_old_behavior_complex():\n    \"\"\"\n    Verify that for a string where the old regex would stop at the first ';',\n    the new implementation still behaves the same.\n    \"\"\"\n    s = \"&amp;foo; &lt;bar&gt; &unknown; end\"\n    # Expected using the old behavior helper\n    expected = old_behavior(s)\n    assert unescapeHTML(s) == expected\n\n\ndef test_unescapeHTML_no_extra_consumption():\n    \"\"\"\n    Ensure that an ampersand inside what could be interpreted as an entity\n    does not cause over\u2011matching.\n    \"\"\"\n    s = \"&&amp;test;\"\n    # Old behavior: first '&' is literal, second '&amp;' becomes '&'\n    # Result should be \"&&test;\"\n    expected = old_behavior(s)\n    assert unescapeHTML(s) == expected\n\n\ndef test_unescapeHTML_large_input():\n    \"\"\"\n    Stress test with a larger string containing many entities.\n    \"\"\"\n    base = \"&amp; &lt; &gt; &quot; &apos; \"\n    repeated = base * 1000  # large input\n    expected = old_behavior(repeated)\n    assert unescapeHTML(repeated) == expected\n"
+}

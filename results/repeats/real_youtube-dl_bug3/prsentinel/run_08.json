@@ -1,0 +1,22 @@
+{
+  "case": "real_youtube-dl_bug3",
+  "arm": "prsentinel",
+  "run_index": 8,
+  "timestamp": "2026-10-11T16:40:05.008756+00:00",
+  "provider": "Groq",
+  "model": "openai/gpt-oss-120b",
+  "temperature": 0.0,
+  "gemini_answers": 0,
+  "fallback_used": false,
+  "tests_generated": 18,
+  "tests_catching": 0,
+  "tests_wrong_on_before": 1,
+  "tests_odd": 1,
+  "caught_yes_no": false,
+  "invalid": false,
+  "invalid_reason": "",
+  "exit_code": null,
+  "error": null,
+  "test_content_hash": "0560f76047f3cf048f15767bbded456589b318afd3d6cef6d2b112646fbf21b4",
+  "test_content": "import pytest\nfrom target import unescapeHTML\n\n# Helper using Python's html.unescape for standard cases\nimport html\n\n@pytest.mark.parametrize(\n    \"input_str,expected\",\n    [\n        # Basic entities\n        (\"&amp;\", \"&\"),\n        (\"&lt;\", \"<\"),\n        (\"&gt;\", \">\"),\n        (\"&quot;\", '\"'),\n        (\"&apos;\", \"'\"),\n        # Multiple entities\n        (\"A &amp; B &lt; C &gt; D\", \"A & B < C > D\"),\n        # No entities\n        (\"Hello world!\", \"Hello world!\"),\n        # Empty string\n        (\"\", \"\"),\n        # None input\n        (None, None),\n        # Incomplete entity should stay unchanged\n        (\"Hello &\", \"Hello &\"),\n        (\"Hello &amp\", \"Hello &amp\"),\n        (\"Hello &; world\", \"Hello &; world\"),\n        # Entity with extra ampersand (old regex should NOT replace)\n        (\"&&amp;\", \"&&amp;\"),\n        # Entity with ampersand inside name (unlikely but test old behavior)\n        (\"&a&b;\", \"&a&b;\"),\n        # Mixed text with stray semicolons\n        (\"Test ; &amp; ; end\", \"Test ; & ; end\"),\n        # Entity at start and end\n        (\"&amp;Start and end&gt;\", \"&Start and end>\"),\n    ],\n)\ndef test_unescapeHTML_basic(input_str, expected):\n    assert unescapeHTML(input_str) == expected\n\n\ndef test_unescapeHTML_consistency_with_html_unescape():\n    \"\"\"Compare behavior on a range of typical HTML strings where html.unescape is reliable.\"\"\"\n    samples = [\n        \"The price is &pound;100 &amp; tax.\",\n        \"5 &lt; 10 &amp;&amp; 10 &gt; 5\",\n        \"Use &quot;quotes&quot; and &apos;apostrophes&apos;.\",\n        \"Unicode: &#9731; &#x2603;\",\n        \"Mixed: &amp; &lt; &unknown; &\",\n    ]\n    for s in samples:\n        # html.unescape leaves unknown entities unchanged, which matches old behavior\n        assert unescapeHTML(s) == html.unescape(s)\n\n\ndef test_unescapeHTML_edge_cases():\n    # Very long string with many entities\n    long_str = (\"&amp;\" * 1000) + \"end\"\n    expected = (\"&\" * 1000) + \"end\"\n    assert unescapeHTML(long_str) == expected\n\n    # String with consecutive ampersands that should not be collapsed\n    s = \"&&&&amp;&amp;\"\n    # Old behavior: only the isolated &amp; should be unescaped, others stay\n    # The pattern matches the &amp; after the third '&'\n    # Result: \"&&&&&&\"\n    # However, because the old regex disallows '&' inside the entity, it will match only the last &amp;\n    # So expected result:\n    expected = \"&&&&&&\"\n    assert unescapeHTML(s) == expected\n\n    # Zero-length entity (invalid) should stay unchanged\n    assert unescapeHTML(\"&;\") == \"&;\"\n\n    # Entity with only semicolon after ampersand\n    assert unescapeHTML(\"&;test\") == \"&;test\"\n"
+}
