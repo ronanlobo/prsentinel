@@ -1,0 +1,443 @@
+{
+  "project": "matplotlib",
+  "mode": "r1",
+  "licence": {
+    "path": "C:\\Users\\Ronan Lobo\\Desktop\\capstone project\\prsentinel\\scratch_bugsinpy\\project_repos\\matplotlib\\LICENSE\\LICENSE",
+    "guess": "Matplotlib (PSF-based)",
+    "excluded": false,
+    "stage": null,
+    "detail": null
+  },
+  "bugs": [
+    {
+      "bug": "1",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (3 .py files: lib/matplotlib/backend_bases.py, lib/matplotlib/figure.py, lib/matplotlib/tight_layout.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "2",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Axes); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "3",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (MarkerStyle); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "4",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (2 .py files: lib/matplotlib/axes/_axes.py, lib/matplotlib/pyplot.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "5",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Axes); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "6",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Axes); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "7",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (LightSource); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "8",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (_AxesBase); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "9",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (PolarAxes); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "10",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Axis); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "11",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Text); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "12",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Axes); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "13",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Path); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "14",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Text); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "15",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (4 .py files: examples/userdemo/colormap_normalizations.py, examples/userdemo/colormap_normalizations_symlognorm.py, lib/matplotlib/colors.py, tutorials/colors/colormapnorms.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "16",
+      "r1": true,
+      "function": "nonsingular",
+      "reason": "",
+      "path": "lib/matplotlib/transforms.py",
+      "r2": true,
+      "r3": false,
+      "r2_total": 0,
+      "hits": [
+        "matplotlib (matplotlib)",
+        "numpy (numpy)"
+      ],
+      "packages": [],
+      "basis": "run_test.sh (requirements.txt empty)",
+      "old_r2_total": null,
+      "old_r2": null,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    },
+    {
+      "bug": "17",
+      "r1": true,
+      "function": "nonsingular",
+      "reason": "",
+      "path": "lib/matplotlib/transforms.py",
+      "r2": true,
+      "r3": false,
+      "r2_total": 0,
+      "hits": [
+        "matplotlib (matplotlib)",
+        "numpy (numpy)"
+      ],
+      "packages": [],
+      "basis": "run_test.sh (requirements.txt empty)",
+      "old_r2_total": null,
+      "old_r2": null,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    },
+    {
+      "bug": "18",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (RadialLocator); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "19",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (RadialLocator); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "20",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (2 .py files: lib/matplotlib/_constrained_layout.py, lib/matplotlib/backend_bases.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "21",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Axes); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "22",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Axes); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "23",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (_AxesBase); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "24",
+      "r1": true,
+      "function": "_make_getset_interval",
+      "reason": "",
+      "path": "lib/matplotlib/axis.py",
+      "r2": true,
+      "r3": false,
+      "r2_total": 0,
+      "hits": [
+        "matplotlib (matplotlib)",
+        "numpy (numpy)"
+      ],
+      "packages": [],
+      "basis": "run_test.sh (requirements.txt empty)",
+      "old_r2_total": null,
+      "old_r2": null,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    },
+    {
+      "bug": "25",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (EventCollection); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "26",
+      "r1": true,
+      "function": "_make_getset_interval",
+      "reason": "",
+      "path": "lib/matplotlib/axis.py",
+      "r2": true,
+      "r3": false,
+      "r2_total": 0,
+      "hits": [
+        "matplotlib (matplotlib)",
+        "numpy (numpy)"
+      ],
+      "packages": [],
+      "basis": "run_test.sh (requirements.txt empty)",
+      "old_r2_total": null,
+      "old_r2": null,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    },
+    {
+      "bug": "27",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (ColorbarBase); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "28",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (_AxesBase); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "29",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Axis, XAxis, YAxis); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "30",
+      "r1": true,
+      "function": "makeMappingArray",
+      "reason": "",
+      "path": "lib/matplotlib/colors.py",
+      "r2": true,
+      "r3": false,
+      "r2_total": 0,
+      "hits": [
+        "matplotlib (matplotlib)",
+        "numpy (numpy)"
+      ],
+      "packages": [],
+      "basis": "run_test.sh (requirements.txt empty)",
+      "old_r2_total": null,
+      "old_r2": null,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    }
+  ]
+}

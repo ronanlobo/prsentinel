@@ -1,0 +1,73 @@
+{
+  "project": "sanic",
+  "mode": "r1",
+  "licence": {
+    "path": "C:\\Users\\Ronan Lobo\\Desktop\\capstone project\\prsentinel\\scratch_bugsinpy\\project_repos\\sanic\\LICENSE",
+    "guess": "MIT",
+    "excluded": false,
+    "stage": null,
+    "detail": null
+  },
+  "bugs": [
+    {
+      "bug": "1",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Sanic); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "2",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (AsyncioServer); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "3",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Sanic); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "4",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Request); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "5",
+      "r1": false,
+      "function": "",
+      "reason": "module-level code changed; 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    }
+  ]
+}

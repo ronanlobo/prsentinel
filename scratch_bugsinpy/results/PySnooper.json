@@ -1,0 +1,65 @@
+{
+  "project": "PySnooper",
+  "mode": "full",
+  "licence": {
+    "path": "C:\\Users\\Ronan Lobo\\Desktop\\capstone project\\prsentinel\\scratch_bugsinpy\\project_repos\\PySnooper\\LICENSE",
+    "guess": "MIT",
+    "excluded": false,
+    "stage": null,
+    "detail": null
+  },
+  "bugs": [
+    {
+      "bug": "1",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (3 .py files: pysnooper/pycompat.py, pysnooper/tracer.py, tests/utils.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "2",
+      "r1": false,
+      "function": "",
+      "reason": "imports changed; module-level code changed; class body changed (FileWriter, Tracer); 2 functions changed (get_local_reprs, get_source_from_frame)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "3",
+      "r1": true,
+      "function": "get_write_function",
+      "reason": "",
+      "path": "pysnooper/pysnooper.py",
+      "r2": true,
+      "r3": true,
+      "r2_total": 3,
+      "hits": [],
+      "packages": [],
+      "basis": "run_test.sh (requirements.txt empty)",
+      "old_r2_total": 0,
+      "old_r2": true,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [
+          "pysnooper/utils.py:WritableStream"
+        ],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": [
+          "pysnooper/pycompat.py",
+          "pysnooper/utils.py"
+        ]
+      }
+    }
+  ]
+}

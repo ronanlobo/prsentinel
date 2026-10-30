@@ -1,0 +1,321 @@
+{
+  "project": "ansible",
+  "mode": "r1",
+  "licence": {
+    "path": "C:\\Users\\Ronan Lobo\\Desktop\\capstone project\\prsentinel\\scratch_bugsinpy\\project_repos\\ansible\\COPYING",
+    "guess": "GPL",
+    "excluded": true,
+    "stage": "pre",
+    "detail": {
+      "date": "standing policy",
+      "licence": "GPL",
+      "verdict": "excluded",
+      "reason": "excluded by the final licence policy (GPL)"
+    }
+  },
+  "bugs": [
+    {
+      "bug": "1",
+      "r1": true,
+      "function": "verify_collections",
+      "reason": "",
+      "path": "lib/ansible/galaxy/collection.py",
+      "r2": false,
+      "r3": false,
+      "r2_total": 5,
+      "hits": [
+        "cffi (cffi (C ext))",
+        "cryptography (cryptography (C ext))"
+      ],
+      "packages": [
+        "ansible-base",
+        "argcomplete",
+        "cffi",
+        "cryptography",
+        "importlib-metadata",
+        "Jinja2",
+        "MarkupSafe",
+        "pycparser",
+        "PyYAML",
+        "six",
+        "zipp"
+      ],
+      "basis": "requirements.txt",
+      "old_r2_total": null,
+      "old_r2": null,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [
+          "lib/ansible/galaxy/collection.py:CollectionRequirement",
+          "lib/ansible/galaxy/collection.py:_consume_file",
+          "lib/ansible/galaxy/collection.py:_display_progress",
+          "lib/ansible/galaxy/collection.py:_download_file",
+          "lib/ansible/galaxy/collection.py:_tempdir"
+        ],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    },
+    {
+      "bug": "2",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (_Alpha, _Numeric); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "3",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (DistributionFiles); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "4",
+      "r1": false,
+      "function": "",
+      "reason": "imports changed; module-level code changed; class body changed (CollectionSearch); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "5",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (2 .py files: lib/ansible/module_utils/common/validation.py, test/units/module_utils/common/validation/test_check_mutually_exclusive.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "6",
+      "r1": false,
+      "function": "_get_collection_info",
+      "reason": "class body changed (CollectionRequirement)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "7",
+      "r1": true,
+      "function": "generate_commands",
+      "reason": "",
+      "path": "lib/ansible/module_utils/network/eos/config/vlans/vlans.py",
+      "r2": true,
+      "r3": false,
+      "r2_total": 0,
+      "hits": [
+        "cffi (cffi (C ext))",
+        "cryptography (cryptography (C ext))"
+      ],
+      "packages": [
+        "ansible-base",
+        "argcomplete",
+        "cffi",
+        "cryptography",
+        "importlib-metadata",
+        "Jinja2",
+        "MarkupSafe",
+        "mock",
+        "pycparser",
+        "PyYAML",
+        "six",
+        "zipp"
+      ],
+      "basis": "requirements.txt",
+      "old_r2_total": null,
+      "old_r2": null,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    },
+    {
+      "bug": "8",
+      "r1": false,
+      "function": "",
+      "reason": "imports changed; class body changed (ShellModule); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "9",
+      "r1": false,
+      "function": "main",
+      "reason": "class body changed (Rhsm)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "10",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (PamdRule, PamdService); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "11",
+      "r1": false,
+      "function": "",
+      "reason": "imports changed; 3 functions changed (map_config_to_obj, map_obj_to_commands, map_params_to_obj)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "12",
+      "r1": false,
+      "function": "",
+      "reason": "imports changed; class body changed (LookupModule); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "13",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (2 .py files: lib/ansible/cli/galaxy.py, lib/ansible/galaxy/collection.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "14",
+      "r1": false,
+      "function": "",
+      "reason": "module-level code changed; class body changed (GalaxyAPI); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "15",
+      "r1": true,
+      "function": "map_obj_to_commands",
+      "reason": "",
+      "path": "lib/ansible/modules/network/eos/eos_eapi.py",
+      "r2": true,
+      "r3": false,
+      "r2_total": 0,
+      "hits": [
+        "cffi (cffi (C ext))",
+        "cryptography (cryptography (C ext))"
+      ],
+      "packages": [
+        "ansible",
+        "ansible-base",
+        "argcomplete",
+        "cffi",
+        "cryptography",
+        "importlib-metadata",
+        "Jinja2",
+        "MarkupSafe",
+        "mock",
+        "pycparser",
+        "PyYAML",
+        "six",
+        "zipp"
+      ],
+      "basis": "requirements.txt",
+      "old_r2_total": null,
+      "old_r2": null,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    },
+    {
+      "bug": "16",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (2 .py files: lib/ansible/module_utils/facts/hardware/linux.py, test/units/module_utils/facts/hardware/linux_data.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "17",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (LinuxHardware); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "18",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (GalaxyCLI); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    }
+  ]
+}

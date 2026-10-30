@@ -1,0 +1,157 @@
+{
+  "project": "tqdm",
+  "mode": "full",
+  "licence": {
+    "path": "C:\\Users\\Ronan Lobo\\Desktop\\capstone project\\prsentinel\\scratch_bugsinpy\\project_repos\\tqdm\\LICENCE",
+    "guess": "MPL",
+    "excluded": true,
+    "stage": "post",
+    "detail": {
+      "date": "2026-10-26",
+      "licence": "MPL-2.0, dual-licensed with MIT",
+      "verdict": "excluded",
+      "reason": "Owner ruled MPL-2.0 unacceptable for this scan, despite the MIT option"
+    }
+  },
+  "bugs": [
+    {
+      "bug": "1",
+      "r1": true,
+      "function": "tenumerate",
+      "reason": "",
+      "path": "tqdm/contrib/__init__.py",
+      "r2": true,
+      "r3": true,
+      "r2_total": 0,
+      "hits": [],
+      "packages": [
+        "attrs",
+        "coverage",
+        "flake8",
+        "importlib-metadata",
+        "mccabe",
+        "more-itertools",
+        "nose",
+        "packaging",
+        "pkg-resources",
+        "pluggy",
+        "py",
+        "pycodestyle",
+        "pyflakes",
+        "pyparsing",
+        "pytest",
+        "six",
+        "tqdm",
+        "wcwidth",
+        "zipp"
+      ],
+      "basis": "run_test.sh",
+      "old_r2_total": 0,
+      "old_r2": true,
+      "r2_rule": "2026-10-26 data-name clarification",
+      "r2_helpers": {
+        "functions": [],
+        "classes": [],
+        "initializers": [],
+        "namedtuples": [],
+        "namespaces": []
+      }
+    },
+    {
+      "bug": "2",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (2 .py files: tqdm/std.py, tqdm/utils.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "3",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (tqdm); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "4",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (tqdm); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "5",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (tqdm); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "6",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (tqdm); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "7",
+      "r1": false,
+      "function": "",
+      "reason": "module-level code changed; 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "8",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (tqdm); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "9",
+      "r1": false,
+      "function": "format_sizeof",
+      "reason": "class body changed (tqdm)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    }
+  ]
+}

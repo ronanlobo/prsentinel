@@ -1,0 +1,1286 @@
+[
+  {
+    "project": "youtube-dl",
+    "bug": "1",
+    "function": "_match_one",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "lookup_unit_table",
+      "parse_filesize"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:lookup_unit_table",
+      "youtube_dl/utils.py:parse_filesize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "3",
+    "function": "unescapeHTML",
+    "path": "youtube_dl/utils.py",
+    "current": 1,
+    "same": [
+      "_htmlentity_transform"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:_htmlentity_transform"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_chr <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities_html5 <- youtube_dl/compat.py (not a project function/class)",
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 1,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "5",
+    "function": "unified_timestamp",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "date_formats",
+      "extract_timezone"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:date_formats",
+      "youtube_dl/utils.py:extract_timezone"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "7",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "10",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "11",
+    "function": "str_to_int",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "13",
+    "function": "urljoin",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)",
+      "compat_urlparse <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "15",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "17",
+    "function": "cli_bool_option",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "20",
+    "function": "get_elements_by_attribute",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "_htmlentity_transform",
+      "unescapeHTML"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:_htmlentity_transform",
+      "youtube_dl/utils.py:unescapeHTML"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_chr <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities_html5 <- youtube_dl/compat.py (not a project function/class)",
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "21",
+    "function": "urljoin",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)",
+      "compat_urlparse <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "22",
+    "function": "_match_one",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "lookup_unit_table",
+      "parse_filesize"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:lookup_unit_table",
+      "youtube_dl/utils.py:parse_filesize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "23",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "24",
+    "function": "_match_one",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "lookup_unit_table",
+      "parse_filesize"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:lookup_unit_table",
+      "youtube_dl/utils.py:parse_filesize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "25",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "26",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "27",
+    "function": "parse_dfxp_time_expr",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "28",
+    "function": "_htmlentity_transform",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_chr <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "29",
+    "function": "unified_strdate",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "41",
+    "function": "unified_strdate",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "43",
+    "function": "url_basename",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "PySnooper",
+    "bug": "3",
+    "function": "get_write_function",
+    "path": "pysnooper/pysnooper.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [
+      "pysnooper/utils.py:WritableStream"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "pysnooper/pycompat.py",
+      "pysnooper/utils.py"
+    ],
+    "not_counted": [
+      "pycompat <- pysnooper/__init__.py (not a project function/class)",
+      "utils <- pysnooper/__init__.py (not a project function/class)"
+    ],
+    "total": 3,
+    "verdict": "pass"
+  },
+  {
+    "project": "tornado",
+    "bug": "9",
+    "function": "url_concat",
+    "path": "tornado/httputil.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "cookiecutter",
+    "bug": "1",
+    "function": "generate_context",
+    "path": "cookiecutter/generate.py",
+    "current": 2,
+    "same": [
+      "apply_overwrites_to_context"
+    ],
+    "cross": [
+      "ContextDecodingException <- cookiecutter/exceptions.py:ContextDecodingException"
+    ],
+    "functions": [
+      "cookiecutter/generate.py:apply_overwrites_to_context"
+    ],
+    "classes": [
+      "cookiecutter/exceptions.py:ContextDecodingException"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "cookiecutter",
+    "bug": "3",
+    "function": "read_user_choice",
+    "path": "cookiecutter/prompt.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "fastapi",
+    "bug": "5",
+    "function": "create_cloned_field",
+    "path": "fastapi/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "fastapi",
+    "bug": "6",
+    "function": "request_body_to_args",
+    "path": "fastapi/dependencies/utils.py",
+    "current": 1,
+    "same": [],
+    "cross": [
+      "get_field_info <- fastapi/utils.py:get_field_info"
+    ],
+    "functions": [
+      "fastapi/utils.py:get_field_info"
+    ],
+    "classes": [
+      "fastapi/params.py:File",
+      "fastapi/params.py:Form"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "fastapi/params.py"
+    ],
+    "not_counted": [
+      "PYDANTIC_1 <- fastapi/utils.py (not a project function/class)",
+      "params <- fastapi/__init__.py (not a project function/class)"
+    ],
+    "total": 4,
+    "verdict": "excluded"
+  },
+  {
+    "project": "fastapi",
+    "bug": "9",
+    "function": "get_body_field",
+    "path": "fastapi/dependencies/utils.py",
+    "current": 3,
+    "same": [
+      "get_flat_dependant",
+      "get_schema_compatible_field"
+    ],
+    "cross": [
+      "Dependant <- fastapi/dependencies/models.py:Dependant"
+    ],
+    "functions": [
+      "fastapi/dependencies/utils.py:get_flat_dependant",
+      "fastapi/dependencies/utils.py:get_schema_compatible_field"
+    ],
+    "classes": [
+      "fastapi/dependencies/models.py:Dependant",
+      "fastapi/params.py:Body",
+      "fastapi/params.py:File",
+      "fastapi/params.py:Form"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "fastapi/params.py"
+    ],
+    "not_counted": [
+      "params <- fastapi/__init__.py (not a project function/class)"
+    ],
+    "total": 7,
+    "verdict": "excluded"
+  },
+  {
+    "project": "fastapi",
+    "bug": "10",
+    "function": "serialize_response",
+    "path": "fastapi/routing.py",
+    "current": 1,
+    "same": [],
+    "cross": [
+      "jsonable_encoder <- fastapi/encoders.py:jsonable_encoder"
+    ],
+    "functions": [
+      "fastapi/encoders.py:jsonable_encoder"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 1,
+    "verdict": "pass"
+  },
+  {
+    "project": "fastapi",
+    "bug": "11",
+    "function": "is_scalar_field",
+    "path": "fastapi/dependencies/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [
+      "fastapi/params.py:Body"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "fastapi/params.py"
+    ],
+    "not_counted": [
+      "params <- fastapi/__init__.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "fastapi",
+    "bug": "16",
+    "function": "jsonable_encoder",
+    "path": "fastapi/encoders.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "black",
+    "bug": "9",
+    "function": "get_grammars",
+    "path": "black.py",
+    "current": 2,
+    "same": [
+      "TargetVersion"
+    ],
+    "cross": [
+      "Grammar <- blib2to3/pgen2/grammar.py:Grammar"
+    ],
+    "functions": [
+      "black.py:TargetVersion",
+      "blib2to3/pgen2/driver.py:_generate_pickle_name",
+      "blib2to3/pgen2/driver.py:_newer",
+      "blib2to3/pgen2/driver.py:load_grammar",
+      "blib2to3/pgen2/driver.py:load_packaged_grammar"
+    ],
+    "classes": [
+      "blib2to3/pgen2/grammar.py:Grammar"
+    ],
+    "initializers": [
+      "blib2to3/pgen2/driver.py:load_packaged_grammar"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "blib2to3/pgen2/driver.py",
+      "blib2to3/pgen2/grammar.py",
+      "blib2to3/pygram.py"
+    ],
+    "not_counted": [
+      "pygram <- blib2to3/__init__.py (not a project function/class)"
+    ],
+    "total": 9,
+    "verdict": "excluded"
+  },
+  {
+    "project": "black",
+    "bug": "13",
+    "function": "generate_tokens",
+    "path": "blib2to3/pgen2/tokenize.py",
+    "current": 1,
+    "same": [
+      "TokenError"
+    ],
+    "cross": [],
+    "functions": [
+      "blib2to3/pgen2/tokenize.py:TokenError",
+      "blib2to3/pgen2/tokenize.py:_combinations",
+      "blib2to3/pgen2/tokenize.py:group",
+      "blib2to3/pgen2/tokenize.py:maybe"
+    ],
+    "classes": [],
+    "initializers": [
+      "blib2to3/pgen2/tokenize.py:_combinations",
+      "blib2to3/pgen2/tokenize.py:group",
+      "blib2to3/pgen2/tokenize.py:maybe"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 4,
+    "verdict": "excluded"
+  },
+  {
+    "project": "black",
+    "bug": "16",
+    "function": "gen_python_files_in_dir",
+    "path": "black.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "black",
+    "bug": "21",
+    "function": "dump_to_file",
+    "path": "black.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "scrapy",
+    "bug": "11",
+    "function": "gunzip",
+    "path": "scrapy/utils/gz.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "scrapy",
+    "bug": "15",
+    "function": "_safe_ParseResult",
+    "path": "scrapy/utils/url.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "to_bytes <- scrapy/utils/python.py:to_bytes",
+      "to_native_str <- scrapy/utils/python.py:to_native_str",
+      "to_unicode <- scrapy/utils/python.py:to_unicode"
+    ],
+    "functions": [
+      "scrapy/utils/python.py:to_bytes",
+      "scrapy/utils/python.py:to_native_str",
+      "scrapy/utils/python.py:to_unicode"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass"
+  },
+  {
+    "project": "scrapy",
+    "bug": "17",
+    "function": "response_status_message",
+    "path": "scrapy/utils/response.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "to_bytes <- scrapy/utils/python.py:to_bytes",
+      "to_native_str <- scrapy/utils/python.py:to_native_str",
+      "to_unicode <- scrapy/utils/python.py:to_unicode"
+    ],
+    "functions": [
+      "scrapy/utils/python.py:to_bytes",
+      "scrapy/utils/python.py:to_native_str",
+      "scrapy/utils/python.py:to_unicode"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass"
+  },
+  {
+    "project": "scrapy",
+    "bug": "29",
+    "function": "request_httprepr",
+    "path": "scrapy/utils/request.py",
+    "current": 2,
+    "same": [],
+    "cross": [
+      "to_bytes <- scrapy/utils/python.py:to_bytes",
+      "urlparse_cached <- scrapy/utils/httpobj.py:urlparse_cached"
+    ],
+    "functions": [
+      "scrapy/utils/httpobj.py:urlparse_cached",
+      "scrapy/utils/python.py:to_bytes"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "scrapy",
+    "bug": "35",
+    "function": "_get_spider_loader",
+    "path": "scrapy/crawler.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "ISpiderLoader <- scrapy/interfaces.py:ISpiderLoader",
+      "ScrapyDeprecationWarning <- scrapy/exceptions.py:ScrapyDeprecationWarning",
+      "load_object <- scrapy/utils/misc.py:load_object"
+    ],
+    "functions": [
+      "scrapy/utils/misc.py:load_object"
+    ],
+    "classes": [
+      "scrapy/exceptions.py:ScrapyDeprecationWarning",
+      "scrapy/interfaces.py:ISpiderLoader"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass"
+  },
+  {
+    "project": "scrapy",
+    "bug": "36",
+    "function": "create_instance",
+    "path": "scrapy/utils/misc.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "scrapy",
+    "bug": "38",
+    "function": "_get_clickable",
+    "path": "scrapy/http/request/form.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "1",
+    "function": "get_new_command",
+    "path": "thefuck/rules/pip_unknown_command.py",
+    "current": 1,
+    "same": [],
+    "cross": [
+      "replace_argument <- thefuck/utils.py:replace_argument"
+    ],
+    "functions": [
+      "thefuck/utils.py:replace_argument"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 1,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "2",
+    "function": "get_all_executables",
+    "path": "thefuck/utils.py",
+    "current": 2,
+    "same": [
+      "get_alias",
+      "memoize"
+    ],
+    "cross": [],
+    "functions": [
+      "thefuck/utils.py:get_alias",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "Path <- thefuck/system/__init__.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "4",
+    "function": "_get_aliases",
+    "path": "thefuck/shells/fish.py",
+    "current": 2,
+    "same": [],
+    "cross": [
+      "cache <- thefuck/utils.py:cache",
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/logs.py:color",
+      "thefuck/logs.py:warn",
+      "thefuck/utils.py:cache",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [
+      "thefuck/utils.py:Cache"
+    ],
+    "initializers": [
+      "thefuck/utils.py:Cache"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "DEVNULL <- thefuck/utils.py (module-level constant/alias)"
+    ],
+    "total": 5,
+    "verdict": "excluded"
+  },
+  {
+    "project": "thefuck",
+    "bug": "5",
+    "function": "match",
+    "path": "thefuck/rules/git_push.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/shells/__init__.py:_get_shell_from_env",
+      "thefuck/shells/__init__.py:_get_shell_from_proc",
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [
+      "thefuck/shells/bash.py:Bash",
+      "thefuck/shells/fish.py:Fish",
+      "thefuck/shells/generic.py:Generic",
+      "thefuck/shells/powershell.py:Powershell",
+      "thefuck/shells/tcsh.py:Tcsh",
+      "thefuck/shells/zsh.py:Zsh"
+    ],
+    "initializers": [
+      "thefuck/shells/__init__.py:_get_shell_from_env",
+      "thefuck/shells/__init__.py:_get_shell_from_proc"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "shell <- thefuck/shells/__init__.py (module-level constant/alias)"
+    ],
+    "total": 11,
+    "verdict": "excluded"
+  },
+  {
+    "project": "thefuck",
+    "bug": "10",
+    "function": "get_new_command",
+    "path": "thefuck/rules/man.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "15",
+    "function": "match",
+    "path": "thefuck/rules/git_add.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/shells/__init__.py:_get_shell",
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [
+      "thefuck/shells/bash.py:Bash",
+      "thefuck/shells/fish.py:Fish",
+      "thefuck/shells/generic.py:Generic",
+      "thefuck/shells/powershell.py:Powershell",
+      "thefuck/shells/tcsh.py:Tcsh",
+      "thefuck/shells/zsh.py:Zsh"
+    ],
+    "initializers": [
+      "thefuck/shells/__init__.py:_get_shell"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "shell <- thefuck/shells/__init__.py (module-level constant/alias)"
+    ],
+    "total": 10,
+    "verdict": "excluded"
+  },
+  {
+    "project": "thefuck",
+    "bug": "18",
+    "function": "match",
+    "path": "thefuck/rules/sudo.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "21",
+    "function": "match",
+    "path": "thefuck/rules/git_fix_stash.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "quote <- thefuck/utils.py (not a project function/class)"
+    ],
+    "total": 3,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "25",
+    "function": "get_new_command",
+    "path": "thefuck/rules/mkdir_p.py",
+    "current": 1,
+    "same": [],
+    "cross": [
+      "sudo_support <- thefuck/utils.py:sudo_support"
+    ],
+    "functions": [
+      "thefuck/utils.py:sudo_support"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [
+      "thefuck/types.py:Command"
+    ],
+    "namespaces": [],
+    "not_counted": [
+      "Command <- thefuck/types.py (module-level constant/alias)"
+    ],
+    "total": 2,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "26",
+    "function": "get_new_command",
+    "path": "thefuck/rules/vagrant_up.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "thefuck/shells.py:_get_shell",
+      "thefuck/shells.py:and_",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "thefuck/shells.py"
+    ],
+    "not_counted": [
+      "shells <- thefuck/__init__.py (not a project function/class)"
+    ],
+    "total": 4,
+    "verdict": "excluded"
+  },
+  {
+    "project": "thefuck",
+    "bug": "27",
+    "function": "get_new_command",
+    "path": "thefuck/rules/open.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "30",
+    "function": "match",
+    "path": "thefuck/rules/fix_file.py",
+    "current": 2,
+    "same": [
+      "_search"
+    ],
+    "cross": [
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/rules/fix_file.py:_make_pattern",
+      "thefuck/rules/fix_file.py:_search",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [],
+    "initializers": [
+      "thefuck/rules/fix_file.py:_make_pattern"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "31",
+    "function": "get_new_command",
+    "path": "thefuck/rules/git_diff_staged.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "thefuck/utils.py:git_support"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [
+      "thefuck/types.py:Command"
+    ],
+    "namespaces": [
+      "thefuck/utils.py"
+    ],
+    "not_counted": [
+      "utils <- thefuck/__init__.py (not a project function/class)"
+    ],
+    "total": 3,
+    "verdict": "pass"
+  },
+  {
+    "project": "thefuck",
+    "bug": "32",
+    "function": "match",
+    "path": "thefuck/rules/ls_lah.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "keras",
+    "bug": "9",
+    "function": "process_list_block",
+    "path": "docs/autogen.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass"
+  },
+  {
+    "project": "luigi",
+    "bug": "21",
+    "function": "run",
+    "path": "luigi/interface.py",
+    "current": 2,
+    "same": [
+      "ArgParseInterface",
+      "DynamicArgParseInterface"
+    ],
+    "cross": [],
+    "functions": [
+      "luigi/interface.py:ArgParseInterface",
+      "luigi/interface.py:DynamicArgParseInterface"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass"
+  }
+]

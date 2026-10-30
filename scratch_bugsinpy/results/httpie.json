@@ -1,0 +1,73 @@
+{
+  "project": "httpie",
+  "mode": "r1",
+  "licence": {
+    "path": "C:\\Users\\Ronan Lobo\\Desktop\\capstone project\\prsentinel\\scratch_bugsinpy\\project_repos\\httpie\\LICENSE",
+    "guess": "BSD",
+    "excluded": false,
+    "stage": null,
+    "detail": null
+  },
+  "bugs": [
+    {
+      "bug": "1",
+      "r1": false,
+      "function": "",
+      "reason": "imports changed; 4 functions changed (get_filename_max_length, get_unique_filename, trim_filename, trim_filename_if_needed)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "2",
+      "r1": false,
+      "function": null,
+      "reason": "multi-file (2 .py files: httpie/client.py, httpie/core.py)",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "3",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (Session); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "4",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (HTTPRequest); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    },
+    {
+      "bug": "5",
+      "r1": false,
+      "function": "",
+      "reason": "class body changed (KeyValueType); 0 functions changed ()",
+      "path": "",
+      "r2": null,
+      "r3": null,
+      "r2_total": null,
+      "hits": [],
+      "packages": []
+    }
+  ]
+}

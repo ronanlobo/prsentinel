@@ -1,0 +1,4607 @@
+[
+  {
+    "project": "ansible",
+    "bug": "1",
+    "function": "verify_collections",
+    "path": "lib/ansible/galaxy/collection.py",
+    "current": 5,
+    "same": [
+      "CollectionRequirement",
+      "_consume_file",
+      "_display_progress",
+      "_download_file",
+      "_tempdir"
+    ],
+    "cross": [],
+    "functions": [
+      "lib/ansible/galaxy/collection.py:CollectionRequirement",
+      "lib/ansible/galaxy/collection.py:_consume_file",
+      "lib/ansible/galaxy/collection.py:_display_progress",
+      "lib/ansible/galaxy/collection.py:_download_file",
+      "lib/ansible/galaxy/collection.py:_tempdir"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 5,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "ansible",
+    "bug": "7",
+    "function": "generate_commands",
+    "path": "lib/ansible/module_utils/network/eos/config/vlans/vlans.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "ansible",
+    "bug": "15",
+    "function": "map_obj_to_commands",
+    "path": "lib/ansible/modules/network/eos/eos_eapi.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "black",
+    "bug": "3",
+    "function": "main",
+    "path": "black.py",
+    "current": 80,
+    "same": [
+      "CannotSplit",
+      "Changed",
+      "EmptyLineTracker",
+      "Feature",
+      "InvalidInput",
+      "Line",
+      "LineGenerator",
+      "Mode",
+      "NothingChanged",
+      "ProtoComment",
+      "Report",
+      "TargetVersion",
+      "WriteBack",
+      "_fixup_ast_constants",
+      "assert_equivalent",
+      "assert_stable",
+      "bracket_split_build_line",
+      "bracket_split_succeeded_or_raise",
+      "can_be_split",
+      "can_omit_invisible_parens",
+      "cancel",
+      "container_of",
+      "convert_one_fmt_off_pair",
+      "decode_bytes",
+      "delimiter_split",
+      "detect_target_versions",
+      "diff",
+      "dont_increase_indentation",
+      "dump_to_file",
+      "ensure_visible",
+      "enumerate_reversed",
+      "enumerate_with_length",
+      "filter_cached",
+      "find_project_root",
+      "find_pyproject_toml",
+      "format_file_contents",
+      "format_file_in_place",
+      "format_stdin_to_stdout",
+      "format_str",
+      "gen_python_files_in_dir",
+      "generate_ignored_nodes",
+      "generate_trailers_to_omit",
+      "get_cache_file",
+      "get_cache_info",
+      "get_features_used",
+      "get_future_imports",
+      "get_gitignore",
+      "get_grammars",
+      "is_line_short_enough",
+      "is_multiline_string",
+      "is_vararg",
+      "left_hand_split",
+      "lib2to3_parse",
+      "list_comments",
+      "make_comment",
+      "normalize_fmt_off",
+      "normalize_prefix",
+      "nullcontext",
+      "parse_ast",
+      "parse_pyproject_toml",
+      "path_empty",
+      "preceding_leaf",
+      "re_compile_maybe_verbose",
+      "read_cache",
+      "read_pyproject_toml",
+      "reformat_many",
+      "reformat_one",
+      "right_hand_split",
+      "schedule_formatting",
+      "should_explode",
+      "shutdown",
+      "split_line",
+      "standalone_comment_split",
+      "supports_feature",
+      "target_version_option_callback",
+      "write_cache"
+    ],
+    "cross": [
+      "Grammar <- blib2to3/pgen2/grammar.py:Grammar",
+      "Leaf <- blib2to3/pytree.py:Leaf",
+      "Node <- blib2to3/pytree.py:Node",
+      "ParseError <- blib2to3/pgen2/parse.py:ParseError"
+    ],
+    "functions": [
+      "black.py:CannotSplit",
+      "black.py:Changed",
+      "black.py:EmptyLineTracker",
+      "black.py:Feature",
+      "black.py:InvalidInput",
+      "black.py:Line",
+      "black.py:LineGenerator",
+      "black.py:Mode",
+      "black.py:NothingChanged",
+      "black.py:ProtoComment",
+      "black.py:Report",
+      "black.py:TargetVersion",
+      "black.py:WriteBack",
+      "black.py:_fixup_ast_constants",
+      "black.py:assert_equivalent",
+      "black.py:assert_stable",
+      "black.py:bracket_split_build_line",
+      "black.py:bracket_split_succeeded_or_raise",
+      "black.py:can_be_split",
+      "black.py:can_omit_invisible_parens",
+      "black.py:cancel",
+      "black.py:container_of",
+      "black.py:convert_one_fmt_off_pair",
+      "black.py:decode_bytes",
+      "black.py:delimiter_split",
+      "black.py:detect_target_versions",
+      "black.py:diff",
+      "black.py:dont_increase_indentation",
+      "black.py:dump_to_file",
+      "black.py:ensure_visible",
+      "black.py:enumerate_reversed",
+      "black.py:enumerate_with_length",
+      "black.py:filter_cached",
+      "black.py:find_project_root",
+      "black.py:find_pyproject_toml",
+      "black.py:format_file_contents",
+      "black.py:format_file_in_place",
+      "black.py:format_stdin_to_stdout",
+      "black.py:format_str",
+      "black.py:gen_python_files_in_dir",
+      "black.py:generate_ignored_nodes",
+      "black.py:generate_trailers_to_omit",
+      "black.py:get_cache_file",
+      "black.py:get_cache_info",
+      "black.py:get_features_used",
+      "black.py:get_future_imports",
+      "black.py:get_gitignore",
+      "black.py:get_grammars",
+      "black.py:is_line_short_enough",
+      "black.py:is_multiline_string",
+      "black.py:is_vararg",
+      "black.py:left_hand_split",
+      "black.py:lib2to3_parse",
+      "black.py:list_comments",
+      "black.py:make_comment",
+      "black.py:normalize_fmt_off",
+      "black.py:normalize_prefix",
+      "black.py:nullcontext",
+      "black.py:parse_ast",
+      "black.py:parse_pyproject_toml",
+      "black.py:path_empty",
+      "black.py:preceding_leaf",
+      "black.py:re_compile_maybe_verbose",
+      "black.py:read_cache",
+      "black.py:read_pyproject_toml",
+      "black.py:reformat_many",
+      "black.py:reformat_one",
+      "black.py:right_hand_split",
+      "black.py:schedule_formatting",
+      "black.py:should_explode",
+      "black.py:shutdown",
+      "black.py:split_line",
+      "black.py:standalone_comment_split",
+      "black.py:supports_feature",
+      "black.py:target_version_option_callback",
+      "black.py:write_cache",
+      "blib2to3/pgen2/driver.py:_generate_pickle_name",
+      "blib2to3/pgen2/driver.py:_newer",
+      "blib2to3/pgen2/driver.py:load_grammar",
+      "blib2to3/pgen2/driver.py:load_packaged_grammar",
+      "blib2to3/pytree.py:Leaf",
+      "blib2to3/pytree.py:Node",
+      "blib2to3/pytree.py:convert"
+    ],
+    "classes": [
+      "blib2to3/pgen2/driver.py:Driver",
+      "blib2to3/pgen2/grammar.py:Grammar",
+      "blib2to3/pgen2/parse.py:ParseError",
+      "blib2to3/pygram.py:Symbols",
+      "blib2to3/pygram.py:_python_symbols",
+      "blib2to3/pytree.py:Leaf",
+      "blib2to3/pytree.py:Node"
+    ],
+    "initializers": [
+      "blib2to3/pgen2/driver.py:load_packaged_grammar",
+      "blib2to3/pygram.py:_python_symbols"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "blib2to3/pgen2/driver.py",
+      "blib2to3/pgen2/grammar.py",
+      "blib2to3/pgen2/token.py",
+      "blib2to3/pygram.py",
+      "blib2to3/pytree.py"
+    ],
+    "not_counted": [
+      "driver <- blib2to3/pgen2/__init__.py (not a project function/class)",
+      "pygram <- blib2to3/__init__.py (not a project function/class)",
+      "pytree <- blib2to3/__init__.py (not a project function/class)",
+      "token <- blib2to3/pgen2/__init__.py (not a project function/class)"
+    ],
+    "total": 93,
+    "verdict": "excluded",
+    "old_total": 80,
+    "old_r2": false
+  },
+  {
+    "project": "black",
+    "bug": "7",
+    "function": "normalize_invisible_parens",
+    "path": "black.py",
+    "current": 12,
+    "same": [
+      "BracketTracker",
+      "ProtoComment",
+      "is_empty_tuple",
+      "is_multiline_string",
+      "is_one_tuple",
+      "is_yield",
+      "list_comments",
+      "make_comment",
+      "max_delimiter_priority_in_atom",
+      "maybe_make_parens_invisible_in_atom"
+    ],
+    "cross": [
+      "Leaf <- blib2to3/pytree.py:Leaf",
+      "Node <- blib2to3/pytree.py:Node"
+    ],
+    "functions": [
+      "black.py:BracketTracker",
+      "black.py:ProtoComment",
+      "black.py:is_empty_tuple",
+      "black.py:is_multiline_string",
+      "black.py:is_one_tuple",
+      "black.py:is_yield",
+      "black.py:list_comments",
+      "black.py:make_comment",
+      "black.py:max_delimiter_priority_in_atom",
+      "black.py:maybe_make_parens_invisible_in_atom",
+      "blib2to3/pgen2/driver.py:_generate_pickle_name",
+      "blib2to3/pgen2/driver.py:_newer",
+      "blib2to3/pgen2/driver.py:load_grammar",
+      "blib2to3/pgen2/driver.py:load_packaged_grammar"
+    ],
+    "classes": [
+      "blib2to3/pygram.py:Symbols",
+      "blib2to3/pytree.py:Leaf",
+      "blib2to3/pytree.py:Node"
+    ],
+    "initializers": [
+      "blib2to3/pgen2/driver.py:load_packaged_grammar",
+      "blib2to3/pygram.py:Symbols"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "blib2to3/pgen2/grammar.py",
+      "blib2to3/pgen2/token.py"
+    ],
+    "not_counted": [
+      "token <- blib2to3/pgen2/__init__.py (not a project function/class)"
+    ],
+    "total": 19,
+    "verdict": "excluded",
+    "old_total": 12,
+    "old_r2": false
+  },
+  {
+    "project": "black",
+    "bug": "8",
+    "function": "bracket_split_build_line",
+    "path": "black.py",
+    "current": 4,
+    "same": [
+      "Line",
+      "normalize_prefix",
+      "should_explode"
+    ],
+    "cross": [
+      "Leaf <- blib2to3/pytree.py:Leaf"
+    ],
+    "functions": [
+      "black.py:Line",
+      "black.py:normalize_prefix",
+      "black.py:should_explode",
+      "blib2to3/pgen2/driver.py:_generate_pickle_name",
+      "blib2to3/pgen2/driver.py:_newer",
+      "blib2to3/pgen2/driver.py:load_grammar",
+      "blib2to3/pgen2/driver.py:load_packaged_grammar"
+    ],
+    "classes": [
+      "blib2to3/pygram.py:Symbols",
+      "blib2to3/pytree.py:Leaf"
+    ],
+    "initializers": [
+      "blib2to3/pgen2/driver.py:load_packaged_grammar",
+      "blib2to3/pygram.py:Symbols"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "blib2to3/pgen2/grammar.py",
+      "blib2to3/pgen2/token.py"
+    ],
+    "not_counted": [
+      "token <- blib2to3/pgen2/__init__.py (not a project function/class)"
+    ],
+    "total": 11,
+    "verdict": "excluded",
+    "old_total": 4,
+    "old_r2": false
+  },
+  {
+    "project": "black",
+    "bug": "9",
+    "function": "get_grammars",
+    "path": "black.py",
+    "current": 2,
+    "same": [
+      "TargetVersion"
+    ],
+    "cross": [
+      "Grammar <- blib2to3/pgen2/grammar.py:Grammar"
+    ],
+    "functions": [
+      "black.py:TargetVersion",
+      "blib2to3/pgen2/driver.py:_generate_pickle_name",
+      "blib2to3/pgen2/driver.py:_newer",
+      "blib2to3/pgen2/driver.py:load_grammar",
+      "blib2to3/pgen2/driver.py:load_packaged_grammar"
+    ],
+    "classes": [
+      "blib2to3/pgen2/grammar.py:Grammar"
+    ],
+    "initializers": [
+      "blib2to3/pgen2/driver.py:load_packaged_grammar"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "blib2to3/pgen2/driver.py",
+      "blib2to3/pgen2/grammar.py",
+      "blib2to3/pygram.py"
+    ],
+    "not_counted": [
+      "pygram <- blib2to3/__init__.py (not a project function/class)"
+    ],
+    "total": 9,
+    "verdict": "excluded",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "black",
+    "bug": "13",
+    "function": "generate_tokens",
+    "path": "blib2to3/pgen2/tokenize.py",
+    "current": 1,
+    "same": [
+      "TokenError"
+    ],
+    "cross": [],
+    "functions": [
+      "blib2to3/pgen2/tokenize.py:TokenError",
+      "blib2to3/pgen2/tokenize.py:_combinations",
+      "blib2to3/pgen2/tokenize.py:group",
+      "blib2to3/pgen2/tokenize.py:maybe"
+    ],
+    "classes": [],
+    "initializers": [
+      "blib2to3/pgen2/tokenize.py:_combinations",
+      "blib2to3/pgen2/tokenize.py:group",
+      "blib2to3/pgen2/tokenize.py:maybe"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 4,
+    "verdict": "excluded",
+    "old_total": 1,
+    "old_r2": true
+  },
+  {
+    "project": "black",
+    "bug": "16",
+    "function": "gen_python_files_in_dir",
+    "path": "black.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "black",
+    "bug": "20",
+    "function": "format_file_in_place",
+    "path": "black.py",
+    "current": 28,
+    "same": [
+      "CannotSplit",
+      "EmptyLineTracker",
+      "Line",
+      "LineGenerator",
+      "NothingChanged",
+      "UnformattedLines",
+      "WriteBack",
+      "assert_equivalent",
+      "assert_stable",
+      "bracket_split_succeeded_or_raise",
+      "delimiter_split",
+      "diff",
+      "dont_increase_indentation",
+      "dump_to_file",
+      "ensure_visible",
+      "format_file_contents",
+      "format_str",
+      "is_python36",
+      "is_vararg",
+      "left_hand_split",
+      "lib2to3_parse",
+      "normalize_prefix",
+      "right_hand_split",
+      "split_line",
+      "standalone_comment_split"
+    ],
+    "cross": [
+      "Leaf <- blib2to3/pytree.py:Leaf",
+      "Node <- blib2to3/pytree.py:Node",
+      "ParseError <- blib2to3/pgen2/parse.py:ParseError"
+    ],
+    "functions": [
+      "black.py:CannotSplit",
+      "black.py:EmptyLineTracker",
+      "black.py:Line",
+      "black.py:LineGenerator",
+      "black.py:NothingChanged",
+      "black.py:UnformattedLines",
+      "black.py:WriteBack",
+      "black.py:assert_equivalent",
+      "black.py:assert_stable",
+      "black.py:bracket_split_succeeded_or_raise",
+      "black.py:delimiter_split",
+      "black.py:diff",
+      "black.py:dont_increase_indentation",
+      "black.py:dump_to_file",
+      "black.py:ensure_visible",
+      "black.py:format_file_contents",
+      "black.py:format_str",
+      "black.py:is_python36",
+      "black.py:is_vararg",
+      "black.py:left_hand_split",
+      "black.py:lib2to3_parse",
+      "black.py:normalize_prefix",
+      "black.py:right_hand_split",
+      "black.py:split_line",
+      "black.py:standalone_comment_split",
+      "blib2to3/pgen2/driver.py:_generate_pickle_name",
+      "blib2to3/pgen2/driver.py:_newer",
+      "blib2to3/pgen2/driver.py:load_grammar",
+      "blib2to3/pgen2/driver.py:load_packaged_grammar",
+      "blib2to3/pytree.py:Leaf",
+      "blib2to3/pytree.py:Node",
+      "blib2to3/pytree.py:convert"
+    ],
+    "classes": [
+      "blib2to3/pgen2/driver.py:Driver",
+      "blib2to3/pgen2/parse.py:ParseError",
+      "blib2to3/pygram.py:Symbols",
+      "blib2to3/pytree.py:Leaf",
+      "blib2to3/pytree.py:Node"
+    ],
+    "initializers": [
+      "blib2to3/pgen2/driver.py:load_packaged_grammar",
+      "blib2to3/pygram.py:Symbols"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "blib2to3/pgen2/driver.py",
+      "blib2to3/pgen2/grammar.py",
+      "blib2to3/pgen2/token.py",
+      "blib2to3/pygram.py",
+      "blib2to3/pytree.py"
+    ],
+    "not_counted": [
+      "driver <- blib2to3/pgen2/__init__.py (not a project function/class)",
+      "pygram <- blib2to3/__init__.py (not a project function/class)",
+      "pytree <- blib2to3/__init__.py (not a project function/class)",
+      "token <- blib2to3/pgen2/__init__.py (not a project function/class)"
+    ],
+    "total": 40,
+    "verdict": "excluded",
+    "old_total": 28,
+    "old_r2": false
+  },
+  {
+    "project": "black",
+    "bug": "21",
+    "function": "dump_to_file",
+    "path": "black.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "cookiecutter",
+    "bug": "1",
+    "function": "generate_context",
+    "path": "cookiecutter/generate.py",
+    "current": 2,
+    "same": [
+      "apply_overwrites_to_context"
+    ],
+    "cross": [
+      "ContextDecodingException <- cookiecutter/exceptions.py:ContextDecodingException"
+    ],
+    "functions": [
+      "cookiecutter/generate.py:apply_overwrites_to_context"
+    ],
+    "classes": [
+      "cookiecutter/exceptions.py:ContextDecodingException"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "cookiecutter",
+    "bug": "3",
+    "function": "read_user_choice",
+    "path": "cookiecutter/prompt.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "fastapi",
+    "bug": "4",
+    "function": "get_openapi_path",
+    "path": "fastapi/openapi/utils.py",
+    "current": 14,
+    "same": [
+      "generate_operation_id",
+      "generate_operation_summary",
+      "get_openapi_operation_metadata",
+      "get_openapi_operation_parameters",
+      "get_openapi_operation_request_body",
+      "get_openapi_params",
+      "get_openapi_security_definitions"
+    ],
+    "cross": [
+      "Body <- fastapi/params.py:Body",
+      "Dependant <- fastapi/dependencies/models.py:Dependant",
+      "Param <- fastapi/params.py:Param",
+      "generate_operation_id_for_path <- fastapi/utils.py:generate_operation_id_for_path",
+      "get_field_info <- fastapi/utils.py:get_field_info",
+      "get_flat_dependant <- fastapi/dependencies/utils.py:get_flat_dependant",
+      "jsonable_encoder <- fastapi/encoders.py:jsonable_encoder"
+    ],
+    "functions": [
+      "fastapi/dependencies/utils.py:get_flat_dependant",
+      "fastapi/encoders.py:generate_encoders_by_class_tuples",
+      "fastapi/encoders.py:jsonable_encoder",
+      "fastapi/openapi/utils.py:generate_operation_id",
+      "fastapi/openapi/utils.py:generate_operation_summary",
+      "fastapi/openapi/utils.py:get_openapi_operation_metadata",
+      "fastapi/openapi/utils.py:get_openapi_operation_parameters",
+      "fastapi/openapi/utils.py:get_openapi_operation_request_body",
+      "fastapi/openapi/utils.py:get_openapi_params",
+      "fastapi/openapi/utils.py:get_openapi_security_definitions",
+      "fastapi/utils.py:generate_operation_id_for_path",
+      "fastapi/utils.py:get_field_info"
+    ],
+    "classes": [
+      "fastapi/dependencies/models.py:Dependant",
+      "fastapi/params.py:Body",
+      "fastapi/params.py:Param",
+      "fastapi/routing.py:APIRoute"
+    ],
+    "initializers": [
+      "fastapi/encoders.py:generate_encoders_by_class_tuples"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "fastapi/routing.py"
+    ],
+    "not_counted": [
+      "METHODS_WITH_BODY <- fastapi/openapi/constants.py (module-level constant/alias)",
+      "PYDANTIC_1 <- fastapi/utils.py (not a project function/class)",
+      "REF_PREFIX <- fastapi/openapi/constants.py (module-level constant/alias)",
+      "STATUS_CODES_WITH_NO_BODY <- fastapi/openapi/constants.py (module-level constant/alias)",
+      "logger <- fastapi/logger.py (module-level constant/alias)",
+      "routing <- fastapi/__init__.py (not a project function/class)"
+    ],
+    "total": 17,
+    "verdict": "excluded",
+    "old_total": 14,
+    "old_r2": false
+  },
+  {
+    "project": "fastapi",
+    "bug": "5",
+    "function": "create_cloned_field",
+    "path": "fastapi/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "fastapi",
+    "bug": "6",
+    "function": "request_body_to_args",
+    "path": "fastapi/dependencies/utils.py",
+    "current": 1,
+    "same": [],
+    "cross": [
+      "get_field_info <- fastapi/utils.py:get_field_info"
+    ],
+    "functions": [
+      "fastapi/utils.py:get_field_info"
+    ],
+    "classes": [
+      "fastapi/params.py:File",
+      "fastapi/params.py:Form"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "fastapi/params.py"
+    ],
+    "not_counted": [
+      "PYDANTIC_1 <- fastapi/utils.py (not a project function/class)",
+      "params <- fastapi/__init__.py (not a project function/class)"
+    ],
+    "total": 4,
+    "verdict": "excluded",
+    "old_total": 1,
+    "old_r2": true
+  },
+  {
+    "project": "fastapi",
+    "bug": "9",
+    "function": "get_body_field",
+    "path": "fastapi/dependencies/utils.py",
+    "current": 3,
+    "same": [
+      "get_flat_dependant",
+      "get_schema_compatible_field"
+    ],
+    "cross": [
+      "Dependant <- fastapi/dependencies/models.py:Dependant"
+    ],
+    "functions": [
+      "fastapi/dependencies/utils.py:get_flat_dependant",
+      "fastapi/dependencies/utils.py:get_schema_compatible_field"
+    ],
+    "classes": [
+      "fastapi/dependencies/models.py:Dependant",
+      "fastapi/params.py:Body",
+      "fastapi/params.py:File",
+      "fastapi/params.py:Form"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "fastapi/params.py"
+    ],
+    "not_counted": [
+      "params <- fastapi/__init__.py (not a project function/class)"
+    ],
+    "total": 7,
+    "verdict": "excluded",
+    "old_total": 3,
+    "old_r2": true
+  },
+  {
+    "project": "fastapi",
+    "bug": "10",
+    "function": "serialize_response",
+    "path": "fastapi/routing.py",
+    "current": 1,
+    "same": [],
+    "cross": [
+      "jsonable_encoder <- fastapi/encoders.py:jsonable_encoder"
+    ],
+    "functions": [
+      "fastapi/encoders.py:jsonable_encoder"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 1,
+    "verdict": "pass",
+    "old_total": 1,
+    "old_r2": true
+  },
+  {
+    "project": "fastapi",
+    "bug": "11",
+    "function": "is_scalar_field",
+    "path": "fastapi/dependencies/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [
+      "fastapi/params.py:Body"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "fastapi/params.py"
+    ],
+    "not_counted": [
+      "params <- fastapi/__init__.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "fastapi",
+    "bug": "16",
+    "function": "jsonable_encoder",
+    "path": "fastapi/encoders.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "keras",
+    "bug": "2",
+    "function": "in_top_k",
+    "path": "keras/backend/numpy_backend.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "3",
+    "function": "_clone_functional_model",
+    "path": "keras/models.py",
+    "current": 7,
+    "same": [],
+    "cross": [
+      "Input <- keras/engine/input_layer.py:Input",
+      "InputLayer <- keras/engine/input_layer.py:InputLayer",
+      "Model <- keras/engine/training.py:Model",
+      "Sequential <- keras/engine/sequential.py:Sequential",
+      "has_arg <- keras/utils/generic_utils.py:has_arg",
+      "to_list <- keras/utils/generic_utils.py:to_list",
+      "unpack_singleton <- keras/utils/generic_utils.py:unpack_singleton"
+    ],
+    "functions": [
+      "keras/backend/cntk_backend.py:is_keras_tensor",
+      "keras/backend/cntk_backend.py:is_tensor",
+      "keras/backend/common.py:floatx",
+      "keras/engine/input_layer.py:Input",
+      "keras/utils/generic_utils.py:has_arg",
+      "keras/utils/generic_utils.py:to_list",
+      "keras/utils/generic_utils.py:unpack_singleton"
+    ],
+    "classes": [
+      "keras/engine/input_layer.py:InputLayer",
+      "keras/engine/sequential.py:Sequential",
+      "keras/engine/training.py:Model"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "keras/backend/__init__.py"
+    ],
+    "not_counted": [
+      "K <- keras/__init__.py (not a project function/class)"
+    ],
+    "total": 11,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "5",
+    "function": "get_file",
+    "path": "keras/utils/data_utils.py",
+    "current": 4,
+    "same": [
+      "_extract_archive",
+      "_hash_file",
+      "validate_file"
+    ],
+    "cross": [
+      "Progbar <- keras/utils/generic_utils.py:Progbar"
+    ],
+    "functions": [
+      "keras/utils/data_utils.py:_extract_archive",
+      "keras/utils/data_utils.py:_hash_file",
+      "keras/utils/data_utils.py:validate_file"
+    ],
+    "classes": [
+      "keras/utils/generic_utils.py:Progbar"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 4,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "6",
+    "function": "weighted_masked_objective",
+    "path": "keras/engine/training_utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "keras/backend/cntk_backend.py:_get_dynamic_axis_num",
+      "keras/backend/cntk_backend.py:_normalize_axis",
+      "keras/backend/cntk_backend.py:_reduce_on_axis",
+      "keras/backend/cntk_backend.py:_remove_dims",
+      "keras/backend/cntk_backend.py:_reshape_dummy_dim",
+      "keras/backend/cntk_backend.py:cast",
+      "keras/backend/cntk_backend.py:expand_dims",
+      "keras/backend/cntk_backend.py:int_shape",
+      "keras/backend/cntk_backend.py:mean",
+      "keras/backend/cntk_backend.py:ndim",
+      "keras/backend/cntk_backend.py:not_equal",
+      "keras/backend/common.py:epsilon",
+      "keras/backend/common.py:floatx"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "keras/backend/__init__.py"
+    ],
+    "not_counted": [
+      "K <- keras/__init__.py (not a project function/class)"
+    ],
+    "total": 14,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "9",
+    "function": "process_list_block",
+    "path": "docs/autogen.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "keras",
+    "bug": "10",
+    "function": "standardize_weights",
+    "path": "keras/engine/training_utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "keras/backend/common.py:floatx"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "keras/backend/__init__.py"
+    ],
+    "not_counted": [
+      "K <- keras/__init__.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "13",
+    "function": "fit_generator",
+    "path": "keras/engine/training_generator.py",
+    "current": 5,
+    "same": [],
+    "cross": [
+      "GeneratorEnqueuer <- keras/utils/data_utils.py:GeneratorEnqueuer",
+      "OrderedEnqueuer <- keras/utils/data_utils.py:OrderedEnqueuer",
+      "Sequence <- keras/utils/data_utils.py:Sequence",
+      "iter_sequence_infinite <- keras/engine/training_utils.py:iter_sequence_infinite",
+      "to_list <- keras/utils/generic_utils.py:to_list"
+    ],
+    "functions": [
+      "keras/backend/cntk_backend.py:learning_phase",
+      "keras/engine/training_utils.py:iter_sequence_infinite",
+      "keras/utils/generic_utils.py:to_list"
+    ],
+    "classes": [
+      "keras/callbacks.py:BaseLogger",
+      "keras/callbacks.py:CallbackList",
+      "keras/callbacks.py:History",
+      "keras/callbacks.py:ProgbarLogger",
+      "keras/utils/data_utils.py:GeneratorEnqueuer",
+      "keras/utils/data_utils.py:OrderedEnqueuer",
+      "keras/utils/data_utils.py:Sequence"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "keras/backend/__init__.py",
+      "keras/callbacks.py"
+    ],
+    "not_counted": [
+      "K <- keras/__init__.py (not a project function/class)",
+      "cbks <- keras/__init__.py (not a project function/class)"
+    ],
+    "total": 12,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "14",
+    "function": "sparse_top_k_categorical_accuracy",
+    "path": "keras/metrics.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "keras/backend/cntk_backend.py:ReshapeBatch",
+      "keras/backend/cntk_backend.py:_get_cntk_version",
+      "keras/backend/cntk_backend.py:_get_dynamic_axis_num",
+      "keras/backend/cntk_backend.py:_normalize_axis",
+      "keras/backend/cntk_backend.py:_reduce_on_axis",
+      "keras/backend/cntk_backend.py:_remove_dims",
+      "keras/backend/cntk_backend.py:_reshape_batch",
+      "keras/backend/cntk_backend.py:_reshape_dummy_dim",
+      "keras/backend/cntk_backend.py:cast",
+      "keras/backend/cntk_backend.py:expand_dims",
+      "keras/backend/cntk_backend.py:flatten",
+      "keras/backend/cntk_backend.py:in_top_k",
+      "keras/backend/cntk_backend.py:int_shape",
+      "keras/backend/cntk_backend.py:mean",
+      "keras/backend/cntk_backend.py:reshape"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "keras/backend/__init__.py"
+    ],
+    "not_counted": [
+      "K <- keras/__init__.py (not a project function/class)"
+    ],
+    "total": 16,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "17",
+    "function": "sparse_categorical_accuracy",
+    "path": "keras/metrics.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "keras/backend/cntk_backend.py:ReshapeBatch",
+      "keras/backend/cntk_backend.py:_get_cntk_version",
+      "keras/backend/cntk_backend.py:_get_dynamic_axis_num",
+      "keras/backend/cntk_backend.py:_normalize_axis",
+      "keras/backend/cntk_backend.py:_reshape_batch",
+      "keras/backend/cntk_backend.py:_reshape_dummy_dim",
+      "keras/backend/cntk_backend.py:argmax",
+      "keras/backend/cntk_backend.py:cast",
+      "keras/backend/cntk_backend.py:equal",
+      "keras/backend/cntk_backend.py:flatten",
+      "keras/backend/cntk_backend.py:int_shape",
+      "keras/backend/cntk_backend.py:reshape",
+      "keras/backend/common.py:floatx"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "keras/backend/__init__.py"
+    ],
+    "not_counted": [
+      "K <- keras/__init__.py (not a project function/class)"
+    ],
+    "total": 14,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "25",
+    "function": "_preprocess_numpy_input",
+    "path": "keras/applications/imagenet_utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "keras/backend/common.py:floatx"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "keras/backend/__init__.py"
+    ],
+    "not_counted": [
+      "K <- keras/__init__.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "26",
+    "function": "rnn",
+    "path": "keras/backend/tensorflow_backend.py",
+    "current": 3,
+    "same": [
+      "expand_dims",
+      "reverse",
+      "zeros_like"
+    ],
+    "cross": [],
+    "functions": [
+      "keras/backend/tensorflow_backend.py:expand_dims",
+      "keras/backend/tensorflow_backend.py:reverse",
+      "keras/backend/tensorflow_backend.py:zeros_like"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "31",
+    "function": "ctc_batch_cost",
+    "path": "keras/backend/tensorflow_backend.py",
+    "current": 7,
+    "same": [
+      "concatenate",
+      "ctc_label_dense_to_sparse",
+      "is_sparse",
+      "ndim",
+      "reverse",
+      "to_dense"
+    ],
+    "cross": [
+      "epsilon <- keras/backend/common.py:epsilon"
+    ],
+    "functions": [
+      "keras/backend/common.py:epsilon",
+      "keras/backend/tensorflow_backend.py:concatenate",
+      "keras/backend/tensorflow_backend.py:ctc_label_dense_to_sparse",
+      "keras/backend/tensorflow_backend.py:is_sparse",
+      "keras/backend/tensorflow_backend.py:ndim",
+      "keras/backend/tensorflow_backend.py:reverse",
+      "keras/backend/tensorflow_backend.py:to_dense"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 7,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "33",
+    "function": "text_to_word_sequence",
+    "path": "keras/preprocessing/text.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "36",
+    "function": "separable_conv1d",
+    "path": "keras/backend/tensorflow_backend.py",
+    "current": 10,
+    "same": [
+      "_TfDeviceCaptureOp",
+      "_get_available_gpus",
+      "_get_current_tf_device",
+      "_has_nchw_support",
+      "_is_current_explicit_device",
+      "_preprocess_conv1d_input",
+      "_preprocess_padding",
+      "dtype",
+      "get_session"
+    ],
+    "cross": [
+      "image_data_format <- keras/backend/common.py:image_data_format"
+    ],
+    "functions": [
+      "keras/backend/common.py:image_data_format",
+      "keras/backend/tensorflow_backend.py:_TfDeviceCaptureOp",
+      "keras/backend/tensorflow_backend.py:_get_available_gpus",
+      "keras/backend/tensorflow_backend.py:_get_current_tf_device",
+      "keras/backend/tensorflow_backend.py:_has_nchw_support",
+      "keras/backend/tensorflow_backend.py:_is_current_explicit_device",
+      "keras/backend/tensorflow_backend.py:_preprocess_conv1d_input",
+      "keras/backend/tensorflow_backend.py:_preprocess_padding",
+      "keras/backend/tensorflow_backend.py:dtype",
+      "keras/backend/tensorflow_backend.py:get_session"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 10,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "keras",
+    "bug": "43",
+    "function": "to_categorical",
+    "path": "keras/utils/np_utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "luigi",
+    "bug": "21",
+    "function": "run",
+    "path": "luigi/interface.py",
+    "current": 2,
+    "same": [
+      "ArgParseInterface",
+      "DynamicArgParseInterface"
+    ],
+    "cross": [],
+    "functions": [
+      "luigi/interface.py:ArgParseInterface",
+      "luigi/interface.py:DynamicArgParseInterface"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "matplotlib",
+    "bug": "16",
+    "function": "nonsingular",
+    "path": "lib/matplotlib/transforms.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "matplotlib",
+    "bug": "17",
+    "function": "nonsingular",
+    "path": "lib/matplotlib/transforms.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "matplotlib",
+    "bug": "24",
+    "function": "_make_getset_interval",
+    "path": "lib/matplotlib/axis.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "matplotlib",
+    "bug": "26",
+    "function": "_make_getset_interval",
+    "path": "lib/matplotlib/axis.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "matplotlib",
+    "bug": "30",
+    "function": "makeMappingArray",
+    "path": "lib/matplotlib/colors.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "1",
+    "function": "is_string_dtype",
+    "path": "pandas/core/dtypes/common.py",
+    "current": 10,
+    "same": [
+      "_get_dtype",
+      "_is_dtype",
+      "is_categorical_dtype",
+      "is_interval_dtype",
+      "is_period_dtype",
+      "pandas_dtype"
+    ],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "IntervalDtype <- pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable"
+    ],
+    "functions": [
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype",
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/dtypes/common.py:is_interval_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "DtypeObj <- pandas/_typing.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "Interval <- pandas/_libs/__init__.py (not a project function/class)",
+      "Period <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 14,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "6",
+    "function": "get_grouper",
+    "path": "pandas/core/groupby/grouper.py",
+    "current": 8,
+    "same": [
+      "Grouper",
+      "Grouping",
+      "_is_label_like"
+    ],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "DataFrame <- pandas/core/frame.py:DataFrame",
+      "InvalidIndexError <- pandas/core/indexes/base.py:InvalidIndexError",
+      "Series <- pandas/core/series.py:Series",
+      "is_categorical_dtype <- pandas/core/dtypes/common.py:is_categorical_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/groupby/grouper.py:Grouper",
+      "pandas/core/groupby/grouper.py:Grouping",
+      "pandas/core/groupby/grouper.py:_is_label_like"
+    ],
+    "classes": [
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/frame.py:DataFrame",
+      "pandas/core/groupby/ops.py:BaseGrouper",
+      "pandas/core/indexes/base.py:InvalidIndexError",
+      "pandas/core/series.py:Series"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "pandas/core/groupby/ops.py"
+    ],
+    "not_counted": [
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "FrameOrSeries <- pandas/_typing.py (module-level constant/alias)",
+      "Index <- pandas/core/indexes/api.py (not a project function/class)",
+      "MultiIndex <- pandas/core/indexes/api.py (not a project function/class)",
+      "com <- pandas/core/common.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)",
+      "ops <- pandas/core/groupby/__init__.py (not a project function/class)"
+    ],
+    "total": 10,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "11",
+    "function": "_make_concat_multiindex",
+    "path": "pandas/core/reshape/concat.py",
+    "current": 9,
+    "same": [
+      "_concat_indexes"
+    ],
+    "cross": [
+      "Categorical <- pandas/core/arrays/categorical.py:Categorical",
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "all_indexes_same <- pandas/core/indexes/api.py:all_indexes_same",
+      "extract_array <- pandas/core/construction.py:extract_array",
+      "factorize_from_iterable <- pandas/core/arrays/categorical.py:factorize_from_iterable",
+      "factorize_from_iterables <- pandas/core/arrays/categorical.py:factorize_from_iterables",
+      "get_consensus_names <- pandas/core/indexes/api.py:get_consensus_names",
+      "is_categorical_dtype <- pandas/core/dtypes/common.py:is_categorical_dtype"
+    ],
+    "functions": [
+      "pandas/core/arrays/categorical.py:factorize_from_iterable",
+      "pandas/core/arrays/categorical.py:factorize_from_iterables",
+      "pandas/core/construction.py:extract_array",
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/indexes/api.py:all_indexes_same",
+      "pandas/core/indexes/api.py:get_consensus_names",
+      "pandas/core/reshape/concat.py:_concat_indexes"
+    ],
+    "classes": [
+      "pandas/core/arrays/categorical.py:Categorical",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCPandasArray <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "Index <- pandas/__init__.py (not a project function/class)",
+      "MultiIndex <- pandas/__init__.py (not a project function/class)",
+      "com <- pandas/core/common.py (not a project function/class)",
+      "ensure_index <- pandas/core/indexes/api.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/common.py (not a project function/class)"
+    ],
+    "total": 10,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "38",
+    "function": "_unstack_multiple",
+    "path": "pandas/core/reshape/reshape.py",
+    "current": 7,
+    "same": [],
+    "cross": [
+      "Series <- pandas/core/series.py:Series",
+      "_reorder_by_uniques <- pandas/core/sorting.py:_reorder_by_uniques",
+      "compress_group_index <- pandas/core/sorting.py:compress_group_index",
+      "decons_group_index <- pandas/core/sorting.py:decons_group_index",
+      "decons_obs_group_ids <- pandas/core/sorting.py:decons_obs_group_ids",
+      "get_group_index <- pandas/core/sorting.py:get_group_index",
+      "is_int64_overflow_possible <- pandas/core/sorting.py:is_int64_overflow_possible"
+    ],
+    "functions": [
+      "pandas/core/sorting.py:_reorder_by_uniques",
+      "pandas/core/sorting.py:compress_group_index",
+      "pandas/core/sorting.py:decons_group_index",
+      "pandas/core/sorting.py:decons_obs_group_ids",
+      "pandas/core/sorting.py:get_group_index",
+      "pandas/core/sorting.py:is_int64_overflow_possible"
+    ],
+    "classes": [
+      "pandas/core/series.py:Series"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "Index <- pandas/core/indexes/api.py (not a project function/class)",
+      "MultiIndex <- pandas/core/indexes/api.py (not a project function/class)",
+      "algorithms <- pandas/core/algorithms.py (not a project function/class)",
+      "ensure_int64 <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "hashtable <- pandas/_libs/__init__.py (not a project function/class)"
+    ],
+    "total": 7,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "39",
+    "function": "add_special_arithmetic_methods",
+    "path": "pandas/core/ops/methods.py",
+    "current": 14,
+    "same": [
+      "_add_methods",
+      "_create_methods",
+      "_get_method_wrappers"
+    ],
+    "cross": [
+      "radd <- pandas/core/ops/roperator.py:radd",
+      "rand_ <- pandas/core/ops/roperator.py:rand_",
+      "rdivmod <- pandas/core/ops/roperator.py:rdivmod",
+      "rfloordiv <- pandas/core/ops/roperator.py:rfloordiv",
+      "rmod <- pandas/core/ops/roperator.py:rmod",
+      "rmul <- pandas/core/ops/roperator.py:rmul",
+      "ror_ <- pandas/core/ops/roperator.py:ror_",
+      "rpow <- pandas/core/ops/roperator.py:rpow",
+      "rsub <- pandas/core/ops/roperator.py:rsub",
+      "rtruediv <- pandas/core/ops/roperator.py:rtruediv",
+      "rxor <- pandas/core/ops/roperator.py:rxor"
+    ],
+    "functions": [
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/ops/methods.py:_add_methods",
+      "pandas/core/ops/methods.py:_create_methods",
+      "pandas/core/ops/methods.py:_get_method_wrappers",
+      "pandas/core/ops/roperator.py:radd",
+      "pandas/core/ops/roperator.py:rand_",
+      "pandas/core/ops/roperator.py:rdivmod",
+      "pandas/core/ops/roperator.py:rfloordiv",
+      "pandas/core/ops/roperator.py:rmod",
+      "pandas/core/ops/roperator.py:rmul",
+      "pandas/core/ops/roperator.py:ror_",
+      "pandas/core/ops/roperator.py:rpow",
+      "pandas/core/ops/roperator.py:rsub",
+      "pandas/core/ops/roperator.py:rtruediv",
+      "pandas/core/ops/roperator.py:rxor"
+    ],
+    "classes": [],
+    "initializers": [
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCDataFrame <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSparseArray <- pandas/core/dtypes/generic.py (module-level constant/alias)"
+    ],
+    "total": 15,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "42",
+    "function": "assert_series_equal",
+    "path": "pandas/_testing.py",
+    "current": 40,
+    "same": [
+      "_check_isinstance",
+      "assert_attr_equal",
+      "assert_categorical_equal",
+      "assert_class_equal",
+      "assert_extension_array_equal",
+      "assert_index_equal",
+      "assert_interval_array_equal",
+      "assert_numpy_array_equal",
+      "raise_assert_detail"
+    ],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "DatetimeTZDtype <- pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "IntervalDtype <- pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_is_dtype <- pandas/core/dtypes/common.py:_is_dtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "_pprint_dict <- pandas/io/formats/printing.py:_pprint_dict",
+      "_pprint_seq <- pandas/io/formats/printing.py:_pprint_seq",
+      "array_equivalent <- pandas/core/dtypes/missing.py:array_equivalent",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "classes_and_not_datetimelike <- pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "is_categorical_dtype <- pandas/core/dtypes/common.py:is_categorical_dtype",
+      "is_complex_dtype <- pandas/core/dtypes/common.py:is_complex_dtype",
+      "is_datetime64tz_dtype <- pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "is_datetime_or_timedelta_dtype <- pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "is_datetimelike_v_numeric <- pandas/core/dtypes/common.py:is_datetimelike_v_numeric",
+      "is_dtype_equal <- pandas/core/dtypes/common.py:is_dtype_equal",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_float_dtype <- pandas/core/dtypes/common.py:is_float_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_integer_dtype <- pandas/core/dtypes/common.py:is_integer_dtype",
+      "is_interval_dtype <- pandas/core/dtypes/common.py:is_interval_dtype",
+      "is_numeric_dtype <- pandas/core/dtypes/common.py:is_numeric_dtype",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "is_sequence <- pandas/core/dtypes/inference.py:is_sequence",
+      "is_string_dtype <- pandas/core/dtypes/common.py:is_string_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "needs_i8_conversion <- pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype",
+      "pprint_thing <- pandas/io/formats/printing.py:pprint_thing"
+    ],
+    "functions": [
+      "pandas/_config/config.py:OptionError",
+      "pandas/_config/config.py:_build_option_description",
+      "pandas/_config/config.py:_describe_option",
+      "pandas/_config/config.py:_get_deprecated_option",
+      "pandas/_config/config.py:_get_option",
+      "pandas/_config/config.py:_get_registered_option",
+      "pandas/_config/config.py:_get_root",
+      "pandas/_config/config.py:_get_single_key",
+      "pandas/_config/config.py:_select_options",
+      "pandas/_config/config.py:_translate_key",
+      "pandas/_config/config.py:_warn_if_deprecated",
+      "pandas/_config/config.py:pp_options_list",
+      "pandas/_testing.py:_check_isinstance",
+      "pandas/_testing.py:assert_attr_equal",
+      "pandas/_testing.py:assert_categorical_equal",
+      "pandas/_testing.py:assert_class_equal",
+      "pandas/_testing.py:assert_extension_array_equal",
+      "pandas/_testing.py:assert_index_equal",
+      "pandas/_testing.py:assert_interval_array_equal",
+      "pandas/_testing.py:assert_numpy_array_equal",
+      "pandas/_testing.py:raise_assert_detail",
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/dtypes/common.py:is_complex_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "pandas/core/dtypes/common.py:is_datetimelike_v_numeric",
+      "pandas/core/dtypes/common.py:is_dtype_equal",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_float_dtype",
+      "pandas/core/dtypes/common.py:is_integer_dtype",
+      "pandas/core/dtypes/common.py:is_interval_dtype",
+      "pandas/core/dtypes/common.py:is_numeric_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_string_dtype",
+      "pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/inference.py:is_sequence",
+      "pandas/core/dtypes/missing.py:array_equivalent",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/io/formats/printing.py:_pprint_dict",
+      "pandas/io/formats/printing.py:_pprint_seq",
+      "pandas/io/formats/printing.py:pprint_thing"
+    ],
+    "classes": [
+      "pandas/_config/config.py:CallableDynamicDoc",
+      "pandas/_config/config.py:OptionError",
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/_config/config.py:CallableDynamicDoc",
+      "pandas/_config/config.py:_get_option",
+      "pandas/core/dtypes/dtypes.py:Registry"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "pandas"
+    ],
+    "not_counted": [
+      "Categorical <- pandas/__init__.py (not a project function/class)",
+      "DtypeObj <- pandas/_typing.py (module-level constant/alias)",
+      "ExtensionArray <- pandas/core/arrays/__init__.py (not a project function/class)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "Index <- pandas/__init__.py (not a project function/class)",
+      "IntervalArray <- pandas/core/arrays/__init__.py (not a project function/class)",
+      "MultiIndex <- pandas/__init__.py (not a project function/class)",
+      "NaT <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "Series <- pandas/__init__.py (not a project function/class)",
+      "ensure_object <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "get_option <- pandas/_config/__init__.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_number <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "pd <- pandas/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)",
+      "take_1d <- pandas/core/algorithms.py (module-level constant/alias)"
+    ],
+    "total": 58,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "49",
+    "function": "str_repeat",
+    "path": "pandas/core/strings.py",
+    "current": 22,
+    "same": [
+      "_map_object",
+      "_map_stringarray",
+      "_na_map"
+    ],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "IntervalDtype <- pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_is_dtype <- pandas/core/dtypes/common.py:_is_dtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "classes_and_not_datetimelike <- pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "extract_array <- pandas/core/construction.py:extract_array",
+      "is_bool_dtype <- pandas/core/dtypes/common.py:is_bool_dtype",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_integer_dtype <- pandas/core/dtypes/common.py:is_integer_dtype",
+      "is_interval_dtype <- pandas/core/dtypes/common.py:is_interval_dtype",
+      "is_object_dtype <- pandas/core/dtypes/common.py:is_object_dtype",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "is_string_dtype <- pandas/core/dtypes/common.py:is_string_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/construction.py:extract_array",
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:is_bool_dtype",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_integer_dtype",
+      "pandas/core/dtypes/common.py:is_interval_dtype",
+      "pandas/core/dtypes/common.py:is_object_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_string_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/core/strings.py:_map_object",
+      "pandas/core/strings.py:_map_stringarray",
+      "pandas/core/strings.py:_na_map"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCPandasArray <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ArrayLike <- pandas/_typing.py (module-level constant/alias)",
+      "Dtype <- pandas/_typing.py (module-level constant/alias)",
+      "DtypeObj <- pandas/_typing.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 26,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "50",
+    "function": "_cat_compare_op",
+    "path": "pandas/core/arrays/categorical.py",
+    "current": 36,
+    "same": [
+      "Categorical",
+      "_get_codes_for_values"
+    ],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "DatetimeTZDtype <- pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "_check_object_for_strings <- pandas/core/algorithms.py:_check_object_for_strings",
+      "_ensure_data <- pandas/core/algorithms.py:_ensure_data",
+      "_get_data_algo <- pandas/core/algorithms.py:_get_data_algo",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_get_values_for_rank <- pandas/core/algorithms.py:_get_values_for_rank",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "_unpack_zerodim_and_defer <- pandas/core/ops/common.py:_unpack_zerodim_and_defer",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "classes_and_not_datetimelike <- pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "coerce_indexer_dtype <- pandas/core/dtypes/cast.py:coerce_indexer_dtype",
+      "is_bool_dtype <- pandas/core/dtypes/common.py:is_bool_dtype",
+      "is_categorical_dtype <- pandas/core/dtypes/common.py:is_categorical_dtype",
+      "is_complex_dtype <- pandas/core/dtypes/common.py:is_complex_dtype",
+      "is_datetime64_any_dtype <- pandas/core/dtypes/common.py:is_datetime64_any_dtype",
+      "is_datetime64_dtype <- pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "is_datetime64_ns_dtype <- pandas/core/dtypes/common.py:is_datetime64_ns_dtype",
+      "is_datetime64tz_dtype <- pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "is_datetime_or_timedelta_dtype <- pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "is_dtype_equal <- pandas/core/dtypes/common.py:is_dtype_equal",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_float_dtype <- pandas/core/dtypes/common.py:is_float_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_object_dtype <- pandas/core/dtypes/common.py:is_object_dtype",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "is_signed_integer_dtype <- pandas/core/dtypes/common.py:is_signed_integer_dtype",
+      "is_timedelta64_dtype <- pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "is_unsigned_integer_dtype <- pandas/core/dtypes/common.py:is_unsigned_integer_dtype",
+      "needs_i8_conversion <- pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype",
+      "try_cast_to_ea <- pandas/core/arrays/base.py:try_cast_to_ea",
+      "unpack_zerodim_and_defer <- pandas/core/ops/common.py:unpack_zerodim_and_defer"
+    ],
+    "functions": [
+      "pandas/core/algorithms.py:_check_object_for_strings",
+      "pandas/core/algorithms.py:_ensure_data",
+      "pandas/core/algorithms.py:_get_data_algo",
+      "pandas/core/algorithms.py:_get_values_for_rank",
+      "pandas/core/arrays/base.py:try_cast_to_ea",
+      "pandas/core/arrays/categorical.py:Categorical",
+      "pandas/core/arrays/categorical.py:_get_codes_for_values",
+      "pandas/core/dtypes/cast.py:coerce_indexer_dtype",
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:is_bool_dtype",
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/dtypes/common.py:is_complex_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_any_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_ns_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "pandas/core/dtypes/common.py:is_dtype_equal",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_float_dtype",
+      "pandas/core/dtypes/common.py:is_object_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_signed_integer_dtype",
+      "pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "pandas/core/dtypes/common.py:is_unsigned_integer_dtype",
+      "pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/ops/common.py:_unpack_zerodim_and_defer",
+      "pandas/core/ops/common.py:unpack_zerodim_and_defer"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCDataFrame <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "DtypeObj <- pandas/_typing.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "ensure_float64 <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "ensure_int16 <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "ensure_int32 <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "ensure_int64 <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "ensure_int8 <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "ensure_object <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "ensure_uint64 <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "is_list_like <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 40,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "77",
+    "function": "na_logical_op",
+    "path": "pandas/core/ops/array_ops.py",
+    "current": 7,
+    "same": [],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "is_bool_dtype <- pandas/core/dtypes/common.py:is_bool_dtype",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:is_bool_dtype",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "ensure_object <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "libops <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 11,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "82",
+    "function": "_get_empty_dtype_and_na",
+    "path": "pandas/core/internals/concat.py",
+    "current": 16,
+    "same": [
+      "_is_uniform_reindex"
+    ],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "DatetimeTZDtype <- pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "classes_and_not_datetimelike <- pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "is_categorical_dtype <- pandas/core/dtypes/common.py:is_categorical_dtype",
+      "is_datetime64_dtype <- pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "is_datetime64tz_dtype <- pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_float_dtype <- pandas/core/dtypes/common.py:is_float_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_numeric_dtype <- pandas/core/dtypes/common.py:is_numeric_dtype",
+      "is_sparse <- pandas/core/dtypes/common.py:is_sparse",
+      "is_timedelta64_dtype <- pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_float_dtype",
+      "pandas/core/dtypes/common.py:is_numeric_dtype",
+      "pandas/core/dtypes/common.py:is_sparse",
+      "pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/internals/concat.py:_is_uniform_reindex"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "pandas/_libs/tslibs/__init__.py"
+    ],
+    "not_counted": [
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)",
+      "tslibs <- pandas/_libs/__init__.py (not a project function/class)"
+    ],
+    "total": 21,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "86",
+    "function": "pivot",
+    "path": "pandas/core/reshape/pivot.py",
+    "current": 2,
+    "same": [],
+    "cross": [
+      "Appender <- pandas/util/_decorators.py:Appender",
+      "Substitution <- pandas/util/_decorators.py:Substitution"
+    ],
+    "functions": [],
+    "classes": [
+      "pandas/util/_decorators.py:Appender",
+      "pandas/util/_decorators.py:Substitution"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "MultiIndex <- pandas/core/indexes/api.py (not a project function/class)",
+      "_shared_docs <- pandas/core/frame.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/common.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "87",
+    "function": "crosstab",
+    "path": "pandas/core/reshape/pivot.py",
+    "current": 12,
+    "same": [
+      "_get_names",
+      "_normalize"
+    ],
+    "cross": [
+      "Index <- pandas/core/indexes/base.py:Index",
+      "_Concatenator <- pandas/core/reshape/concat.py:_Concatenator",
+      "_get_combined_index <- pandas/core/indexes/api.py:_get_combined_index",
+      "_get_distinct_objs <- pandas/core/indexes/api.py:_get_distinct_objs",
+      "_sanitize_and_check <- pandas/core/indexes/api.py:_sanitize_and_check",
+      "concat <- pandas/core/reshape/concat.py:concat",
+      "ensure_index <- pandas/core/indexes/base.py:ensure_index",
+      "get_consensus_names <- pandas/core/indexes/api.py:get_consensus_names",
+      "get_objs_combined_axis <- pandas/core/indexes/api.py:get_objs_combined_axis",
+      "union_indexes <- pandas/core/indexes/api.py:union_indexes"
+    ],
+    "functions": [
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/indexes/api.py:_get_combined_index",
+      "pandas/core/indexes/api.py:_get_distinct_objs",
+      "pandas/core/indexes/api.py:_sanitize_and_check",
+      "pandas/core/indexes/api.py:get_consensus_names",
+      "pandas/core/indexes/api.py:get_objs_combined_axis",
+      "pandas/core/indexes/api.py:union_indexes",
+      "pandas/core/indexes/base.py:ensure_index",
+      "pandas/core/reshape/concat.py:concat",
+      "pandas/core/reshape/pivot.py:_get_names",
+      "pandas/core/reshape/pivot.py:_normalize"
+    ],
+    "classes": [
+      "pandas/core/indexes/base.py:Index",
+      "pandas/core/reshape/concat.py:_Concatenator"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCDataFrame <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "FrameOrSeriesUnion <- pandas/_typing.py (module-level constant/alias)",
+      "com <- pandas/core/common.py (not a project function/class)",
+      "is_iterator <- pandas/core/dtypes/common.py (not a project function/class)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)"
+    ],
+    "total": 13,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "88",
+    "function": "pivot_table",
+    "path": "pandas/core/reshape/pivot.py",
+    "current": 30,
+    "same": [
+      "_add_margins",
+      "_compute_grand_margin",
+      "_convert_by",
+      "_generate_marginal_results",
+      "_generate_marginal_results_without_values"
+    ],
+    "cross": [
+      "Appender <- pandas/util/_decorators.py:Appender",
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "IntervalDtype <- pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "Series <- pandas/core/series.py:Series",
+      "Substitution <- pandas/util/_decorators.py:Substitution",
+      "_Concatenator <- pandas/core/reshape/concat.py:_Concatenator",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_is_dtype <- pandas/core/dtypes/common.py:_is_dtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "cartesian_product <- pandas/core/reshape/util.py:cartesian_product",
+      "classes_and_not_datetimelike <- pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "concat <- pandas/core/reshape/concat.py:concat",
+      "is_bool_dtype <- pandas/core/dtypes/common.py:is_bool_dtype",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_integer_dtype <- pandas/core/dtypes/common.py:is_integer_dtype",
+      "is_interval_dtype <- pandas/core/dtypes/common.py:is_interval_dtype",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "is_string_dtype <- pandas/core/dtypes/common.py:is_string_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "maybe_downcast_numeric <- pandas/core/dtypes/cast.py:maybe_downcast_numeric",
+      "maybe_downcast_to_dtype <- pandas/core/dtypes/cast.py:maybe_downcast_to_dtype",
+      "notna <- pandas/core/dtypes/missing.py:notna",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/cast.py:maybe_downcast_numeric",
+      "pandas/core/dtypes/cast.py:maybe_downcast_to_dtype",
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:is_bool_dtype",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_integer_dtype",
+      "pandas/core/dtypes/common.py:is_interval_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_string_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/core/dtypes/missing.py:notna",
+      "pandas/core/reshape/concat.py:concat",
+      "pandas/core/reshape/pivot.py:_add_margins",
+      "pandas/core/reshape/pivot.py:_compute_grand_margin",
+      "pandas/core/reshape/pivot.py:_convert_by",
+      "pandas/core/reshape/pivot.py:_generate_marginal_results",
+      "pandas/core/reshape/pivot.py:_generate_marginal_results_without_values",
+      "pandas/core/reshape/util.py:cartesian_product"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/reshape/concat.py:_Concatenator",
+      "pandas/core/series.py:Series",
+      "pandas/errors/__init__.py:AbstractMethodError",
+      "pandas/util/_decorators.py:Appender",
+      "pandas/util/_decorators.py:Substitution"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCDataFrame <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "FrameOrSeriesUnion <- pandas/_typing.py (module-level constant/alias)",
+      "Grouper <- pandas/core/groupby/__init__.py (not a project function/class)",
+      "Index <- pandas/core/indexes/api.py (not a project function/class)",
+      "MultiIndex <- pandas/core/indexes/api.py (not a project function/class)",
+      "Period <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "_shared_docs <- pandas/core/frame.py (not a project function/class)",
+      "com <- pandas/core/common.py (not a project function/class)",
+      "ensure_object <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "is_list_like <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 34,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "89",
+    "function": "_unstack_multiple",
+    "path": "pandas/core/reshape/reshape.py",
+    "current": 7,
+    "same": [],
+    "cross": [
+      "Series <- pandas/core/series.py:Series",
+      "_reorder_by_uniques <- pandas/core/sorting.py:_reorder_by_uniques",
+      "compress_group_index <- pandas/core/sorting.py:compress_group_index",
+      "decons_group_index <- pandas/core/sorting.py:decons_group_index",
+      "decons_obs_group_ids <- pandas/core/sorting.py:decons_obs_group_ids",
+      "get_group_index <- pandas/core/sorting.py:get_group_index",
+      "is_int64_overflow_possible <- pandas/core/sorting.py:is_int64_overflow_possible"
+    ],
+    "functions": [
+      "pandas/core/sorting.py:_reorder_by_uniques",
+      "pandas/core/sorting.py:compress_group_index",
+      "pandas/core/sorting.py:decons_group_index",
+      "pandas/core/sorting.py:decons_obs_group_ids",
+      "pandas/core/sorting.py:get_group_index",
+      "pandas/core/sorting.py:is_int64_overflow_possible"
+    ],
+    "classes": [
+      "pandas/core/series.py:Series"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "Index <- pandas/core/indexes/api.py (not a project function/class)",
+      "MultiIndex <- pandas/core/indexes/api.py (not a project function/class)",
+      "algorithms <- pandas/core/algorithms.py (not a project function/class)",
+      "ensure_int64 <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "hashtable <- pandas/_libs/__init__.py (not a project function/class)"
+    ],
+    "total": 7,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "95",
+    "function": "_period_array_cmp",
+    "path": "pandas/core/arrays/period.py",
+    "current": 9,
+    "same": [],
+    "cross": [
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "_unpack_zerodim_and_defer <- pandas/core/ops/common.py:_unpack_zerodim_and_defer",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "invalid_comparison <- pandas/core/ops/invalid.py:invalid_comparison",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_object_dtype <- pandas/core/dtypes/common.py:is_object_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype",
+      "unpack_zerodim_and_defer <- pandas/core/ops/common.py:unpack_zerodim_and_defer"
+    ],
+    "functions": [
+      "pandas/core/dtypes/cast.py:construct_1d_object_array_from_listlike",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:is_object_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/core/ops/array_ops.py:comp_method_OBJECT_ARRAY",
+      "pandas/core/ops/common.py:_unpack_zerodim_and_defer",
+      "pandas/core/ops/common.py:unpack_zerodim_and_defer",
+      "pandas/core/ops/invalid.py:invalid_comparison"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "pandas/compat",
+      "pandas/core/ops/__init__.py"
+    ],
+    "not_counted": [
+      "ABCDataFrame <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "NaT <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "compat <- pandas/compat/__init__.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "ops <- pandas/core/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 17,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "101",
+    "function": "astype_nansafe",
+    "path": "pandas/core/dtypes/cast.py",
+    "current": 9,
+    "same": [],
+    "cross": [
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "is_datetime64_dtype <- pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_object_dtype <- pandas/core/dtypes/common.py:is_object_dtype",
+      "is_timedelta64_dtype <- pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_object_dtype",
+      "pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "pandas/_libs/tslibs/__init__.py"
+    ],
+    "not_counted": [
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "_INT64_DTYPE <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "_TD_DTYPE <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)",
+      "tslib <- pandas/_libs/__init__.py (not a project function/class)",
+      "tslibs <- pandas/_libs/__init__.py (not a project function/class)"
+    ],
+    "total": 14,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "102",
+    "function": "init_ndarray",
+    "path": "pandas/core/internals/construction.py",
+    "current": 54,
+    "same": [
+      "_get_axes",
+      "_homogenize",
+      "arrays_to_mgr",
+      "extract_index",
+      "prep_ndarray"
+    ],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "DatetimeTZDtype <- pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "Index <- pandas/core/indexes/base.py:Index",
+      "IntervalDtype <- pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "_ensure_dtype_type <- pandas/core/dtypes/cast.py:_ensure_dtype_type",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_is_dtype <- pandas/core/dtypes/common.py:_is_dtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "_sanitize_and_check <- pandas/core/indexes/api.py:_sanitize_and_check",
+      "_try_cast <- pandas/core/construction.py:_try_cast",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "classes_and_not_datetimelike <- pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "construct_1d_arraylike_from_scalar <- pandas/core/dtypes/cast.py:construct_1d_arraylike_from_scalar",
+      "construct_1d_ndarray_preserving_na <- pandas/core/dtypes/cast.py:construct_1d_ndarray_preserving_na",
+      "construct_1d_object_array_from_listlike <- pandas/core/dtypes/cast.py:construct_1d_object_array_from_listlike",
+      "ensure_str <- pandas/core/dtypes/common.py:ensure_str",
+      "extract_array <- pandas/core/construction.py:extract_array",
+      "get_consensus_names <- pandas/core/indexes/api.py:get_consensus_names",
+      "infer_dtype_from_scalar <- pandas/core/dtypes/cast.py:infer_dtype_from_scalar",
+      "is_categorical_dtype <- pandas/core/dtypes/common.py:is_categorical_dtype",
+      "is_complex_dtype <- pandas/core/dtypes/common.py:is_complex_dtype",
+      "is_datetime64_dtype <- pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "is_datetime64_ns_dtype <- pandas/core/dtypes/common.py:is_datetime64_ns_dtype",
+      "is_datetime64tz_dtype <- pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "is_datetime_or_timedelta_dtype <- pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "is_dtype_equal <- pandas/core/dtypes/common.py:is_dtype_equal",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_float_dtype <- pandas/core/dtypes/common.py:is_float_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_integer_dtype <- pandas/core/dtypes/common.py:is_integer_dtype",
+      "is_interval_dtype <- pandas/core/dtypes/common.py:is_interval_dtype",
+      "is_object_dtype <- pandas/core/dtypes/common.py:is_object_dtype",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "is_string_dtype <- pandas/core/dtypes/common.py:is_string_dtype",
+      "is_timedelta64_dtype <- pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "is_timedelta64_ns_dtype <- pandas/core/dtypes/common.py:is_timedelta64_ns_dtype",
+      "is_unsigned_integer_dtype <- pandas/core/dtypes/common.py:is_unsigned_integer_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "maybe_cast_to_datetime <- pandas/core/dtypes/cast.py:maybe_cast_to_datetime",
+      "maybe_cast_to_integer_array <- pandas/core/dtypes/cast.py:maybe_cast_to_integer_array",
+      "maybe_castable <- pandas/core/dtypes/cast.py:maybe_castable",
+      "maybe_convert_platform <- pandas/core/dtypes/cast.py:maybe_convert_platform",
+      "maybe_infer_to_datetimelike <- pandas/core/dtypes/cast.py:maybe_infer_to_datetimelike",
+      "maybe_promote <- pandas/core/dtypes/cast.py:maybe_promote",
+      "maybe_upcast <- pandas/core/dtypes/cast.py:maybe_upcast",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype",
+      "sanitize_array <- pandas/core/construction.py:sanitize_array",
+      "union_indexes <- pandas/core/indexes/api.py:union_indexes"
+    ],
+    "functions": [
+      "pandas/core/common.py:dict_compat",
+      "pandas/core/common.py:maybe_box_datetimelike",
+      "pandas/core/construction.py:_try_cast",
+      "pandas/core/construction.py:extract_array",
+      "pandas/core/construction.py:sanitize_array",
+      "pandas/core/dtypes/cast.py:_ensure_dtype_type",
+      "pandas/core/dtypes/cast.py:construct_1d_arraylike_from_scalar",
+      "pandas/core/dtypes/cast.py:construct_1d_ndarray_preserving_na",
+      "pandas/core/dtypes/cast.py:construct_1d_object_array_from_listlike",
+      "pandas/core/dtypes/cast.py:infer_dtype_from_scalar",
+      "pandas/core/dtypes/cast.py:maybe_cast_to_datetime",
+      "pandas/core/dtypes/cast.py:maybe_cast_to_integer_array",
+      "pandas/core/dtypes/cast.py:maybe_castable",
+      "pandas/core/dtypes/cast.py:maybe_convert_platform",
+      "pandas/core/dtypes/cast.py:maybe_infer_to_datetimelike",
+      "pandas/core/dtypes/cast.py:maybe_promote",
+      "pandas/core/dtypes/cast.py:maybe_upcast",
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:ensure_str",
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/dtypes/common.py:is_complex_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_ns_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "pandas/core/dtypes/common.py:is_dtype_equal",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_float_dtype",
+      "pandas/core/dtypes/common.py:is_integer_dtype",
+      "pandas/core/dtypes/common.py:is_interval_dtype",
+      "pandas/core/dtypes/common.py:is_object_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_string_dtype",
+      "pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "pandas/core/dtypes/common.py:is_timedelta64_ns_dtype",
+      "pandas/core/dtypes/common.py:is_unsigned_integer_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/core/indexes/api.py:_sanitize_and_check",
+      "pandas/core/indexes/api.py:get_consensus_names",
+      "pandas/core/indexes/api.py:union_indexes",
+      "pandas/core/indexes/base.py:default_index",
+      "pandas/core/internals/construction.py:_get_axes",
+      "pandas/core/internals/construction.py:_homogenize",
+      "pandas/core/internals/construction.py:arrays_to_mgr",
+      "pandas/core/internals/construction.py:extract_index",
+      "pandas/core/internals/construction.py:prep_ndarray"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "pandas/core/dtypes/dtypes.py:IntervalDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/indexes/base.py:Index",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "pandas/_libs/tslibs/__init__.py",
+      "pandas/core/common.py",
+      "pandas/core/indexes/base.py"
+    ],
+    "not_counted": [
+      "ABCDatetimeArray <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCDatetimeIndex <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCExtensionArray <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCPandasArray <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCPeriodArray <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCPeriodIndex <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCTimedeltaIndex <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "IncompatibleFrequency <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "Index <- pandas/core/indexes/api.py (not a project function/class)",
+      "NaT <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "OutOfBoundsDatetime <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "_NS_DTYPE <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "_POSSIBLY_CAST_DTYPES <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "_TD_DTYPE <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "com <- pandas/core/__init__.py (not a project function/class)",
+      "com <- pandas/core/common.py (not a project function/class)",
+      "create_block_manager_from_arrays <- pandas/core/internals/__init__.py (not a project function/class)",
+      "create_block_manager_from_blocks <- pandas/core/internals/__init__.py (not a project function/class)",
+      "ensure_index <- pandas/core/indexes/api.py (not a project function/class)",
+      "ensure_object <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "iNaT <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "ibase <- pandas/core/indexes/__init__.py (not a project function/class)",
+      "is_bool <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_complex <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_float <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_integer <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_iterator <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)",
+      "tslib <- pandas/_libs/__init__.py (not a project function/class)",
+      "tslibs <- pandas/_libs/__init__.py (not a project function/class)"
+    ],
+    "total": 64,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "115",
+    "function": "interpolate_1d",
+    "path": "pandas/core/missing.py",
+    "current": 19,
+    "same": [
+      "_akima_interpolate",
+      "_from_derivatives",
+      "_interp_limit",
+      "_interpolate_scipy_wrapper",
+      "_rolling_window",
+      "find_valid_index"
+    ],
+    "cross": [
+      "DatetimeTZDtype <- pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "_get_version <- pandas/compat/_optional.py:_get_version",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "import_optional_dependency <- pandas/compat/_optional.py:import_optional_dependency",
+      "is_datetime64tz_dtype <- pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "is_datetime_or_timedelta_dtype <- pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "needs_i8_conversion <- pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/compat/_optional.py:_get_version",
+      "pandas/compat/_optional.py:import_optional_dependency",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/core/missing.py:_akima_interpolate",
+      "pandas/core/missing.py:_from_derivatives",
+      "pandas/core/missing.py:_interp_limit",
+      "pandas/core/missing.py:_interpolate_scipy_wrapper",
+      "pandas/core/missing.py:_rolling_window",
+      "pandas/core/missing.py:find_valid_index"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "algos <- pandas/_libs/__init__.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 23,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "117",
+    "function": "_isna_old",
+    "path": "pandas/core/dtypes/missing.py",
+    "current": 12,
+    "same": [
+      "_isna_ndarraylike_old"
+    ],
+    "cross": [
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_is_dtype <- pandas/core/dtypes/common.py:_is_dtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "is_datetime64_dtype <- pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "is_string_dtype <- pandas/core/dtypes/common.py:is_string_dtype",
+      "is_string_like_dtype <- pandas/core/dtypes/common.py:is_string_like_dtype",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_string_dtype",
+      "pandas/core/dtypes/common.py:is_string_like_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:_isna_ndarraylike_old"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:_ABCGeneric",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:_ABCGeneric",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCExtensionArray <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCGeneric <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCMultiIndex <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "iNaT <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 17,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "119",
+    "function": "_add_margins",
+    "path": "pandas/core/reshape/pivot.py",
+    "current": 23,
+    "same": [
+      "_compute_grand_margin",
+      "_generate_marginal_results",
+      "_generate_marginal_results_without_values"
+    ],
+    "cross": [
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "Series <- pandas/core/series.py:Series",
+      "_Concatenator <- pandas/core/reshape/concat.py:_Concatenator",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_is_dtype <- pandas/core/dtypes/common.py:_is_dtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes_and_not_datetimelike <- pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "concat <- pandas/core/reshape/concat.py:concat",
+      "is_bool_dtype <- pandas/core/dtypes/common.py:is_bool_dtype",
+      "is_extension_array_dtype <- pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_integer_dtype <- pandas/core/dtypes/common.py:is_integer_dtype",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "is_string_dtype <- pandas/core/dtypes/common.py:is_string_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "maybe_downcast_numeric <- pandas/core/dtypes/cast.py:maybe_downcast_numeric",
+      "maybe_downcast_to_dtype <- pandas/core/dtypes/cast.py:maybe_downcast_to_dtype",
+      "notna <- pandas/core/dtypes/missing.py:notna",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/cast.py:maybe_downcast_numeric",
+      "pandas/core/dtypes/cast.py:maybe_downcast_to_dtype",
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:is_bool_dtype",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_integer_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_string_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/core/dtypes/missing.py:notna",
+      "pandas/core/reshape/concat.py:concat",
+      "pandas/core/reshape/pivot.py:_compute_grand_margin",
+      "pandas/core/reshape/pivot.py:_generate_marginal_results",
+      "pandas/core/reshape/pivot.py:_generate_marginal_results_without_values"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/reshape/concat.py:_Concatenator",
+      "pandas/core/series.py:Series",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCDataFrame <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCIndexClass <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "Period <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "ensure_object <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 27,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "128",
+    "function": "read_json",
+    "path": "pandas/io/json/_json.py",
+    "current": 9,
+    "same": [
+      "JsonReader"
+    ],
+    "cross": [
+      "_expand_user <- pandas/io/common.py:_expand_user",
+      "_infer_compression <- pandas/io/common.py:_infer_compression",
+      "_is_url <- pandas/io/common.py:_is_url",
+      "_stringify_path <- pandas/io/common.py:_stringify_path",
+      "get_filepath_or_buffer <- pandas/io/common.py:get_filepath_or_buffer",
+      "is_gcs_url <- pandas/io/common.py:is_gcs_url",
+      "is_s3_url <- pandas/io/common.py:is_s3_url",
+      "urlopen <- pandas/io/common.py:urlopen"
+    ],
+    "functions": [
+      "pandas/io/common.py:_expand_user",
+      "pandas/io/common.py:_infer_compression",
+      "pandas/io/common.py:_is_url",
+      "pandas/io/common.py:_stringify_path",
+      "pandas/io/common.py:get_filepath_or_buffer",
+      "pandas/io/common.py:is_gcs_url",
+      "pandas/io/common.py:is_s3_url",
+      "pandas/io/common.py:urlopen",
+      "pandas/io/json/_json.py:JsonReader"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "FilePathOrBuffer <- pandas/_typing.py (module-level constant/alias)",
+      "is_file_like <- pandas/core/dtypes/common.py (not a project function/class)"
+    ],
+    "total": 9,
+    "verdict": "excluded",
+    "old_total": 9,
+    "old_r2": false
+  },
+  {
+    "project": "pandas",
+    "bug": "140",
+    "function": "_recast_datetimelike_result",
+    "path": "pandas/core/groupby/generic.py",
+    "current": 9,
+    "same": [],
+    "cross": [
+      "DataFrame <- pandas/core/frame.py:DataFrame",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_object_dtype <- pandas/core/dtypes/common.py:is_object_dtype",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "maybe_convert_objects <- pandas/core/dtypes/cast.py:maybe_convert_objects",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype",
+      "validate_bool_kwarg <- pandas/util/_validators.py:validate_bool_kwarg"
+    ],
+    "functions": [
+      "pandas/core/dtypes/cast.py:maybe_convert_objects",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:is_object_dtype",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/util/_validators.py:validate_bool_kwarg"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/frame.py:DataFrame",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "is_bool <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 13,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "145",
+    "function": "dispatch_to_series",
+    "path": "pandas/core/ops/__init__.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "classes": [],
+    "initializers": [
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ABCDataFrame <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCSeries <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)"
+    ],
+    "total": 1,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "150",
+    "function": "array_equivalent",
+    "path": "pandas/core/dtypes/missing.py",
+    "current": 20,
+    "same": [
+      "isna"
+    ],
+    "cross": [
+      "DatetimeTZDtype <- pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "PeriodDtype <- pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_is_dtype <- pandas/core/dtypes/common.py:_is_dtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "classes_and_not_datetimelike <- pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "is_complex_dtype <- pandas/core/dtypes/common.py:is_complex_dtype",
+      "is_datetime64tz_dtype <- pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "is_datetime_or_timedelta_dtype <- pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "is_datetimelike_v_numeric <- pandas/core/dtypes/common.py:is_datetimelike_v_numeric",
+      "is_dtype_equal <- pandas/core/dtypes/common.py:is_dtype_equal",
+      "is_float_dtype <- pandas/core/dtypes/common.py:is_float_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "is_integer_dtype <- pandas/core/dtypes/common.py:is_integer_dtype",
+      "is_period_dtype <- pandas/core/dtypes/common.py:is_period_dtype",
+      "is_string_dtype <- pandas/core/dtypes/common.py:is_string_dtype",
+      "needs_i8_conversion <- pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:is_complex_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "pandas/core/dtypes/common.py:is_datetimelike_v_numeric",
+      "pandas/core/dtypes/common.py:is_dtype_equal",
+      "pandas/core/dtypes/common.py:is_float_dtype",
+      "pandas/core/dtypes/common.py:is_integer_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_string_dtype",
+      "pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "NaT <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "ensure_object <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "lib <- pandas/_libs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)"
+    ],
+    "total": 24,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "160",
+    "function": "_can_use_numexpr",
+    "path": "pandas/core/computation/expressions.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "162",
+    "function": "_normalize",
+    "path": "pandas/core/reshape/pivot.py",
+    "current": 2,
+    "same": [],
+    "cross": [
+      "_Concatenator <- pandas/core/reshape/concat.py:_Concatenator",
+      "concat <- pandas/core/reshape/concat.py:concat"
+    ],
+    "functions": [
+      "pandas/core/reshape/concat.py:concat"
+    ],
+    "classes": [
+      "pandas/core/reshape/concat.py:_Concatenator"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "164",
+    "function": "_convert_listlike_datetimes",
+    "path": "pandas/core/tools/datetimes.py",
+    "current": 15,
+    "same": [
+      "_attempt_YYYYMMDD",
+      "_box_as_indexlike",
+      "_guess_datetime_format_for_array",
+      "_return_parsed_timezone_results"
+    ],
+    "cross": [
+      "DatetimeTZDtype <- pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "_get_dtype <- pandas/core/dtypes/common.py:_get_dtype",
+      "_is_dtype_type <- pandas/core/dtypes/common.py:_is_dtype_type",
+      "classes <- pandas/core/dtypes/common.py:classes",
+      "is_datetime64_dtype <- pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "is_datetime64_ns_dtype <- pandas/core/dtypes/common.py:is_datetime64_ns_dtype",
+      "is_datetime64tz_dtype <- pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "is_hashable <- pandas/core/dtypes/inference.py:is_hashable",
+      "isna <- pandas/core/dtypes/missing.py:isna",
+      "notna <- pandas/core/dtypes/missing.py:notna",
+      "pandas_dtype <- pandas/core/dtypes/common.py:pandas_dtype"
+    ],
+    "functions": [
+      "pandas/core/algorithms.py:_ensure_data",
+      "pandas/core/algorithms.py:isin",
+      "pandas/core/dtypes/cast.py:construct_1d_object_array_from_listlike",
+      "pandas/core/dtypes/common.py:_get_dtype",
+      "pandas/core/dtypes/common.py:_is_dtype_type",
+      "pandas/core/dtypes/common.py:classes",
+      "pandas/core/dtypes/common.py:classes_and_not_datetimelike",
+      "pandas/core/dtypes/common.py:is_bool_dtype",
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/dtypes/common.py:is_complex_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_any_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64_ns_dtype",
+      "pandas/core/dtypes/common.py:is_datetime64tz_dtype",
+      "pandas/core/dtypes/common.py:is_datetime_or_timedelta_dtype",
+      "pandas/core/dtypes/common.py:is_extension_array_dtype",
+      "pandas/core/dtypes/common.py:is_float_dtype",
+      "pandas/core/dtypes/common.py:is_integer_dtype",
+      "pandas/core/dtypes/common.py:is_object_dtype",
+      "pandas/core/dtypes/common.py:is_period_dtype",
+      "pandas/core/dtypes/common.py:is_signed_integer_dtype",
+      "pandas/core/dtypes/common.py:is_timedelta64_dtype",
+      "pandas/core/dtypes/common.py:is_unsigned_integer_dtype",
+      "pandas/core/dtypes/common.py:needs_i8_conversion",
+      "pandas/core/dtypes/common.py:pandas_dtype",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type",
+      "pandas/core/dtypes/inference.py:is_hashable",
+      "pandas/core/dtypes/missing.py:isna",
+      "pandas/core/dtypes/missing.py:notna",
+      "pandas/core/tools/datetimes.py:_attempt_YYYYMMDD",
+      "pandas/core/tools/datetimes.py:_box_as_indexlike",
+      "pandas/core/tools/datetimes.py:_guess_datetime_format_for_array",
+      "pandas/core/tools/datetimes.py:_return_parsed_timezone_results"
+    ],
+    "classes": [
+      "pandas/core/dtypes/base.py:ExtensionDtype",
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/dtypes/dtypes.py:DatetimeTZDtype",
+      "pandas/core/dtypes/dtypes.py:PeriodDtype",
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/errors/__init__.py:AbstractMethodError"
+    ],
+    "initializers": [
+      "pandas/core/dtypes/dtypes.py:Registry",
+      "pandas/core/dtypes/generic.py:create_pandas_abc_type"
+    ],
+    "namedtuples": [],
+    "namespaces": [
+      "pandas/_libs/tslibs/__init__.py",
+      "pandas/core/algorithms.py",
+      "pandas/core/common.py"
+    ],
+    "not_counted": [
+      "ABCDatetimeIndex <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ABCIndex <- pandas/core/dtypes/generic.py (module-level constant/alias)",
+      "ArrayLike <- pandas/_typing.py (module-level constant/alias)",
+      "ExtensionDtype <- pandas/core/dtypes/dtypes.py (not a project function/class)",
+      "Timestamp <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "algorithms <- pandas/core/__init__.py (not a project function/class)",
+      "conversion <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "ensure_object <- pandas/core/dtypes/common.py (module-level constant/alias)",
+      "is_list_like <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/inference.py (module-level constant/alias)",
+      "parsing <- pandas/_libs/tslibs/__init__.py (not a project function/class)",
+      "registry <- pandas/core/dtypes/dtypes.py (module-level constant/alias)",
+      "tslib <- pandas/_libs/__init__.py (not a project function/class)",
+      "tslibs <- pandas/_libs/__init__.py (not a project function/class)"
+    ],
+    "total": 42,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "pandas",
+    "bug": "168",
+    "function": "_get_grouper",
+    "path": "pandas/core/groupby/grouper.py",
+    "current": 8,
+    "same": [
+      "Grouper",
+      "Grouping",
+      "_is_label_like"
+    ],
+    "cross": [
+      "BaseGrouper <- pandas/core/groupby/ops.py:BaseGrouper",
+      "CategoricalDtype <- pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "DataFrame <- pandas/core/frame.py:DataFrame",
+      "Series <- pandas/core/series.py:Series",
+      "is_categorical_dtype <- pandas/core/dtypes/common.py:is_categorical_dtype"
+    ],
+    "functions": [
+      "pandas/core/dtypes/common.py:is_categorical_dtype",
+      "pandas/core/groupby/grouper.py:Grouper",
+      "pandas/core/groupby/grouper.py:Grouping",
+      "pandas/core/groupby/grouper.py:_is_label_like"
+    ],
+    "classes": [
+      "pandas/core/dtypes/dtypes.py:CategoricalDtype",
+      "pandas/core/frame.py:DataFrame",
+      "pandas/core/groupby/ops.py:BaseGrouper",
+      "pandas/core/series.py:Series"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "Index <- pandas/core/index.py (not a project function/class)",
+      "MultiIndex <- pandas/core/index.py (not a project function/class)",
+      "com <- pandas/core/common.py (not a project function/class)",
+      "is_hashable <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_list_like <- pandas/core/dtypes/common.py (not a project function/class)",
+      "is_scalar <- pandas/core/dtypes/common.py (not a project function/class)"
+    ],
+    "total": 8,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "PySnooper",
+    "bug": "3",
+    "function": "get_write_function",
+    "path": "pysnooper/pysnooper.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [
+      "pysnooper/utils.py:WritableStream"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "pysnooper/pycompat.py",
+      "pysnooper/utils.py"
+    ],
+    "not_counted": [
+      "pycompat <- pysnooper/__init__.py (not a project function/class)",
+      "utils <- pysnooper/__init__.py (not a project function/class)"
+    ],
+    "total": 3,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "scrapy",
+    "bug": "11",
+    "function": "gunzip",
+    "path": "scrapy/utils/gz.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "scrapy",
+    "bug": "15",
+    "function": "_safe_ParseResult",
+    "path": "scrapy/utils/url.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "to_bytes <- scrapy/utils/python.py:to_bytes",
+      "to_native_str <- scrapy/utils/python.py:to_native_str",
+      "to_unicode <- scrapy/utils/python.py:to_unicode"
+    ],
+    "functions": [
+      "scrapy/utils/python.py:to_bytes",
+      "scrapy/utils/python.py:to_native_str",
+      "scrapy/utils/python.py:to_unicode"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass",
+    "old_total": 3,
+    "old_r2": true
+  },
+  {
+    "project": "scrapy",
+    "bug": "17",
+    "function": "response_status_message",
+    "path": "scrapy/utils/response.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "to_bytes <- scrapy/utils/python.py:to_bytes",
+      "to_native_str <- scrapy/utils/python.py:to_native_str",
+      "to_unicode <- scrapy/utils/python.py:to_unicode"
+    ],
+    "functions": [
+      "scrapy/utils/python.py:to_bytes",
+      "scrapy/utils/python.py:to_native_str",
+      "scrapy/utils/python.py:to_unicode"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass",
+    "old_total": 3,
+    "old_r2": true
+  },
+  {
+    "project": "scrapy",
+    "bug": "29",
+    "function": "request_httprepr",
+    "path": "scrapy/utils/request.py",
+    "current": 2,
+    "same": [],
+    "cross": [
+      "to_bytes <- scrapy/utils/python.py:to_bytes",
+      "urlparse_cached <- scrapy/utils/httpobj.py:urlparse_cached"
+    ],
+    "functions": [
+      "scrapy/utils/httpobj.py:urlparse_cached",
+      "scrapy/utils/python.py:to_bytes"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "scrapy",
+    "bug": "35",
+    "function": "_get_spider_loader",
+    "path": "scrapy/crawler.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "ISpiderLoader <- scrapy/interfaces.py:ISpiderLoader",
+      "ScrapyDeprecationWarning <- scrapy/exceptions.py:ScrapyDeprecationWarning",
+      "load_object <- scrapy/utils/misc.py:load_object"
+    ],
+    "functions": [
+      "scrapy/utils/misc.py:load_object"
+    ],
+    "classes": [
+      "scrapy/exceptions.py:ScrapyDeprecationWarning",
+      "scrapy/interfaces.py:ISpiderLoader"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass",
+    "old_total": 3,
+    "old_r2": true
+  },
+  {
+    "project": "scrapy",
+    "bug": "36",
+    "function": "create_instance",
+    "path": "scrapy/utils/misc.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "scrapy",
+    "bug": "38",
+    "function": "_get_clickable",
+    "path": "scrapy/http/request/form.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "spacy",
+    "bug": "1",
+    "function": "add_codes",
+    "path": "spacy/errors.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "spacy",
+    "bug": "2",
+    "function": "load_model_from_path",
+    "path": "spacy/util.py",
+    "current": 6,
+    "same": [
+      "ensure_path",
+      "get_lang_class",
+      "get_model_meta",
+      "registry",
+      "set_lang_class"
+    ],
+    "cross": [
+      "Errors <- spacy/errors.py:Errors"
+    ],
+    "functions": [
+      "spacy/util.py:ensure_path",
+      "spacy/util.py:get_lang_class",
+      "spacy/util.py:get_model_meta",
+      "spacy/util.py:registry",
+      "spacy/util.py:set_lang_class"
+    ],
+    "classes": [
+      "spacy/errors.py:Errors"
+    ],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "basestring_ <- spacy/compat.py (not a project function/class)",
+      "path2str <- spacy/compat.py (not a project function/class)"
+    ],
+    "total": 6,
+    "verdict": "excluded",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "spacy",
+    "bug": "4",
+    "function": "read_conllx",
+    "path": "spacy/cli/converters/conllu2json.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": null,
+    "old_r2": null
+  },
+  {
+    "project": "thefuck",
+    "bug": "1",
+    "function": "get_new_command",
+    "path": "thefuck/rules/pip_unknown_command.py",
+    "current": 1,
+    "same": [],
+    "cross": [
+      "replace_argument <- thefuck/utils.py:replace_argument"
+    ],
+    "functions": [
+      "thefuck/utils.py:replace_argument"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 1,
+    "verdict": "pass",
+    "old_total": 1,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "2",
+    "function": "get_all_executables",
+    "path": "thefuck/utils.py",
+    "current": 2,
+    "same": [
+      "get_alias",
+      "memoize"
+    ],
+    "cross": [],
+    "functions": [
+      "thefuck/utils.py:get_alias",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "Path <- thefuck/system/__init__.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "4",
+    "function": "_get_aliases",
+    "path": "thefuck/shells/fish.py",
+    "current": 2,
+    "same": [],
+    "cross": [
+      "cache <- thefuck/utils.py:cache",
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/logs.py:color",
+      "thefuck/logs.py:warn",
+      "thefuck/utils.py:cache",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [
+      "thefuck/utils.py:Cache"
+    ],
+    "initializers": [
+      "thefuck/utils.py:Cache"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "DEVNULL <- thefuck/utils.py (module-level constant/alias)"
+    ],
+    "total": 5,
+    "verdict": "excluded",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "5",
+    "function": "match",
+    "path": "thefuck/rules/git_push.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/shells/__init__.py:_get_shell_from_env",
+      "thefuck/shells/__init__.py:_get_shell_from_proc",
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [
+      "thefuck/shells/bash.py:Bash",
+      "thefuck/shells/fish.py:Fish",
+      "thefuck/shells/generic.py:Generic",
+      "thefuck/shells/powershell.py:Powershell",
+      "thefuck/shells/tcsh.py:Tcsh",
+      "thefuck/shells/zsh.py:Zsh"
+    ],
+    "initializers": [
+      "thefuck/shells/__init__.py:_get_shell_from_env",
+      "thefuck/shells/__init__.py:_get_shell_from_proc"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "shell <- thefuck/shells/__init__.py (module-level constant/alias)"
+    ],
+    "total": 11,
+    "verdict": "excluded",
+    "old_total": 3,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "9",
+    "function": "get_new_command",
+    "path": "thefuck/rules/git_push.py",
+    "current": 4,
+    "same": [],
+    "cross": [
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize",
+      "replace_argument <- thefuck/utils.py:replace_argument"
+    ],
+    "functions": [
+      "thefuck/shells/__init__.py:_get_shell",
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize",
+      "thefuck/utils.py:replace_argument"
+    ],
+    "classes": [
+      "thefuck/shells/bash.py:Bash",
+      "thefuck/shells/fish.py:Fish",
+      "thefuck/shells/generic.py:Generic",
+      "thefuck/shells/powershell.py:Powershell",
+      "thefuck/shells/tcsh.py:Tcsh",
+      "thefuck/shells/zsh.py:Zsh"
+    ],
+    "initializers": [
+      "thefuck/shells/__init__.py:_get_shell"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "shell <- thefuck/shells/__init__.py (module-level constant/alias)"
+    ],
+    "total": 11,
+    "verdict": "excluded",
+    "old_total": 4,
+    "old_r2": false
+  },
+  {
+    "project": "thefuck",
+    "bug": "10",
+    "function": "get_new_command",
+    "path": "thefuck/rules/man.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "11",
+    "function": "get_new_command",
+    "path": "thefuck/rules/git_push.py",
+    "current": 4,
+    "same": [],
+    "cross": [
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize",
+      "replace_argument <- thefuck/utils.py:replace_argument"
+    ],
+    "functions": [
+      "thefuck/shells/__init__.py:_get_shell",
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize",
+      "thefuck/utils.py:replace_argument"
+    ],
+    "classes": [
+      "thefuck/shells/bash.py:Bash",
+      "thefuck/shells/fish.py:Fish",
+      "thefuck/shells/generic.py:Generic",
+      "thefuck/shells/powershell.py:Powershell",
+      "thefuck/shells/tcsh.py:Tcsh",
+      "thefuck/shells/zsh.py:Zsh"
+    ],
+    "initializers": [
+      "thefuck/shells/__init__.py:_get_shell"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "shell <- thefuck/shells/__init__.py (module-level constant/alias)"
+    ],
+    "total": 11,
+    "verdict": "excluded",
+    "old_total": 4,
+    "old_r2": false
+  },
+  {
+    "project": "thefuck",
+    "bug": "15",
+    "function": "match",
+    "path": "thefuck/rules/git_add.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/shells/__init__.py:_get_shell",
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [
+      "thefuck/shells/bash.py:Bash",
+      "thefuck/shells/fish.py:Fish",
+      "thefuck/shells/generic.py:Generic",
+      "thefuck/shells/powershell.py:Powershell",
+      "thefuck/shells/tcsh.py:Tcsh",
+      "thefuck/shells/zsh.py:Zsh"
+    ],
+    "initializers": [
+      "thefuck/shells/__init__.py:_get_shell"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "shell <- thefuck/shells/__init__.py (module-level constant/alias)"
+    ],
+    "total": 10,
+    "verdict": "excluded",
+    "old_total": 3,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "18",
+    "function": "match",
+    "path": "thefuck/rules/sudo.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "19",
+    "function": "get_new_command",
+    "path": "thefuck/rules/git_push_force.py",
+    "current": 7,
+    "same": [],
+    "cross": [
+      "_get_shell <- thefuck/shells.py:_get_shell",
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize",
+      "quote <- thefuck/shells.py:quote",
+      "replace_argument <- thefuck/utils.py:replace_argument",
+      "split_command <- thefuck/shells.py:split_command"
+    ],
+    "functions": [
+      "thefuck/shells.py:_get_shell",
+      "thefuck/shells.py:quote",
+      "thefuck/shells.py:split_command",
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:cache",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize",
+      "thefuck/utils.py:replace_argument"
+    ],
+    "classes": [
+      "thefuck/shells.py:Bash",
+      "thefuck/shells.py:Fish",
+      "thefuck/shells.py:Generic",
+      "thefuck/shells.py:Tcsh",
+      "thefuck/shells.py:Zsh"
+    ],
+    "initializers": [
+      "thefuck/shells.py:Bash",
+      "thefuck/shells.py:Fish",
+      "thefuck/shells.py:Generic",
+      "thefuck/shells.py:Tcsh",
+      "thefuck/shells.py:Zsh"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 13,
+    "verdict": "excluded",
+    "old_total": 7,
+    "old_r2": false
+  },
+  {
+    "project": "thefuck",
+    "bug": "21",
+    "function": "match",
+    "path": "thefuck/rules/git_fix_stash.py",
+    "current": 3,
+    "same": [],
+    "cross": [
+      "git_support <- thefuck/specific/git.py:git_support",
+      "is_app <- thefuck/utils.py:is_app",
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/specific/git.py:git_support",
+      "thefuck/utils.py:is_app",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "quote <- thefuck/utils.py (not a project function/class)"
+    ],
+    "total": 3,
+    "verdict": "pass",
+    "old_total": 3,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "25",
+    "function": "get_new_command",
+    "path": "thefuck/rules/mkdir_p.py",
+    "current": 1,
+    "same": [],
+    "cross": [
+      "sudo_support <- thefuck/utils.py:sudo_support"
+    ],
+    "functions": [
+      "thefuck/utils.py:sudo_support"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [
+      "thefuck/types.py:Command"
+    ],
+    "namespaces": [],
+    "not_counted": [
+      "Command <- thefuck/types.py (module-level constant/alias)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 1,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "26",
+    "function": "get_new_command",
+    "path": "thefuck/rules/vagrant_up.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "thefuck/shells.py:_get_shell",
+      "thefuck/shells.py:and_",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [
+      "thefuck/shells.py"
+    ],
+    "not_counted": [
+      "shells <- thefuck/__init__.py (not a project function/class)"
+    ],
+    "total": 4,
+    "verdict": "excluded",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "27",
+    "function": "get_new_command",
+    "path": "thefuck/rules/open.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "30",
+    "function": "match",
+    "path": "thefuck/rules/fix_file.py",
+    "current": 2,
+    "same": [
+      "_search"
+    ],
+    "cross": [
+      "memoize <- thefuck/utils.py:memoize"
+    ],
+    "functions": [
+      "thefuck/rules/fix_file.py:_make_pattern",
+      "thefuck/rules/fix_file.py:_search",
+      "thefuck/utils.py:memoize"
+    ],
+    "classes": [],
+    "initializers": [
+      "thefuck/rules/fix_file.py:_make_pattern"
+    ],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 3,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "31",
+    "function": "get_new_command",
+    "path": "thefuck/rules/git_diff_staged.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [
+      "thefuck/utils.py:git_support"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [
+      "thefuck/types.py:Command"
+    ],
+    "namespaces": [
+      "thefuck/utils.py"
+    ],
+    "not_counted": [
+      "utils <- thefuck/__init__.py (not a project function/class)"
+    ],
+    "total": 3,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "thefuck",
+    "bug": "32",
+    "function": "match",
+    "path": "thefuck/rules/ls_lah.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "tornado",
+    "bug": "9",
+    "function": "url_concat",
+    "path": "tornado/httputil.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "tqdm",
+    "bug": "1",
+    "function": "tenumerate",
+    "path": "tqdm/contrib/__init__.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "tqdm_auto <- tqdm/auto.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "1",
+    "function": "_match_one",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "lookup_unit_table",
+      "parse_filesize"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:lookup_unit_table",
+      "youtube_dl/utils.py:parse_filesize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "3",
+    "function": "unescapeHTML",
+    "path": "youtube_dl/utils.py",
+    "current": 1,
+    "same": [
+      "_htmlentity_transform"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:_htmlentity_transform"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_chr <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities_html5 <- youtube_dl/compat.py (not a project function/class)",
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 1,
+    "verdict": "pass",
+    "old_total": 1,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "5",
+    "function": "unified_timestamp",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "date_formats",
+      "extract_timezone"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:date_formats",
+      "youtube_dl/utils.py:extract_timezone"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "7",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "10",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "11",
+    "function": "str_to_int",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "13",
+    "function": "urljoin",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)",
+      "compat_urlparse <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "15",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "17",
+    "function": "cli_bool_option",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "20",
+    "function": "get_elements_by_attribute",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "_htmlentity_transform",
+      "unescapeHTML"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:_htmlentity_transform",
+      "youtube_dl/utils.py:unescapeHTML"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_chr <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities_html5 <- youtube_dl/compat.py (not a project function/class)",
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "21",
+    "function": "urljoin",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)",
+      "compat_urlparse <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "22",
+    "function": "_match_one",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "lookup_unit_table",
+      "parse_filesize"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:lookup_unit_table",
+      "youtube_dl/utils.py:parse_filesize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "23",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "24",
+    "function": "_match_one",
+    "path": "youtube_dl/utils.py",
+    "current": 2,
+    "same": [
+      "lookup_unit_table",
+      "parse_filesize"
+    ],
+    "cross": [],
+    "functions": [
+      "youtube_dl/utils.py:lookup_unit_table",
+      "youtube_dl/utils.py:parse_filesize"
+    ],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 2,
+    "verdict": "pass",
+    "old_total": 2,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "25",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "26",
+    "function": "js_to_json",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "27",
+    "function": "parse_dfxp_time_expr",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "28",
+    "function": "_htmlentity_transform",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_chr <- youtube_dl/compat.py (not a project function/class)",
+      "compat_html_entities <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "29",
+    "function": "unified_strdate",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [
+      "compat_str <- youtube_dl/compat.py (not a project function/class)"
+    ],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "41",
+    "function": "unified_strdate",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  },
+  {
+    "project": "youtube-dl",
+    "bug": "43",
+    "function": "url_basename",
+    "path": "youtube_dl/utils.py",
+    "current": 0,
+    "same": [],
+    "cross": [],
+    "functions": [],
+    "classes": [],
+    "initializers": [],
+    "namedtuples": [],
+    "namespaces": [],
+    "not_counted": [],
+    "total": 0,
+    "verdict": "pass",
+    "old_total": 0,
+    "old_r2": true
+  }
+]
